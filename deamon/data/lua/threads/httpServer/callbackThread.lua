@@ -160,7 +160,7 @@ else
 		local suc, responseString = false, "[Formatter returned no error value]"
 
 		if type(responseFormatter) == "function" then
-			suc, responseString = xpcall(responseFormatter, debug.traceback, responseData, requestData.headers)
+			suc, responseString = xpcall(responseFormatter, debug.traceback, responseData, requestData.headers, requestData)
 		end
 
 		if suc ~= true then

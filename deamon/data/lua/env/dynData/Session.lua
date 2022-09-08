@@ -70,6 +70,10 @@ function Session:getSessionID()
     return self.sessionData.sessionID
 end
 
+function Session:getUserID()
+    return tonumber(self.sessionData.userID)
+end
+
 function Session:renew(expireTime)
     local suc
 

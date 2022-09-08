@@ -1,4 +1,4 @@
-local responseData, headers = ...
+local responseData, headers, requestData = ...
 
 debug.setFuncPrefix("[HTML_RESPONSE_FORMATTER]", true)
 
@@ -9,7 +9,12 @@ if responseData.success then
     responseData.returnValue.headers = headers
     if responseData.returnValue.html then
         if responseData.returnValue.html.forwardInternal then
+            responseData.returnValue.meta = requestData.meta
             _, responseString = env.dyn.execSite(responseData.returnValue.html.forwardInternal, responseData.returnValue)
+        elseif responseData.returnValue.html.forward then
+                local body = env.dyn.html.Body.new()
+                body:goTo(responseData.returnValue.html.forward)
+                responseString = body:generateCode()
         elseif responseData.returnValue.html.body then
             responseString = responseData.returnValue.html.body
         end
@@ -30,7 +35,7 @@ end
 if type(responseString) ~= "string" then
     debug.err("Could not create response string.\nresponseData:\n" .. env.lib.ut.tostring(responseData))
     responseData.returnValue.headers = nil
-    responseString = "Can not create propper response. Please contact an admin.\nfull return table:\n" .. env.lib.ut.tostring(responseData.returnValue)
+    responseString = "Can not create propper response. Maybe this function is not supposed to be used in a browser. Please contact an admin.\nfull return table:\n" .. env.lib.ut.tostring(responseData.returnValue)
 end
 
 return responseString

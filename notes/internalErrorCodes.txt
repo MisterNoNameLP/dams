@@ -18,6 +18,8 @@
 -101: username already taken.
 -102: mail address already taken.
 
+-111: password are not matching.
+
 # internal user class
 -201: no valid userID given.
 -202: user not found by userID.

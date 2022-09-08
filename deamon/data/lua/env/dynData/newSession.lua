@@ -1,4 +1,13 @@
-return function(userData)
+return function(user, expireDate)
+	local session
+
+	if type(user) ~= "table" then
+		error("No valid user given", 2)
+	end
+
+	return env.dyn.Session.create(user, expireDate)
+
+	--[[
 	local sessionID = env.ut.randomString(32)
 	local user
 	
@@ -11,4 +20,5 @@ return function(userData)
 	env.shared.openSessions[sessionID] = user:getData()
 	
 	return sessionID
+	]]
 end

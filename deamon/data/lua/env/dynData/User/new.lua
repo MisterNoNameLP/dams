@@ -15,7 +15,7 @@ return function(udata)
 	if type(udata) == "number" then --if data is the userID.
 		udata, code, msg = self.getData({id = udata})
 		if udata == false then
-			return udata, code, msg
+			return false, code, msg
 		end
 	elseif type(udata) ~= "table" then --if data is neither data table or userID.
 		return false, "No valid data given"

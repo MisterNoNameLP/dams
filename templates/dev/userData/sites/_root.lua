@@ -4,8 +4,9 @@ local body = env.dyn.html.Body.new()
 
 body:addHeader(2, "DAMS dev main page")
 
-
 body:addRefButton("login", "/login")
+body:addP("")
+body:addRefButton("signup", "/signup")
 body:addP("")
 body:addRefButton("test", "/test")
 body:addP("")
