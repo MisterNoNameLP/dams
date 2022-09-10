@@ -130,7 +130,7 @@ end
 
 function Body:goTo(link, delay)
     local html = [[
-<meta http-equiv="Refresh" content="]]..tostring(delay or 0)..[[; url=']]..link..[['" />
+<meta http-equiv="refresh" content="]]..tostring(delay or 0)..[[; url=']]..link..[['" />
 ]]
     table.insert(self.content, html)
     return html

@@ -1,11 +1,11 @@
-return function(user, expireDate)
+return function(user, expireDate, name, note, requestData)
 	local session
 
 	if type(user) ~= "table" then
 		error("No valid user given", 2)
 	end
 
-	return env.dyn.Session.create(user, expireDate)
+	return env.dyn.Session.create(user, expireDate, name, note, requestData)
 
 	--[[
 	local sessionID = env.ut.randomString(32)

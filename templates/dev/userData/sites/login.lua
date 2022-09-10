@@ -8,4 +8,7 @@ body:addAction("", "POST", {
     {"button", type = "supmit", value = "Login"},
 })
 
+body:addP("")
+body:addRefButton("Sign up", "signup")
+
 return body:generateCode()

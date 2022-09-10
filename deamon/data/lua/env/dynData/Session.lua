@@ -45,18 +45,23 @@ function Session.new(sessionLogin)
     return self
 end
 
-function Session.create(user, expireTime) --expireTime in seconds ongoing from 1970 00:00:00 UTC (os.time(...) in unix systems) or a time table.
+function Session.create(user, expireTime, name, note, requestData) --expireTime in seconds ongoing from 1970 00:00:00 UTC (os.time(...) in unix systems) or a time table.
     local token = env.lib.ut.randomString(32)
     local sessionID = env.lib.ut.randomString(32)
+    local userAgent = env.dyn.getHeader(requestData, "user-agent")
     local suc
+
 
     if type(expireTime) == "table" then
         expireTime = os.time(expireTime)
     end
+    if userAgent == nil then
+        userAgent = "UNKNOWN"
+    end
     
     --print([[INSERT INTO sessions VALUES ("]] .. sessionID .. [[", "]] .. env.hashPasswd(token) .. [[", ]] .. expireTime ..[[, ]] .. tostring(user:getID()) .. [[)]])
 
-    suc = env.loginDB:exec([[INSERT INTO sessions VALUES ("]] .. sessionID .. [[", "]] .. env.hashPasswd(token) .. [[", ]] .. expireTime ..[[, ]] .. tostring(user:getID()) .. [[)]])
+    suc = env.loginDB:exec([[INSERT INTO sessions VALUES ("]] .. sessionID .. [[", "]] .. env.hashPasswd(token) .. [[", ]] .. os.time() ..[[, ]] .. expireTime .. [[, ]] .. tostring(user:getID()) .. [[, "]] .. tostring(name) .. [[", "]] .. tostring(note) .. [[", "]] .. userAgent .. [[", 1)]])
 
     if suc ~= 0 then
         return false, suc

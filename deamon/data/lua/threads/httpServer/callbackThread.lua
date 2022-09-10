@@ -39,7 +39,7 @@ local function executeUserOrder(request)
 		debug.setLogPrefix(logPrefix)
 	else
 		warn("Recieved unknown user action request: " .. tostring(requestedAction))
-		responseData.error = "Invalid user action: " .. err 
+		responseData.error = "Invalid user action: " .. tostring(err)
 	end
 end
 

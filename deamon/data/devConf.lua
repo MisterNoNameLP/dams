@@ -11,7 +11,7 @@ local devConf = {
 	devMode = true,
 
 	dateFormat = "%X",
-	--dateFormat = "%Y-%m-%d-%H-%M-%S",
+	--dateFormat = "%Y/%m/%d/ %H:%M:%S",
 
 	http = {
 		certPath = "cert/cert.pem",
