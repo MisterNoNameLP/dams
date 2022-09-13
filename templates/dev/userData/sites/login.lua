@@ -1,6 +1,17 @@
 local body = env.dyn.html.Body.new()
 
-body:addHeader(3, "Login")
+body:addRaw([[
+<style>
+    div {
+        margin: 5px 0;
+        text-align: center;
+    }
+</style>
+]])
+
+
+body:addRaw([[<div>]])
+body:addHeader(1, "Login")
 body:addAction("", "POST", {
     {"hidden", target = "action", value = "login"},
     {"input", target = "username", name = "Username:", value = ""},
@@ -10,5 +21,6 @@ body:addAction("", "POST", {
 
 body:addP("")
 body:addRefButton("Sign up", "signup")
+body:addRaw([[</div>]])
 
 return body:generateCode()

@@ -8,8 +8,24 @@ local body = env.dyn.html.Body.new()
 
 if request.tokenAction == "delete" then
     local suc
+    local expireDate = os.date("*t")
 
-    suc = env.loginDB:exec([[DELETE FROM sessions WHERE sessionID = "]] .. request.sessionID .. [["]])
+    expireDate.day = expireDate.day + 7 --ToDo: add expire date setting.
+
+
+    suc = env.loginDB:exec([[UPDATE sessions SET status = 1 WHERE sessionID = "]] .. request.sessionID .. [["]])
+    suc = env.loginDB:exec([[UPDATE sessions SET deletionTime = ]] .. os.time(expireDate) .. [[ WHERE sessionID = "]] .. request.sessionID .. [["]])
+
+    if suc ~= 0 then
+        responseTable.html.body = "Something went wrong. Please contact an admin.\nError: " .. tostring(suc)
+    else
+        body:goTo(" ", 0)
+    end
+elseif request.tokenAction == "restore" then
+    local suc
+
+    suc = env.loginDB:exec([[UPDATE sessions SET status = 0 WHERE sessionID = "]] .. request.sessionID .. [["]])
+    suc = env.loginDB:exec([[UPDATE sessions SET deletionTime = -1 WHERE sessionID = "]] .. request.sessionID .. [["]])
 
     if suc ~= 0 then
         responseTable.html.body = "Something went wrong. Please contact an admin.\nError: " .. tostring(suc)

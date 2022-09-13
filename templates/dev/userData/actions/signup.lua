@@ -1,24 +1,26 @@
 local user, err, msg
-local returnTable = {html = {}}
+
+response.error.headline = "Signup failed"
 
 if request.password ~= request.password2 then
-	returnTable.success = false
-	returnTable.error = -111
-	returnTable.reason = "Passwords are not matching"
-	returnTable.html.forwardInternal = "signupError"
+	response.success = false
+	response.error.code = -111
+	response.error.err = "Passwords are not matching"
+	response.html.forwardInternal = "error"
 else
 	user, err = env.dyn.User.create(request.username, request.password)
 	if user ~= 0 then
-		returnTable.success = false
-		returnTable.reason = err
-		returnTable.html.forwardInternal = "signupError"
+		response.success = false
+		response.error.err = err
+		response.error.code = user
+		response.html.forwardInternal = "error"
 	else
-		returnTable.success = true
-		returnTable.html.forward = "login"
+		response.success = true
+		response.html.forward = "login"
 	end
 end
 
 log(suc, reason)
 
 
-return returnTable
+return response

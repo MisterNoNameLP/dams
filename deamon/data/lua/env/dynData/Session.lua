@@ -15,7 +15,7 @@ function Session.new(sessionLogin)
         return false, -12, "No valid session token given"
     end
 
-    errCode = env.loginDB:exec([[SELECT token, userID, expireTime FROM sessions WHERE sessionID = "]] .. sessionID .. [["]], function(_, cols, values, names)
+    errCode = env.loginDB:exec([[SELECT token, userID, expireTime FROM sessions WHERE sessionID = "]] .. sessionID .. [[" AND status == 0]], function(_, cols, values, names)
         for index, name in ipairs(names) do
             self.sessionData[name] = values[index]
         end
@@ -47,7 +47,7 @@ end
 
 function Session.create(user, expireTime, name, note, requestData) --expireTime in seconds ongoing from 1970 00:00:00 UTC (os.time(...) in unix systems) or a time table.
     local token = env.lib.ut.randomString(32)
-    local sessionID = env.lib.ut.randomString(32)
+    local sessionID = env.lib.ut.randomString(16)
     local userAgent = env.dyn.getHeader(requestData, "user-agent")
     local suc
 
@@ -61,7 +61,7 @@ function Session.create(user, expireTime, name, note, requestData) --expireTime 
     
     --print([[INSERT INTO sessions VALUES ("]] .. sessionID .. [[", "]] .. env.hashPasswd(token) .. [[", ]] .. expireTime ..[[, ]] .. tostring(user:getID()) .. [[)]])
 
-    suc = env.loginDB:exec([[INSERT INTO sessions VALUES ("]] .. sessionID .. [[", "]] .. env.hashPasswd(token) .. [[", ]] .. os.time() ..[[, ]] .. expireTime .. [[, ]] .. tostring(user:getID()) .. [[, "]] .. tostring(name) .. [[", "]] .. tostring(note) .. [[", "]] .. userAgent .. [[", 1)]])
+    suc = env.loginDB:exec([[INSERT INTO sessions VALUES ("]] .. sessionID .. [[", "]] .. env.hashPasswd(token) .. [[", ]] .. os.time() ..[[, ]] .. expireTime .. [[, ]] .. tostring(user:getID()) .. [[, "]] .. tostring(name) .. [[", "]] .. tostring(note) .. [[", "]] .. userAgent .. [[", 1, 0, -1)]])
 
     if suc ~= 0 then
         return false, suc

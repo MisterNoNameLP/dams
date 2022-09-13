@@ -1,36 +1,37 @@
 local user, err, msg = env.dyn.User.new(requestData.request.username)
-local returnTable = {html = {}}
 
 log("Logging in")
 
+response.error.headline = "Loggin in failed"
+
 if user == false then
-	returnTable.success = false
-	returnTable.error = err
-	returnTable.reason = msg
-	returnTable.html.forwardInternal = "loginError"
+	response.success = false
+	response.error.code = err
+	response.error.err = msg
+	response.html.forwardInternal = "error"
 elseif user:checkPasswd(requestData.request.password) then
 	local suc, err, loginToken = env.newSession(user, -1, "Login", "Created during a login process.", requestData)
 	
 	--log(loginToken)
 
 	if not suc then
-		returnTable.success = false
-		returnTable.error = err
-		returnTable.reason = "Unknown error. Pleas contact an admin."
-		returnTable.html.forwardInternal = "loginError"
+		response.success = false
+		response.error.err = err
+		response.error.msg = "Unknown error. Pleas contact an admin."
+		response.html.forwardInternal = "error"
 	end
 
 	cookie.new.token = loginToken
-	returnTable.success = true
-	returnTable.token = loginToken
-	returnTable.html.forward = "dashboard"
+	response.success = true
+	response.token = loginToken
+	response.html.forward = "dashboard"
 else
-	returnTable.success = false
-	returnTable.reason = "Invalid password"
-	returnTable.html.forwardInternal = "loginError"
+	response.success = false
+	response.error.err = "Invalid password"
+	response.html.forwardInternal = "error"
 end
 
 log(suc, reason)
 
 
-return returnTable
+return response

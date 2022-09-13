@@ -8,7 +8,7 @@ return function(path) --generates avtion/site functions.
         return false, "File not found: " .. tracebackPathNote 
     end
 
-    siteCode = "--[[" .. tracebackPathNote .. "]] local args = {...}; local requestData, request, header, cookie, Session = args[1], args[1].request, args[1].headers, env.cookie, env.dyn.Session; " .. siteCode
+    siteCode = "--[[" .. tracebackPathNote .. "]] local args = {...}; local requestData, request, header, cookie, Session, response, body = args[1], args[1].request, args[1].headers, env.cookie, env.dyn.Session, {html = {}, error = {}}, env.dyn.html.Body.new(); " .. siteCode
     
     return load(siteCode)
 end

@@ -38,7 +38,9 @@ dlog("Create sessions table: " .. tostring(db:exec([[
 		name TEXT NOT NULL,
 		note TEXT NOT NULL,
 		userAgent TEXT NOT NULL,
-		createdAutomatically INTEGER NOT NULL
+		createdAutomatically INTEGER NOT NULL,
+		status INTEGER NOT NULL,
+		deletionTime INTEGER NOT NULL
 	);
 ]])))
 

@@ -104,7 +104,7 @@ end
 function _internal.call(sharedTable, ...)
 	local args = {...}
 	local order = args[1]
-	local responseTable, returnValue
+	local response, returnValue
 	local bypassLock
 	local requestID = _internal.getRequestID()
 
@@ -124,12 +124,12 @@ function _internal.call(sharedTable, ...)
 		bypassLock = env.ut.parseArgs(bypassLock, _internal.bypassLock),
 	})
 
-	responseTable = responseChannel:demand()
+	response = responseChannel:demand()
 
 	if order == "get" then
-		returnValue = responseTable.value
+		returnValue = response.value
 	else
-		if responseTable.success then
+		if response.success then
 			returnValue = true
 		else
 			returnValue = false
@@ -137,7 +137,7 @@ function _internal.call(sharedTable, ...)
 	end
 
 	
-	return returnValue, responseTable.error
+	return returnValue, response.error
 end
 
 --=== set meta tables ===--

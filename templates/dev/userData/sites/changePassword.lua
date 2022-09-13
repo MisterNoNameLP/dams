@@ -5,7 +5,18 @@ end
 
 local body = env.dyn.html.Body.new()
 
-body:addHeader(3, "Change password")
+body:addRaw([[
+<style>
+    div {
+        margin: 5px 0;
+        text-align: center;
+    }
+</style>
+]])
+
+
+body:addRaw([[<div>]])
+body:addHeader(1, "Change password")
 body:addAction("", "POST", {
     {"hidden", target = "action", value = "changePassword"},
     {"input", target = "currentPassword", name = "Current password:", type = "password", value = ""},
@@ -13,5 +24,6 @@ body:addAction("", "POST", {
     {"input", target = "newPassword2", name = "Repeate password:", type = "password", value = ""},
     {"button", type = "supmit", value = "Submit"},
 })
+body:addRaw([[</div>]])
 
 return body:generateCode()
