@@ -9,7 +9,7 @@ end
 
 local body = env.dyn.html.Body.new()
 
-body:addRaw([[
+body:addHead([[
 <style>
 
     p{
@@ -57,15 +57,6 @@ body:addRaw([[
 body:addHeader(1, "Token dashboard")
 
 body:addHeader(2, "Create new token")
-body:addRaw([[
-    <form action="", method="POST">
-        <div>
-
-        </div>
-
-        <input type="hidden", name="action", value="dumpRequest">
-    </form>
-]])
 
 local function addTokenWidged(udata, cols, value, name)
     local expireDateDisplay, deletionDateDisplay = "", ""
@@ -134,6 +125,5 @@ env.loginDB:exec([[SELECT name, note, userAgent, creationTime, expireTime, sessi
     end
     return 0
 end)
-
 
 return body:generateCode()

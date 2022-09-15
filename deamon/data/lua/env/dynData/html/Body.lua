@@ -16,23 +16,28 @@ function Body.new()
         end
     end})
 
-    self.content = {
-        "<!DOCTYPE html> \n<html>",
-    }
+    self.head = {}
+    self.body = {}
 
     return self
 end
 
+function Body:addHead(text)
+    local html = "\n" .. text .. "\n"
+    table.insert(self.head, html)
+    return html
+end
+
 function Body:addToBody(text)
     if self then 
-        table.insert(self.content, text)
+        table.insert(self.body, text)
     end
     return text
 end
 
 function Body:addRaw(text)
     local html = "\n" .. text .. "\n"
-    table.insert(self.content, html)
+    table.insert(self.body, html)
     return html
 end
 
@@ -42,7 +47,7 @@ function Body:addRefButton(name, link)
     <input type="button" value="]]..name..[["/>  
 </a> 
 ]]
-    table.insert(self.content, html)
+    table.insert(self.body, html)
     return html
 end
 
@@ -60,7 +65,7 @@ function Body:addGoBackButton(requestData, name)
 <p>(Go back error. Please contact an admin.)</p>
 ]]
     end
-    table.insert(self.content, html)
+    table.insert(self.body, html)
     return html
 end
 
@@ -86,14 +91,16 @@ function Body:addAction(link, method, actions)
 </div>
 ]]
         elseif action[1] == "textarea" then
+            local value = parseArgs(action.value, "")
             actionString = actionString .. [[
+<label>]]..action.name..[[</label>
 <div>
-    <textarea for="]]..action.name..[[" name="]]..action.name..[[">]]..action.value..[[</textarea>
+    <textarea for="]]..action.target..[[" name="]]..action.target..[[">]]..value..[[</textarea>
 </div>
 ]]
         elseif action[1] == "button" or action[1] == "submit" then
             local type = parseArgs(action.type, action[1])
-            local value = parseArgs(action.value, action.name)
+            local value = parseArgs(action.value, action.name, "")
             actionString = actionString .. [[
 <div>
     <button type="]]..type..[[">]]..value..[[</button>
@@ -101,7 +108,8 @@ function Body:addAction(link, method, actions)
 ]]
         end
     end
-    table.insert(self.content, actionString)
+    actionString = actionString .. "</form>"
+    table.insert(self.body, actionString)
     return actionString
 end
 
@@ -109,21 +117,21 @@ function Body:addHeader(level, text)
     local html = [[
 <h]]..tostring(level)..[[>]]..tostring(text)..[[</h]]..tostring(level)..[[>
     ]]
-    table.insert(self.content, html)
+    table.insert(self.body, html)
 end
 
 function Body:addP(text)
     local html = [[
 <p>]]..tostring(text)..[[</p>
 ]]
-    table.insert(self.content, html)
+    table.insert(self.body, html)
     return html
 end 
 
 function Body:addLink(link, name)
     local html = [[
 <a href="]] .. link .. [[">]] .. parseArgs(name, link) .. [[</a>]]
-    table.insert(self.content, html)
+    table.insert(self.body, html)
     return html
 end
 
@@ -132,7 +140,7 @@ function Body:goTo(link, delay)
     local html = [[
 <meta http-equiv="refresh" content="]]..tostring(delay or 0)..[[; url=']]..link..[['" />
 ]]
-    table.insert(self.content, html)
+    table.insert(self.body, html)
     return html
 end
 
@@ -148,16 +156,23 @@ function Body:goBack(requestData, delay)
 <p>(Go back error. Please contact an admin.)</p>
 ]]
     end
-    table.insert(self.content, html)
+    table.insert(self.body, html)
     return html
 end
 
 function Body:generateCode()
-    local htmlCode = ""
-    for _, c in pairs(self.content) do
+    local htmlCode = "<!DOCTYPE html>\n<html>\n<head>\n"
+
+    for _, c in pairs(self.head) do
         htmlCode = htmlCode .. c
     end
-    return htmlCode .. "</html>"
+    htmlCode = htmlCode .. "\n</head>\n<body>\n"
+    for _, c in pairs(self.body) do
+        htmlCode = htmlCode .. c
+    end
+    htmlCode = htmlCode .. "\n</body>\n</html>"
+
+    return htmlCode
 end
 
 return Body
