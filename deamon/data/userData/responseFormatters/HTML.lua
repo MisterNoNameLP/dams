@@ -10,6 +10,7 @@ if responseData.success then
     if responseData.returnValue.html then
         if responseData.returnValue.html.forwardInternal then
             responseData.returnValue.meta = requestData.meta
+            responseData.returnValue.request = responseData.returnValue
             _, responseString = env.dyn.execSite(responseData.returnValue.html.forwardInternal, responseData.returnValue)
         elseif responseData.returnValue.html.forward then
                 local body = env.dyn.html.Body.new()

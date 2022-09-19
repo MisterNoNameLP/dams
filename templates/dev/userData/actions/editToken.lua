@@ -3,11 +3,12 @@ if session == false then
     response.html.body = user
     return response
 end
+session = nil
 
 do --error check
     local error = response.error
     response.html.forwardInternal = "error"
-    error.headline = "Adding token failed"
+    error.headline = "Editing token failed"
     if request.name == "" then
         error.err = "Invalid token name"
         error.code = -150
@@ -18,8 +19,17 @@ do --error check
 end
 
 if response.error.code == nil then
+    local session, err, msg = env.dyn.Session.new(request.tokenID, true)
     local expireTime
-    local suc, token
+    local suc = {}
+
+    if session == false then
+        response.html.forwardInternal = "error"
+        response.error.headline = "Editing token failed 22"
+        response.error.err = msg
+        response.error.code = err
+        return response
+    end
 
     if request.expireTimeUnit == "never" then
         expireTime = -1
@@ -29,15 +39,14 @@ if response.error.code == nil then
         expireTime = os.time(dateTable)
     end
 
-    suc, err, token = env.dyn.Session.create(user, expireTime, request.name, request.description, requestData, 0)
+    assert(session:setName(request.name))
+    assert(session:setNote(request.description))
+    assert(session:setExpireTime(expireTime))
 
-    if suc then
-        response.html.forwardInternal = "viewNewToken"
-        response.token = token
-    else
-        response.error.err = "Database error"
-        response.error.code = err
-    end
+    response.html.forwardInternal = "error"
+    response.error.headline = "Token edited successfully"
+    response.error.msg = "none"
+    response.error.code = 0
 end
 
 return response

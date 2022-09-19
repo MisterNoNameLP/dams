@@ -55,12 +55,15 @@ body:addHead([[
 ]])
 
 body:addHeader(1, "Token dashboard")
-
-body:addHeader(2, "Create new token")
+body:addRaw([[
+    <div style="display: flex;">
+        <iframe src="editToken" width="100%" height="230" style="border-style: none;"></iframe> 
+    </div>
+]])
 
 local function addTokenWidged(udata, cols, value, name)
     local expireDateDisplay, deletionDateDisplay = "", ""
-    local deleteDisplay = [[<button name="tokenAction", value="delete">Delte</button>]]
+    local deleteDisplay = [[<button name="tokenAction", value="disable">Disable</button>]]
 
     if value[5] == "-1" then
         expireDateDisplay = "Never"
@@ -69,20 +72,21 @@ local function addTokenWidged(udata, cols, value, name)
     end
 
     if value[7] == "1" then
-        deleteDisplay = [[<button name="tokenAction", value="restore">Restore</button>]]
+        deleteDisplay = [[<button name="tokenAction", value="restore">Restore</button>
+        <button name="tokenAction", value="delete">Delete</button>]]
         deletionDateDisplay = [[<b>Deletion date: </b><p>]] .. os.date("%Y/%m/%d %H:%M:%S", tonumber(value[8])) .. [[<p><br></br>]]
     end
 
     body:addRaw([[
         <form action="", method="POST">
-        <input type="hidden", name="sessionID", value="]] .. value[6] .. [["</input>
+        <input type="hidden", name="tokenID", value="]] .. value[6] .. [["</input>
         <input type="hidden", name="action", value="tokenAction">
             <div class="container">
             <div class="token">
                 <b>]] .. value[1] .. [[</b><br></br>
                 <b>Note: </b><p style="white-space: pre-wrap;">]] .. value[2] .. [[</p><br></br>
                 <b>User agent: </b><p>]] .. value[3] .. [[</p><br></br>
-                <b>Session ID: </b><p> ]] .. value[6] .. [[</p><br></br>
+                <b>Token ID: </b><p> ]] .. value[6] .. [[</p><br></br>
                 <b>Creation date: </b><p>]] .. os.date("%Y/%m/%d %H:%M:%S", tonumber(value[4])) .. [[<p><br></br>
                 <b>Expire date: </b><p>]] .. expireDateDisplay .. [[</p><br></br>
                 ]] .. deletionDateDisplay .. [[
@@ -99,7 +103,7 @@ local function addTokenWidged(udata, cols, value, name)
 end
 
 body:addHeader(2, "Manually createt auth tokens")
-env.loginDB:exec([[SELECT name, note, userAgent, creationTime, expireTime FROM sessions WHERE userID == ]] .. tostring(user:getID() .. [[ AND createdAutomatically == 0 AND status == 0]]), function(udata, cols, value, name)
+env.loginDB:exec([[SELECT name, note, userAgent, creationTime, expireTime, sessionID FROM sessions WHERE userID == ]] .. tostring(user:getID() .. [[ AND createdAutomatically == 0 AND status == 0]]), function(udata, cols, value, name)
     local suc, err = xpcall(addTokenWidged, debug.traceback, udata, cols, value, name)
     if suc ~= true then
         debug.err(err, debug.traceback())
@@ -118,7 +122,7 @@ env.loginDB:exec([[SELECT name, note, userAgent, creationTime, expireTime, sessi
 end)
 
 body:addHeader(2, "Deactivated tokens")
-env.loginDB:exec([[SELECT name, note, userAgent, creationTime, expireTime, sessionID, status, deletionTime FROM sessions WHERE userID == ]] .. tostring(user:getID() .. [[ AND createdAutomatically > 0 AND status == 1]]), function(udata, cols, value, name)
+env.loginDB:exec([[SELECT name, note, userAgent, creationTime, expireTime, sessionID, status, deletionTime FROM sessions WHERE userID == ]] .. tostring(user:getID() .. [[ AND status == 1]]), function(udata, cols, value, name)
     local suc, err = xpcall(addTokenWidged, debug.traceback, udata, cols, value, name)
     if suc ~= true then
         debug.err(err, debug.traceback())

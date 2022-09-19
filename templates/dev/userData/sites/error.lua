@@ -18,6 +18,10 @@ body:addRaw([[
         white-space: pre-line
     }
 
+    body {
+        text-align: center;
+    }
+
 </style>
 ]])
 
@@ -35,12 +39,13 @@ body:addRaw([[
     <div class="error">
         <h1>]] .. tostring(requestData.error.headline) .. [[</h1>
         <h2>]] .. tostring(requestData.error.err) .. [[</h2>
-        <p class="line-break"><b>Code: </b>]] .. tostring(requestData.error.code) .. [[</p>
         <p class="line-break"><b>Description: </b>]] .. tostring(requestData.error.msg) .. [[</p>
+        <p class="line-break"><b>Code: </b>]] .. env.ut.parseArgs(requestData.error.code, "unknown") .. [[</p>
         ]] .. traceback .. [[
 
     </div>
 ]])
 
+body:addGoBackButton(requestData, "Go back")
 
 return body:generateCode()
