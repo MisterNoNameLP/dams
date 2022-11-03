@@ -7,3 +7,7 @@ rename `/data/userdata` to `/data/api`.
 
 ### args line at the evn scripts beginning.
 #! to set custom args like "overwrite" and "no-warn" so default evs scripts dont get overwritten per default.
+
+### default vars
+replace `env` with `_E`.  
+replace `env.dyn` with `_D`.  

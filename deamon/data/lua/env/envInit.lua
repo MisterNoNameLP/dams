@@ -12,7 +12,8 @@ local _internal = {
 	threadIsActive = true,
 }
 setmetatable(env, {_internal = _internal})
-_G.env = env
+_G.env = env --obsolet in v1.x
+_G._E = env
 
 if initData.mainThread == true then --makes the print funciton logging into the logfile until the terminal is initialized. wich then replaces the global print function and takes take about the logging.
 	local orgPrint = print
@@ -64,6 +65,7 @@ env.dl.executeDir("lua/env/init", "envInit")
 dlog("Load dynamic env data")
 
 env.dyn = {}
+_G._D = env.dyn
 env.dl.load({
 	target = env.dyn, 
 	dir = "lua/env/dynData", 

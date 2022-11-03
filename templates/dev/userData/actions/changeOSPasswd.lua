@@ -2,7 +2,7 @@ local id = tostring(env.getThreadInfos().id)
 
 local returnTable = {}
 
-local suc, output = execScript("changePasswd.exp " .. id, {
+local suc, output = exec("changePasswd.exp " .. id, {
     ["DAMS_USER_" .. id] = requestData.request.username,
     ["DAMS_PASSWD_" .. id] = requestData.request.currentPasswd,
     ["DAMS_NEWPASSWD1_" .. id] = requestData.request.newPasswd1,

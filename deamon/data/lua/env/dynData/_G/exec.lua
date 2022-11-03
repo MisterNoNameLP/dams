@@ -1,3 +1,5 @@
+local len = require("utf8").len
+
 return function(cmd, envTable, secret)
     local execString = ""
     local handlerFile, output
@@ -6,8 +8,7 @@ return function(cmd, envTable, secret)
     if envTable then
         execString = execString .. env.dyn.sh.envSetup(envTable)
     end
-    execString = execString .. " " .. cmd
-    execString = execString .. "; printf \"\n$?\""
+    execString = execString .. " " .. cmd .. "; printf \"\n$?\""
 
     if secret ~= true then
         debug.exec("Execute cmd: " .. execString)
@@ -17,8 +18,10 @@ return function(cmd, envTable, secret)
     handlerFile:close()
 
     for s in string.gmatch(output, "[^\n]+") do
-        returnSignal = tonumber(s)
+        returnSignal = s
     end
 
-    return returnSignal, output
+    output = output:sub(0, -(len(returnSignal) + 3))
+
+    return tonumber(returnSignal), output
 end
