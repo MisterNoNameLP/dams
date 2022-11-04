@@ -14,10 +14,11 @@ currentWorkingDir=$(pwd)
 rsync -rthuE ./ $damsDir \
     --exclude=".git" \
     --exclude=".gitignore" \
+    --exclude=".gitignore-dams" \
     --filter=":- ${damsGitIgnore}"
 
 cd $damsDir
-mv $damsGitIgnore .gitignore
+#mv $damsGitIgnore .gitignore
 
 #  push to dams repo
 git add ./*
