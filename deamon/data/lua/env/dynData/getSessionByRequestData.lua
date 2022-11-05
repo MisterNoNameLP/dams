@@ -4,7 +4,7 @@ return function(requestData)
 
     if requestData.request and requestData.request.token then
         token = requestData.request.token
-    elseif cookie.token then
+    elseif cookie and cookie.token then
         token = cookie.token
     else
         return false, "Can't find a sesssion token."
