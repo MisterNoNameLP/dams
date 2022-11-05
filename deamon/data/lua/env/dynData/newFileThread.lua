@@ -13,8 +13,8 @@ return function(dir, name, args)
 	if type(file) == "userdata" then
 		local thread
 
-		threadID = idChannel:push(name); idChannel:pop()
-		threadCode = env.getThreadInitCode(file:read("*all"), {name = name, id = threadID, args = args})
+		threadID = idChannel:push(name); idChannel:pop() --potential BUG if 2 threads acll this line at the exact same moment.
+		threadCode = env.getThreadInitCode(file:read("*all"), {name = name, id = threadID, args = args, damsVersion = _E.damsVersion})
 		file:close()
 
 		thread = env.thread.newThread(threadCode)

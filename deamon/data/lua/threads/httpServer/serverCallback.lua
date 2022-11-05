@@ -1,7 +1,8 @@
-local http_headers = require "http.headers"
+local httpHeaders = require "http.headers"
 
 local openStreams = {}
 local _
+local damsVersion = _E.damsVersion
 
 local function callback(myserver, stream)
 	--=== create local variables ===--
@@ -45,24 +46,24 @@ local function callback(myserver, stream)
 	
 	--=== build response headers ===--
 	ldlog("Building headers")
-	local res_headers = http_headers.new()
+	local respondHeaders = httpHeaders.new()
 	if not callbackData.headers[":status"] then
-		res_headers:append(":status", "200")
+		respondHeaders:append(":status", "200")
 	end
-	--res_headers:append("content-type", "lua table")
+	respondHeaders:append("dams-version", damsVersion)
+	--respondHeaders:append("content-type", "lua table")
 	for i, c in pairs(callbackData.headers) do
 		if type(c) == "string" or type(c) == "number" then
-			res_headers:append(i, tostring(c))
+			respondHeaders:append(i, tostring(c))
 		end
 	end
-
 	if callbackData.cookies then
 		for name, value in pairs(callbackData.cookies) do
-			res_headers:append("set-cookie", tostring(name) .. "=" .. tostring(value))
+			respondHeaders:append("set-cookie", tostring(name) .. "=" .. tostring(value))
 		end
 	end
 
-	stream:write_headers(res_headers, false)
+	stream:write_headers(respondHeaders, false)
 	
 	--=== send data ===--
 	ldlog("Sending data")

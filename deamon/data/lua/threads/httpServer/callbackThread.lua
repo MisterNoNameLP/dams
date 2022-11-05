@@ -88,6 +88,11 @@ if requestData.headers[":method"].value == "GET" then
 	debug.setLogPrefix("[SITE]")
 	
 	_, responseDataString, responseHeaders = env.dyn.execSite(requestedSite, requestData)
+
+	if type(responseHeaders) ~= "table" then
+		responseHeaders = {}
+	end
+
 	debug.setLogPrefix(logPrefix)
 else
 	do --formatting user request
@@ -145,6 +150,10 @@ else
 			responseData.error = "User script crash"
 			responseData.scriptError = tostring(err)
 		end
+
+		if type(responseHeaders) ~= "table" then
+			responseHeaders = {}
+		end
 	end
 
 	do --debug
@@ -170,16 +179,15 @@ Formatter error: ]] .. tostring(responseString) .. [[
 Falling back to human readable lua-table.
 			]] .. "\n"
 
+			responseHeaders["content-type"] = "text/html"
+
 			newResponseString = newResponseString .. env.lib.ut.tostring(responseData)
 			responseDataString = newResponseString
 		else
 			responseDataString = responseString
+			responseHeaders["content-type"] = responseFormatterName
 		end
 	end
-end
-
-if type(responseHeaders) ~= "table" then
-	responseHeaders = {}
 end
 
 callbackStream:push({headers = responseHeaders, data = responseDataString, cookies = env.cookie.new})

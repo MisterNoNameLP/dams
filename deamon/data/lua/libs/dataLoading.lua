@@ -60,10 +60,14 @@ local function loadDir(target, dir, logFuncs, overwrite, subDirs, structured, pr
 					if fileCode == nil then
 						suc, err = nil, fileErr
 					else
-						local cutPoint = select(2, string.find(tracebackPathNote, "env"))
-						local cutPoint = select(2, string.find(tracebackPathNote, "userData"))
+						local cutPoint
+						cutPoint = select(2, string.find(tracebackPathNote, "/env/"))
+						if not cutPoint then
+							cutPoint = select(2, string.find(tracebackPathNote, "/userData/"))
+						end
+						
 						if cutPoint then
-							tracebackPathNote = string.sub(tracebackPathNote, cutPoint + 2)
+							tracebackPathNote = string.sub(tracebackPathNote, cutPoint + 1)
 						end
 
 						suc, err = loadstring("--[[" .. tracebackPathNote .. "]] " .. defaultFileCode .. fileCode)

@@ -5,6 +5,7 @@ local env = {
 	--threadName = initData.name,
 	mainThread = initData.mainThread,
 	initData = initData,
+	damsVersion = initData.damsVersion,
 }
 local _internal = {
 	threadID = initData.id,

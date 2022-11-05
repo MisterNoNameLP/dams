@@ -5,7 +5,7 @@ if env.devConf.onReload.core then
 
 	_G.loadfile = env.org.loadfile
 
-	local _, newEnv, newShared = loadfile("data/lua/core/init.lua")(env.version, env.args)
+	local _, newEnv, newShared = loadfile("data/lua/core/init.lua")(env.damsVersion, env.args)
 	
 	newEnv.oldEnv = env
 	

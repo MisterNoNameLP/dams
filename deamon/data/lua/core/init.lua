@@ -8,7 +8,7 @@ local args = loadfile("data/lua/core/parseArgs.lua")(args, version) --parse args
 local devConf = loadfile("data/devConf.lua")()
 local logfile = loadfile("data/lua/core/initLogfile.lua")(devConf, args)
 
-local env, shared = loadfile("data/lua/env/envInit.lua")({name = "[MAIN]", mainThread = true, id = 0, logfile = logfile})
+local env, shared = loadfile("data/lua/env/envInit.lua")({name = "[MAIN]", mainThread = true, id = 0, logfile = logfile, damsVersion = version})
 
 --NOTE: "data/" is now default path for loadfile.
 
@@ -24,7 +24,6 @@ local mainTable = loadfile("lua/core/mainTable.lua")()
 for i, c in pairs(mainTable) do
 	env[i] = c
 end
-env.version = version
 env.args = args
 
 --=== run dyn init ===--
@@ -38,7 +37,6 @@ loadfile(env.devConf.terminalPath .. "terminalManager.lua")(env)
 loadfile("lua/core/shutdown.lua")(env)
 
 --=== load dynamic data ===--
-
 env.dl.load({
 	target = env.commands, 
 	dir = "userData/commands", 

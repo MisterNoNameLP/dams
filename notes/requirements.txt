@@ -12,3 +12,4 @@ clibs:
 
 OS:
 	tput
+	screen (?)
