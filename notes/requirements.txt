@@ -5,6 +5,7 @@ luarocks --lua-version=5.1:
 	lsqlite3complete
 	argon2
 	luafilesystem
+	luaposix
 	
 clibs:
 	getch:
@@ -12,4 +13,3 @@ clibs:
 
 OS:
 	tput
-	screen (?)
