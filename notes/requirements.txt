@@ -13,3 +13,4 @@ clibs:
 
 OS:
 	tput
+	mail (if used by api)

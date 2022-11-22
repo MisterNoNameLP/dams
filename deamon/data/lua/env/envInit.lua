@@ -83,6 +83,7 @@ env.dl.load({ --legacy
 	execute = true,
 })
 
+_G._S = _E.shared
 for i, c in pairs(env._G) do
 	_G[i] = c
 end
