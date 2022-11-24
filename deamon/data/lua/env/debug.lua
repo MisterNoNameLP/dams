@@ -20,6 +20,12 @@ local debug = {
 }
 
 --===== set basic log functions =====--
+local function mail(subject, text, ...)
+	if _D.mail then
+		_D.mail(subject, text, ...)
+	end
+end
+
 local function getSilenceMode()
 	return debug.silenceMode
 end
@@ -166,11 +172,21 @@ local function err(...)
 	debug.setSilenceMode(true)
 	return ...
 end
+local function crucial(...)
+	local silenceMode = debug.getSilenceMode()
+	debug.setSilenceMode(false)
+	setDebugPrefix("[CRUCIAL]")
+	plog(...)
+	debug.setSilenceMode(true)
+	mail("[CRUCIAL]", ...)
+	return ...
+end
 local function fatal(...)
 	setDebugPrefix("[FATAL]")
 	plog(...)
 	--love.quit(1, ...) --ToDo: replace with an exit event once event system is done.
 	--os.exit(1)
+	mail("[FATAL]", ...)
 	if _G.env.stopProgram() then
 		_G.env.stopProgram()
 	else
@@ -226,6 +242,7 @@ debug.plog = plog
 debug.log = log
 debug.warn = warn
 debug.err = err
+debug.crucial = crucial
 debug.fatal = fatal
 
 debug.setSilenceMode = setSilenceMode
@@ -246,6 +263,7 @@ debug.global.plog = plog
 debug.global.log = log
 debug.global.warn = warn
 debug.global.err = err
+debug.global.crucial = crucial
 debug.global.fatal = fatal
 
 --=== set global metatables ===--

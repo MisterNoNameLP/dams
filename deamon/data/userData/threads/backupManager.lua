@@ -13,18 +13,23 @@ _E.event.listen("PULL_BACKUP", function(args)
         log("Processing pull request: " .. args.backup)
         _S.backup[args.backup].status = "pulling"
         suc, logString = osExec("ltrs/ltrs " .. args.backup)
+
+        log("SUC VALUE ############")
+        log(suc, logString)
+
         --suc = exec("sleep 3")
-        if not suc then
-            err("Pulling backup failed: " .. args.backup .. ", log: " .. logString)
+        --suc = true
+        if suc ~= 0 then
+            crucial("Pulling backup failed: " .. args.backup .. "; log:\n" .. logString)
             _S.backup[args.backup].status = "failed"   
-            _S.backup[args.backup].reason = logString   
+            _S.backup[args.backup].log = logString   
         else
-            log("Sucessfully pulled backup: " .. args.backup .. ", log:\n" .. logString)
+            log("Sucessfully pulled backup: " .. args.backup .. "; log:\n" .. logString)
             _S.backup[args.backup].status = "done"   
             _S.backup[args.backup].log = logString  
         end
     else
-        err("Cant process backup: " .. args.backup .. ", status is: " .. _S.backup[args.backup].status)
+        crucial("Cant process backup: " .. args.backup .. "; status is: " .. _S.backup[args.backup].status)
         _S.backup[args.backup].status = "failed"
         _S.backup[args.backup].reason = "Invalid status"
     end

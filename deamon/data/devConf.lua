@@ -13,6 +13,10 @@ local devConf = {
 	dateFormat = "%X",
 	--dateFormat = "%Y/%m/%d/ %H:%M:%S",
 
+	fallbacks = { --fallback values for non correctly setup user configs.
+		name = "DAMS API",
+	},
+
 	http = {
 		certPath = "cert/cert.pem",
 		privateKeyPath = "cert/privatekey.pem",
