@@ -13,12 +13,6 @@ _E.event.listen("PULL_BACKUP", function(args)
         log("Processing pull request: " .. args.backup)
         _S.backup[args.backup].status = "pulling"
         suc, logString = osExec("ltrs/ltrs " .. args.backup)
-
-        log("SUC VALUE ############")
-        log(suc, logString)
-
-        --suc = exec("sleep 3")
-        --suc = true
         if suc ~= 0 then
             crucial("Pulling backup failed: " .. args.backup .. "; log:\n" .. logString)
             _S.backup[args.backup].status = "failed"   
