@@ -1,5 +1,5 @@
 return function(requestData)
-    local cookie = _M._I.dyn.getCookies(requestData)
+    local cookie = _M._I.getCookies(requestData)
     local token 
 
     if requestData.request and requestData.request.token then
@@ -10,5 +10,5 @@ return function(requestData)
         return false, "Can't find a sesssion token."
     end
 
-    return _M._I.dyn.Session.new(token)
+    return _M._I.Session.new(token)
 end

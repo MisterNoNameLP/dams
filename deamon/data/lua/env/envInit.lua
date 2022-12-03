@@ -65,25 +65,15 @@ debug.setLogPrefix(tostring(_internal.threadName))
 
 _M._I.dl.executeDir("lua/env/init", "envInit")
 
-dlog("Load dynamic _M data")
-
-_M._I.dyn = {}
-_G._D = _M._I.dyn
+dlog("Load dynamic data")
 _M._I.dl.load({
-	target = _M._I.dyn, 
-	dir = "lua/env/dynData", 
-	name = "dynData", 
-	structured = true,
-	execute = true,
-})
-
-_M._I.dl.load({ --legacy
 	target = _M._I, 
 	dir = "lua/env/dynData", 
 	name = "dynData", 
 	structured = true,
 	execute = true,
 })
+
 
 _G._S = _M._I.shared
 --[[ wut?

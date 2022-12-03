@@ -116,7 +116,7 @@ local function readHandler(line, index)
   return hints
 end
 
-_M._I._M = global
+_M._I = global
 --[[
 _M._I.print = function(...)
 	local s = "[LUA]: " .. tostring(...)
@@ -130,7 +130,7 @@ local function textInput(text)
   
   if text == "exit" or text == "quit" then
 	  plog("Exitting LUA terminal")
-	  _M._I._M._I.terminal.setTerminal()
+	  _M._I.terminal.setTerminal()
 	  return 0
   end
   

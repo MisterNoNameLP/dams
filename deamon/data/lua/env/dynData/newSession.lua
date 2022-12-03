@@ -5,7 +5,7 @@ return function(user, expireDate, name, note, requestData)
 		error("No valid user given", 2)
 	end
 
-	return _M._I.dyn.Session.create(user, expireDate, name, note, requestData)
+	return _M._I.Session.create(user, expireDate, name, note, requestData)
 
 	--[[
 	local sessionID = _M._I.ut.randomString(32)

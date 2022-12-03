@@ -10,7 +10,7 @@ return function(site, requestData)
     sitePath = "userData/sites/" .. sitePath .. ".lua" --completing sitePath
 
     if _M._I.lib.lfs.attributes("data/" .. sitePath) ~= nil then
-        siteFunc, err = _M._I.dyn.getActionFunc("data/" .. sitePath)
+        siteFunc, err = _M._I.getActionFunc("data/" .. sitePath)
 
         if type(siteFunc) ~= "function" then
             debug.err("Cant execute site: " .. site .. "\n" .. err)

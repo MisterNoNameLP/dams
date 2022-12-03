@@ -3,7 +3,7 @@ return function(self, username)
     local db = _M._I.loginDB
     local suc, reason
 
-    if _M._I.dyn.User.getIDByName(username) then
+    if _M._I.User.getIDByName(username) then
         debug.ulog("Tryed to set username. But username is already taken: userID: " .. tostring(userID) .. ", new name: " .. username)
         suc = -101
         reason = "Username already taken"

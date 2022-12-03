@@ -5,12 +5,12 @@ _M._I.commands.rlenv(_M, {}, {})
 
 
 
-local user, reason = _M._I.dyn.User.new(1)
+local user, reason = _M._I.User.new(1)
 print(_M._I.lib.ut.tostring(user), reason)
 
 print(user:checkPassword("123"))
 
---print(_M._I.dyn.User.checkPassword({id=1}, "123"))
+--print(_M._I.User.checkPassword({id=1}, "123"))
 
 --tret
 

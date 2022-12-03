@@ -1,5 +1,5 @@
 return function(requestData)
-    local referer = _M._I.dyn.http.getReferer(requestData, true)
+    local referer = _M._I.http.getReferer(requestData, true)
     local returnString = [[
 <html>
     <head>

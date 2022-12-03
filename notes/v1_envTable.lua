@@ -3,5 +3,7 @@
 _M = {
     _E -- users env
     _D -- users dynData 
-    _I -- DAMS intern data
+    _S -- link to shared table
+    _I -- DAMS intern/included data
+    
 }

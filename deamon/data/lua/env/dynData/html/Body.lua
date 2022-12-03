@@ -53,7 +53,7 @@ end
 
 function Body:addGoBackButton(requestData, name)
     local html
-    local referer = _M._I.dyn.http.getReferer(requestData, true)
+    local referer = _M._I.http.getReferer(requestData, true)
     if referer then
         html = [[
 <a href="]]..referer..[[">  
@@ -146,7 +146,7 @@ end
 
 function Body:goBack(requestData, delay)
     local html
-    local referer = _M._I.dyn.http.getReferer(requestData, true)
+    local referer = _M._I.http.getReferer(requestData, true)
     if referer then
         html = [[
 <meta http-equiv="Refresh" content="]]..tostring(delay or 0)..[[; url=']]..referer..[['" />

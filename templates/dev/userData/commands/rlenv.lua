@@ -1,7 +1,7 @@
 -- reloads the main _M._I. not affecting thread environments yet.
 
 _M._I.dl.load({
-	target = _M._I.dyn, 
+	target = _M._I, 
 	dir = "lua/env/dynData", 
 	name = "dynData", 
 	structured = true,

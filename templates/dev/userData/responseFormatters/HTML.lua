@@ -3,7 +3,7 @@ local responseData, headers, requestData = ...
 debug.setFuncPrefix("[HTML_RESPONSE_FORMATTER]", true)
 
 local responseString
-local body = _M._I.dyn.html.Body.new()
+local body = _M._I.html.Body.new()
 
 if responseData.success then
     responseData.returnValue.headers = headers
@@ -11,9 +11,9 @@ if responseData.success then
         if responseData.returnValue.html.forwardInternal then
             responseData.returnValue.meta = requestData.meta
             responseData.returnValue.request = responseData.returnValue
-            _, responseString = _M._I.dyn.execSite(responseData.returnValue.html.forwardInternal, responseData.returnValue)
+            _, responseString = _M._I.execSite(responseData.returnValue.html.forwardInternal, responseData.returnValue)
         elseif responseData.returnValue.html.forward then
-                local body = _M._I.dyn.html.Body.new()
+                local body = _M._I.html.Body.new()
                 body:goTo(responseData.returnValue.html.forward)
                 responseString = body:generateCode()
         elseif responseData.returnValue.html.body then

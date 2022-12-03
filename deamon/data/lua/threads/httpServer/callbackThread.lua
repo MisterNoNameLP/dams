@@ -28,7 +28,7 @@ local function executeUserOrder(request)
 	end
 	
 	if requestedAction ~= nil then
-		func, err = _M._I.dyn.getActionFunc("data/userData/actions/" .. requestedAction .. ".lua")
+		func, err = _M._I.getActionFunc("data/userData/actions/" .. requestedAction .. ".lua")
 	end
 	
 	if type(func) == "function" then
@@ -80,14 +80,14 @@ end
 --dlog(requestData.headers[":method"].value)
 --dlog(requestData.body)
 
-_M._I.cookie.current = _M._I.dyn.getCookies(requestData)
+_M._I.cookie.current = _M._I.getCookies(requestData)
 
 if requestData.headers[":method"].value == "GET" then
 	local logPrefix = _M._I.debug.getLogPrefix()
 	local requestedSite = requestData.headers[":path"].value
 	debug.setLogPrefix("[SITE]")
 	
-	_, responseDataString, responseHeaders = _M._I.dyn.execSite(requestedSite, requestData)
+	_, responseDataString, responseHeaders = _M._I.execSite(requestedSite, requestData)
 
 	if type(responseHeaders) ~= "table" then
 		responseHeaders = {}

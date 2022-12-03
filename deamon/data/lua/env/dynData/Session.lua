@@ -49,7 +49,7 @@ end
 function Session.create(user, expireTime, name, note, requestData, createdAutomatically) --expireTime in seconds ongoing from 1970 00:00:00 UTC (os.time(...) in unix systems) or a time table.
     local token = _M._I.lib.ut.randomString(32)
     local sessionID = _M._I.lib.ut.randomString(16)
-    local userAgent = _M._I.dyn.getHeader(requestData, "user-agent")
+    local userAgent = _M._I.getHeader(requestData, "user-agent")
     local suc
 
 
