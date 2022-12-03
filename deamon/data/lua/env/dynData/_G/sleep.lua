@@ -1,5 +1,5 @@
 local _M = ...
 
-_G.sleep = _M.timer.sleep
+_G.sleep = _M._I.timer.sleep
 
-return _M.timer.sleep
+return _M._I.timer.sleep

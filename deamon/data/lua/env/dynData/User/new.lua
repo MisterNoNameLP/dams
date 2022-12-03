@@ -1,7 +1,7 @@
 return function(udata)
 	debug.setFuncPrefix("[USER]")
 	
-	local self = setmetatable({}, {__index = _M.dyn.User})
+	local self = setmetatable({}, {__index = _M._I.dyn.User})
 
 	if type(udata) == "string" then
 		local suc, id, err = self.getIDByName(udata)

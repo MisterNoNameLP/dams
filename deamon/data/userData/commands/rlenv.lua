@@ -1,7 +1,7 @@
--- reloads the main _M. not affecting thread environments yet.
+-- reloads the main _M._I. not affecting thread environments yet.
 
-_M.dl.load({
-	target = _M.dyn, 
+_M._I.dl.load({
+	target = _M._I.dyn, 
 	dir = "lua/env/dynData", 
 	name = "dynData", 
 	structured = true,
@@ -9,7 +9,7 @@ _M.dl.load({
 	overwrite = true,
 })
 
-_M.dl.load({ --legacy
+_M._I.dl.load({ --legacy
 	target = _M, 
 	dir = "lua/env/dynData", 
 	name = "dynData", 
@@ -18,6 +18,6 @@ _M.dl.load({ --legacy
 	overwrite = true,
 })
 
-for i, c in pairs(_M._G) do
+for i, c in pairs(_M._I._G) do
 	_G[i] = c
 end

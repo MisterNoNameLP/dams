@@ -2,12 +2,12 @@ debug.setLogPrefix("[BACKUP_MANAGER]")
 
 log("Init")
 
-_E.event.listen("RELOAD_BACKUP_MANAGER", function()
+_M._I.event.listen("RELOAD_BACKUP_MANAGER", function()
     log("Reload")
-    _E.stop()
+    _M._I.stop()
 end)
 
-_E.event.listen("PULL_BACKUP", function(args)
+_M._I.event.listen("PULL_BACKUP", function(args)
     if _S.backup[args.backup].status == "queued" then
         local suc, logString
         log("Processing pull request: " .. args.backup)

@@ -1,6 +1,6 @@
 log("LOAD INI")
 
-local conf = _E.lib.ini.load("../conf.ini")
+local conf = _M._I.lib.ini.load("../conf.ini")
 
 assert(type(conf) == "table", "Cant load dams conf")
 
@@ -10,10 +10,10 @@ do
     end
     if type(conf.main.name) ~= "string" then
         warn("Not API name set. Falling back to default")
-        conf.main.name = _E.devConf.fallbacks.defaultName
+        conf.main.name = _M._I.devConf.fallbacks.defaultName
     end
 end
 
-_E.damsConf = conf
+_M._I.damsConf = conf
 
---_E.backupConf = _E.lib.ini.load()
+--_M._I.backupConf = _M._I.lib.ini.load()

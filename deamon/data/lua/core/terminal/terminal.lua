@@ -4,13 +4,13 @@ local terminal = {}
 
 --===== require libs =====--
 local getch = require("getch")
-local textInput = loadfile(_M.devConf.terminalPath .. "TextInput.lua")()
-local constants = require(_M.devConf.terminalPath .. "terminalConstants")
+local textInput = loadfile(_M._I.devConf.terminalPath .. "TextInput.lua")()
+local constants = require(_M._I.devConf.terminalPath .. "terminalConstants")
 local utf8 = require("utf8")
 local thread = require("love.thread")
 
 --===== set constants =====--
-local terminalSizeRefreshTime = _M.devConf.terminalSizeRefreshDelay
+local terminalSizeRefreshTime = _M._I.devConf.terminalSizeRefreshDelay
 
 local ansi = constants.ansi
 local keyTable = constants.keyTable
@@ -27,7 +27,7 @@ local debug_print = thread.getChannel("debug_print")
 
 --===== set local functions =====--
 --local ioWrite = io.write
-local ioWrite = _M.org.io.write
+local ioWrite = _M._I.org.io.write
 local function w(...)
 	ioWrite(...)
 end
@@ -96,20 +96,20 @@ local function write(...) --not used anymore! --io.write() replacement
 		writeCursorPos = writeCursorPos + utf8.len(tostring(arg))
 	end
 
-	if _M.devConf.terminal.movieLike then --just for the lulz
+	if _M._I.devConf.terminal.movieLike then --just for the lulz
 		for _, s in ipairs({...}) do 
-			for _, s2 in ipairs(_M.lib.ut.getChars(tostring(s))) do
+			for _, s2 in ipairs(_M._I.lib.ut.getChars(tostring(s))) do
 				w(s2)
-				_M.org.io.flush()
-				sleep(_M.devConf.terminal.movieLikeDelay)
+				_M._I.org.io.flush()
+				sleep(_M._I.devConf.terminal.movieLikeDelay)
 			end
 		end
 	else
 		w(getMsg(...))
 	end
 
-	_M.debug.logfile:write(getMsg(...))
-	_M.debug.logfile:flush()
+	_M._I.debug.logfile:write(getMsg(...))
+	_M._I.debug.logfile:flush()
 
 	resetCursor()
 end
@@ -118,12 +118,12 @@ local function print(...)
 	local _, terminalHeight = getTerminalSize()
 	w(ansi.setCursor:format(terminalHeight, writeCursorPos))
 	w(ansi.clearLine)
-	if _M.devConf.terminal.movieLike then --just for the lulz
+	if _M._I.devConf.terminal.movieLike then --just for the lulz
 		for _, s in ipairs({...}) do 
-			for _, s2 in ipairs(_M.lib.ut.getChars(tostring(s))) do
+			for _, s2 in ipairs(_M._I.lib.ut.getChars(tostring(s))) do
 				w(s2)
-				_M.org.io.flush()
-				sleep(_M.devConf.terminal.movieLikeDelay)
+				_M._I.org.io.flush()
+				sleep(_M._I.devConf.terminal.movieLikeDelay)
 			end
 		end
 	else
@@ -131,9 +131,9 @@ local function print(...)
 	end
 	w("\n")
 
-	_M.debug.logfile:write(getMsg(...))
-	_M.debug.logfile:write("\n")
-	_M.debug.logfile:flush()
+	_M._I.debug.logfile:write(getMsg(...))
+	_M._I.debug.logfile:write("\n")
+	_M._I.debug.logfile:flush()
 
 	writeCursorPos = 1 --used for write() / io.write()
 	resetCursor()
@@ -143,8 +143,8 @@ local function get_mbs(callback, keyTable, max_i, i)
 	assert(type(keyTable)=="table")
 	i = tonumber(i) or 1
 	max_i = tonumber(max_i) or 10
-	local key_code = callback(_M.devConf.sleepTime)
-	if _M.devConf.debug.logDirectInput and key_code ~= nil then
+	local key_code = callback(_M._I.devConf.sleepTime)
+	if _M._I.devConf.debug.logDirectInput and key_code ~= nil then
 		print(key_code)
 	end
 	if i>max_i then
@@ -173,15 +173,15 @@ local function draw(text, cursorPos)
 	w(text)
 	resetCursor()
 	--io.flush()
-	_M.org.io.flush()
+	_M._I.org.io.flush()
 end
 
 --===== initialisation =====--
 textBox.listedFunction = function(t)
-	_M.terminal.input(t.text)
+	_M._I.terminal.input(t.text)
 end
 textBox.autoCompFunction = function(t)
-	_M.terminal.autoComp(t)
+	_M._I.terminal.autoComp(t)
 end
 
 --===== main functions =====--
@@ -189,7 +189,7 @@ function terminal.update()
 	local code, action = get_mbs(getch.non_blocking, keyTable)
 
 	if code ~= nil then
-		if _M.devConf.debug.logInputEvent then
+		if _M._I.devConf.debug.logInputEvent then
 			print(action)
 		end
 		if action ~= nil then --sending key press events defined in terminalConstants.
@@ -201,29 +201,29 @@ function terminal.update()
 				local event = actionFragments[2]
 				table.remove(actionFragments, 1)
 				table.remove(actionFragments, 1)
-				_M.event.push(event, actionFragments)
+				_M._I.event.push(event, actionFragments)
 			end
 		end
 
 		if action == "RELOAD_CORE" then
 			loadfile("lua/core/reload.lua")(_M, shared)
 		elseif action == "RELOAD_USER" then
-			_M.dl.executeDir("userData/onReload", "RELOAD_USER")
+			_M._I.dl.executeDir("userData/onReload", "RELOAD_USER")
 		elseif action == "RELOAD_SYSTEM" then
-			_M.dl.executeDir("lua/onReload", "RELOAD_SYSTEM")
+			_M._I.dl.executeDir("lua/onReload", "RELOAD_SYSTEM")
 		elseif action == "RELOAD_COMMANDS" then
 			log("Reload commands")
-			_M.dl.load({
-				target = _M.commands, 
+			_M._I.dl.load({
+				target = _M._I.commands, 
 				dir = "userData/commands", 
 				name = "commands",
 				overwrite = true,
 			})
 		elseif action == "tab" then	
-			if _M.terminal.getTerminal() == nil then
+			if _M._I.terminal.getTerminal() == nil then
 				local autoComp = {}
 
-				for i, _ in pairs(_M.commands) do
+				for i, _ in pairs(_M._I.commands) do
 					table.insert(autoComp, i)
 				end
 				if #autoComp == 1 then

@@ -34,4 +34,4 @@ tostring is displays numbers in a table as string.
 ## shared
 shared tables are not iterable using pairs or ipairs function. This is not fixable until löve uses lua5.2+.
 
-local references to a shared table get not updatet properly in some cases. you should always work with _M.shared directly.
+local references to a shared table get not updatet properly in some cases. you should always work with _M._I.shared directly.

@@ -1,2 +1,2 @@
 log("Open user DB")
-_M.loginDB = _M.lib.sqlite.open(_M.devConf.userLoginDatabasePath)
+_M._I.loginDB = _M._I.lib.sqlite.open(_M._I.devConf.userLoginDatabasePath)

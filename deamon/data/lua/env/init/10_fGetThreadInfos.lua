@@ -1,4 +1,4 @@
-_M.getThreadInfos = function()
+_M._I.getThreadInfos = function()
 	local _internal = getmetatable(_M)._internal
 	
 	return {

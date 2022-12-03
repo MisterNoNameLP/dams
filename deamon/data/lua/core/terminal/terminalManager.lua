@@ -8,7 +8,7 @@ local terminal = {
 	currentTerminal = nil,
 	currentTerminalPrefix = "",
 	
-	terminal = loadfile(_M.devConf.terminalPath .. "terminal.lua")(_M),
+	terminal = loadfile(_M._I.devConf.terminalPath .. "terminal.lua")(_M),
 }
 
 function terminal.setTerminal(t, prefix)
@@ -25,7 +25,7 @@ function terminal.input(input)
 	
 	for c in string.gmatch(input, "[^ ]+") do
 		if command == "" then
-			if c == _M.devConf.terminal.commands.forceMainTerminal then
+			if c == _M._I.devConf.terminal.commands.forceMainTerminal then
 				callMainTerminal = true
 			else
 				command = c
@@ -45,9 +45,9 @@ function terminal.input(input)
 	
 	if terminal.currentTerminal ~= nil and not callMainTerminal then
 		terminal.currentTerminal.input(input, command, args)
-	elseif _M.commands[command] ~= nil then
-		local suc, err = xpcall(_M.commands[command], debug.traceback, _M, args, _M.lib)
-		--local suc, err = _M.startFileThread("userData/commands/" .. command .. ".lua", "[COMMAND_THREAD][" .. command .. "]") --terminal.setTerminal is not working this way.
+	elseif _M._I.commands[command] ~= nil then
+		local suc, err = xpcall(_M._I.commands[command], debug.traceback, _M, args, _M._I.lib)
+		--local suc, err = _M._I.startFileThread("userData/commands/" .. command .. ".lua", "[COMMAND_THREAD][" .. command .. "]") --terminal.setTerminal is not working this way.
 		
 		plog(suc, err)
 	elseif command ~= "" then
@@ -68,4 +68,4 @@ function love.update()
 	terminal.terminal.draw()
 end
 
-_M.terminal = terminal
+_M._I.terminal = terminal

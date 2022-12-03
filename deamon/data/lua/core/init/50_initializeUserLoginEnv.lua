@@ -2,5 +2,5 @@ debug.setFuncPrefix("[USERLOGIN]")
 
 log("Initialize user login env")
 
-_M.shared.openSessions = {}
+_M._I.shared.openSessions = {}
 

@@ -1,7 +1,7 @@
-local activeThreadsChannel = _M.thread.getChannel("ACTIVE_THREADS")
-local programActiveChannel = _M.thread.getChannel("PROGRAM_IS_RUNNING")
+local activeThreadsChannel = _M._I.thread.getChannel("ACTIVE_THREADS")
+local programActiveChannel = _M._I.thread.getChannel("PROGRAM_IS_RUNNING")
 
-_M.getInternal().stopThreads = function()
+_M._I.getInternal().stopThreads = function()
 	log("Stopping all threads")
 	--log("Wait for threads to stop")
 	

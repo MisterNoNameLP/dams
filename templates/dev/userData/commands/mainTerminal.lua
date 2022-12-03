@@ -1,3 +1,3 @@
 local _M = ...
 
-_M.terminal.setTerminal()
+_M._I.terminal.setTerminal()

@@ -1,7 +1,7 @@
 --default _M for all threads.
 local _M, mainThread, originalIoFunctions = ...
 
-_M.org = {
+_M._I.org = {
 	require = require,
 	loadfile = loadfile,
 	print = print,
@@ -17,12 +17,12 @@ _M.org = {
 local orgRequire = require
 local orgLoadfile = loadfile
 
-_M.debug.internal.ioWriteBuffer = ""
+_M._I.debug.internal.ioWriteBuffer = ""
 
 local thread = orgRequire("love.thread")
 local debug_print = thread.getChannel("debug_print")
 
-if not _M.mainThread then --the main thread gets its own print function through the terminal. as well as an preinit print function through envInit.lua.
+if not _M._I.mainThread then --the main thread gets its own print function through the terminal. as well as an preinit print function through envInit.lua.
 	_G.print = function(...)
 		local msgs = ""
 		for _, msg in pairs({...}) do
@@ -34,23 +34,23 @@ end
 
 _G.io.write = function(...)
 	for _, msg in pairs({...}) do
-		_M.debug.internal.ioWriteBuffer = _M.debug.internal.ioWriteBuffer .. tostring(msg)
+		_M._I.debug.internal.ioWriteBuffer = _M._I.debug.internal.ioWriteBuffer .. tostring(msg)
 	end
 end
 
 _G.io.flush = function()
-	_G.print(_M.debug.internal.ioWriteBuffer)
-	_M.debug.internal.ioWriteBuffer = ""
+	_G.print(_M._I.debug.internal.ioWriteBuffer)
+	_M._I.debug.internal.ioWriteBuffer = ""
 end
 
 getmetatable(io.stdout).__index.write = function(...) --sets the index for all userdata.write functions! 
 	local args = {...}
 	local msgString = ""
 
-	_M.org.io.stdoutMetatable.write(...)
+	_M._I.org.io.stdoutMetatable.write(...)
 
 	if args[1] == io.stdout or args[1] == io.stderr then --BUG: the value gets protet to the terminal twice if the main thread writes to it. logfile is not affected.
-		_M.org.io.stdoutMetatable.write(args[1], "\n")
+		_M._I.org.io.stdoutMetatable.write(args[1], "\n")
 
 		table.remove(args, 1)
 
@@ -63,14 +63,14 @@ end
 
 local function require(p)
 	debug.setFuncPrefix("[REQUIRE]")
-	_M.debug.requireLog(tostring(p))
+	_M._I.debug.requireLog(tostring(p))
 	return orgRequire(p)
 end
 
 local function loadfile(p)
 	local func, err
 	debug.setFuncPrefix("[LOADFILE]")
-	_M.debug.loadfileLog(tostring(p))
+	_M._I.debug.loadfileLog(tostring(p))
 	func, err = orgLoadfile("data/" .. p)
 	if func == nil then
 		debug.err(func, err)

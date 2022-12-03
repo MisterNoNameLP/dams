@@ -1,3 +1,3 @@
 return function()
-	return _M.devConf.devMode
+	return _M._I.devConf.devMode
 end

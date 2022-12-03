@@ -3,19 +3,19 @@ local _M = ...
 --local serialize = require("ser")
 
 return function(code, initData)
-	local initData = _M.ut.parseArgs(initData, {})
+	local initData = _M._I.ut.parseArgs(initData, {})
 	initData.mainThread = false
 	
 	local newCode = [[
-		local _M, shared = loadfile('data/lua/env/envInit.lua')(]] .. _M.serialization.line(initData) .. [[); ]] .. code .. [[
+		local _M, shared = loadfile('data/lua/env/envInit.lua')(]] .. _M._I.serialization.line(initData) .. [[); ]] .. code .. [[
 		
 		do
 			local suc, err = xpcall(function()	
 				if type(update) == 'function' then --main while (incl. event handler)
-					while _M.isRunning() and _M.threadIsRunning() do
+					while _M._I.isRunning() and _M._I.threadIsRunning() do
 						local suc, err
 						
-						_M.event.pull()
+						_M._I.event.pull()
 						
 						suc, err = xpcall(update, debug.traceback)
 						
@@ -24,8 +24,8 @@ return function(code, initData)
 						end
 					end
 				else --only event handler
-					while _M.isRunning() and _M.threadIsRunning() do
-						_M.event.pull(1)
+					while _M._I.isRunning() and _M._I.threadIsRunning() do
+						_M._I.event.pull(1)
 					end
 				end
 				

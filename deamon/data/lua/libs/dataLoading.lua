@@ -1,13 +1,13 @@
 local _M, shared = ...
 
 local DL = {}
-local pa = _M.ut.parseArgs
+local pa = _M._I.ut.parseArgs
 
 local defaultFileCode = [[local _M, shared = ...;]]
 
 --===== lib functions =====--
 local function loadDir(target, dir, logFuncs, overwrite, subDirs, structured, priorityOrder, loadFunc, executeFiles)
-	local path = dir .. "/" --= _M.shell.getWorkingDirectory() .. "/" .. dir .. "/"
+	local path = dir .. "/" --= _M._I.shell.getWorkingDirectory() .. "/" .. dir .. "/"
 	logFuncs = logFuncs or {}
 	--local print = logFuncs.log or dlog
 	local print = logFuncs.log or debug.dataLoadingLog
@@ -17,15 +17,15 @@ local function loadDir(target, dir, logFuncs, overwrite, subDirs, structured, pr
 	local loadedFiles = 0
 	local failedFiles = 0
 	
-	subDirs = _M.ut.parseArgs(subDirs, true)
+	subDirs = _M._I.ut.parseArgs(subDirs, true)
 	
-	for _, file in pairs(_M.fs.getDirectoryItems(path)) do
-		local p, name, ending = _M.ut.seperatePath(path .. file)
+	for _, file in pairs(_M._I.fs.getDirectoryItems(path)) do
+		local p, name, ending = _M._I.ut.seperatePath(path .. file)
 		
 		--print(p)
 		
 		if name ~= "gitignore" and name ~= "gitkeep" then
-			if _M.fs.getInfo(path .. file).type == "directory" and subDirs then
+			if _M._I.fs.getInfo(path .. file).type == "directory" and subDirs then
 				if structured then
 					if target[string.sub(file, 0, #file)] == nil or overwrite then
 						target[string.sub(file, 0, #file)] = {}
@@ -54,7 +54,7 @@ local function loadDir(target, dir, logFuncs, overwrite, subDirs, structured, pr
 				else
 					--suc, err = loadfile(path .. file)
 					local filePath = "data/" .. path .. file
-					local fileCode, fileErr = _M.ut.readFile(filePath)
+					local fileCode, fileErr = _M._I.ut.readFile(filePath)
 					local tracebackPathNote = filePath
 					--print(path .. file)
 					if fileCode == nil then
@@ -178,7 +178,7 @@ local function loadDir(dir, target, name) --is this user or even done?
 		structured = true,
 	})
 	print("################################")
-	print(_M.ut.tostring(scripts))
+	print(_M._I.ut.tostring(scripts))
 	
 	local function sortIn(value, orgName, args)
 		local index = args.index
@@ -217,7 +217,7 @@ local function loadDir(dir, target, name) --is this user or even done?
 	end
 	iterate(scripts)
 	
-	print(_M.ut.tostring(target))
+	print(_M._I.ut.tostring(target))
 end
 
 local function executeDir(dir, name)

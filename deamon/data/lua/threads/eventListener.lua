@@ -6,9 +6,9 @@ log("Starting event listener")
 
 dlog("Register all listeners")
 
-_M.event.listen("STOP_PROGRAM", function(data)
+_M._I.event.listen("STOP_PROGRAM", function(data)
 	log("Stopping program")
-	_M.getInternal().stopThreads()
+	_M._I.getInternal().stopThreads()
 	require("love.event").quit("Stopped by event")
 end)
 

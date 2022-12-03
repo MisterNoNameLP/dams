@@ -1,4 +1,4 @@
 return function()
-	_M.event.ignoreAll()
+	_M._I.event.ignoreAll()
 	getmetatable(_M)._internal.threadIsActive = false
 end

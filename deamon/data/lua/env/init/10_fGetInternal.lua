@@ -1,3 +1,3 @@
-_M.getInternal = function()
+_M._I.getInternal = function()
 	return getmetatable(_M)._internal
 end

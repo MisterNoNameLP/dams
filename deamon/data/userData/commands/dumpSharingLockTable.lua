@@ -1,4 +1,4 @@
-_M.thread.getChannel("SHARED_REQUEST"):push({
+_M._I.thread.getChannel("SHARED_REQUEST"):push({
     request = "dump_lockTable",
-    threadID = _M.getThreadInfos().id,
+    threadID = _M._I.getThreadInfos().id,
 })

@@ -1,12 +1,12 @@
 ldlog("CALLBACK THREAD START")
 
-local callbackStream = _M.thread.getChannel("HTTP_CALLBACK_STREAM#" .. tostring(_M.getThreadInfos().id))
+local callbackStream = _M._I.thread.getChannel("HTTP_CALLBACK_STREAM#" .. tostring(_M._I.getThreadInfos().id))
 
 local responseHeaders = {}
 local responseData = {success = false}
 local responseDataString = "If you see this, something went terrebly wrong. Please contact a system administrator."
 
-local requestData = _M.initData.args
+local requestData = _M._I.initData.args
 
 local requestFormatter, responseFormatter
 local requestFormatterName, responseFormatterName
@@ -28,11 +28,11 @@ local function executeUserOrder(request)
 	end
 	
 	if requestedAction ~= nil then
-		func, err = _M.dyn.getActionFunc("data/userData/actions/" .. requestedAction .. ".lua")
+		func, err = _M._I.dyn.getActionFunc("data/userData/actions/" .. requestedAction .. ".lua")
 	end
 	
 	if type(func) == "function" then
-		local logPrefix = _M.debug.getLogPrefix()
+		local logPrefix = _M._I.debug.getLogPrefix()
 		debug.setLogPrefix("[ACTION]")
 		responseData.returnValue, responseHeaders = func(requestData)
 		responseData.success = true
@@ -56,7 +56,7 @@ local function loadFormatter(headerName, path)
 		formatter, err = loadfile(pathString)
 
 		if type(formatter) ~= "function" then
-			if _M.lib.fs.getInfo(loveFSCompatiblePathString) == nil then --only generates a easyer to understand error msg if the formatter is not existing.
+			if _M._I.lib.fs.getInfo(loveFSCompatiblePathString) == nil then --only generates a easyer to understand error msg if the formatter is not existing.
 				responseData.error = "Requestet " .. headerName .. " not found (" .. requestedFormatter .. ")"
 				responseData.scriptError = err
 				canExecuteUserOrder = false
@@ -80,14 +80,14 @@ end
 --dlog(requestData.headers[":method"].value)
 --dlog(requestData.body)
 
-_M.cookie.current = _M.dyn.getCookies(requestData)
+_M._I.cookie.current = _M._I.dyn.getCookies(requestData)
 
 if requestData.headers[":method"].value == "GET" then
-	local logPrefix = _M.debug.getLogPrefix()
+	local logPrefix = _M._I.debug.getLogPrefix()
 	local requestedSite = requestData.headers[":path"].value
 	debug.setLogPrefix("[SITE]")
 	
-	_, responseDataString, responseHeaders = _M.dyn.execSite(requestedSite, requestData)
+	_, responseDataString, responseHeaders = _M._I.dyn.execSite(requestedSite, requestData)
 
 	if type(responseHeaders) ~= "table" then
 		responseHeaders = {}
@@ -165,7 +165,7 @@ else
 	end
 
 	do --formatting response table
-		--responseData = _M.lib.serialization.dump(responseData) --placeholder
+		--responseData = _M._I.lib.serialization.dump(responseData) --placeholder
 		local suc, responseString = false, "[Formatter returned no error value]"
 
 		if type(responseFormatter) == "function" then
@@ -181,7 +181,7 @@ Falling back to human readable lua-table.
 
 			responseHeaders["content-type"] = "text/html"
 
-			newResponseString = newResponseString .. _M.lib.ut.tostring(responseData)
+			newResponseString = newResponseString .. _M._I.lib.ut.tostring(responseData)
 			responseDataString = newResponseString
 		else
 			responseDataString = responseString
@@ -190,7 +190,7 @@ Falling back to human readable lua-table.
 	end
 end
 
-callbackStream:push({headers = responseHeaders, data = responseDataString, cookies = _M.cookie.new})
-_M.cookie = {current = {}, new = {}}
+callbackStream:push({headers = responseHeaders, data = responseDataString, cookies = _M._I.cookie.new})
+_M._I.cookie = {current = {}, new = {}}
 ldlog("CALLBACK THREAD END")
-_M.stop()
+_M._I.stop()

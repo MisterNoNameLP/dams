@@ -1,5 +1,5 @@
 return function(self, passwd)
-	local db = _M.loginDB
+	local db = _M._I.loginDB
 	local userExists = false
 	local errCode, reason = nil, nil
 	local username, passwdHash = nil, nil
@@ -33,7 +33,7 @@ return function(self, passwd)
 		return false, errCode, reason
 	else
 		if userExists then
-			if _M.verifyPasswd(passwdHash, passwd) then
+			if _M._I.verifyPasswd(passwdHash, passwd) then
 				debug.ulog("User (" .. userID .. ") logged in.")
 				return true
 			else

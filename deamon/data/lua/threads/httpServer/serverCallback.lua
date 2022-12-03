@@ -2,7 +2,7 @@ local httpHeaders = require "http.headers"
 
 local openStreams = {}
 local _
-local damsVersion = _E.damsVersion
+local damsVersion = _M._I.damsVersion
 
 local function callback(myserver, stream)
 	--=== create local variables ===--
@@ -36,12 +36,12 @@ local function callback(myserver, stream)
 
 	--===== start callback thread =====--
 	ldlog("Start callback thread")
-	local _, thr, id = _M.startFileThread("lua/threads/httpServer/callbackThread.lua", "HTTP_CALLBACK_THREAD", requestData)
-	callbackStream = _M.thread.getChannel("HTTP_CALLBACK_STREAM#" .. tostring(id))
+	local _, thr, id = _M._I.startFileThread("lua/threads/httpServer/callbackThread.lua", "HTTP_CALLBACK_THREAD", requestData)
+	callbackStream = _M._I.thread.getChannel("HTTP_CALLBACK_STREAM#" .. tostring(id))
 
 	--=== wait for callback thread to stop ===--
 	ldlog("Wait for callback thread to stop")
-	while thr:isRunning() do _M.cqueues.sleep(.1) end
+	while thr:isRunning() do _M._I.cqueues.sleep(.1) end
 	callbackData = callbackStream:pop()
 	
 	--=== build response headers ===--
@@ -67,7 +67,7 @@ local function callback(myserver, stream)
 	
 	--=== send data ===--
 	ldlog("Sending data")
-	--stream:write_chunk(_M.serialization.dump(callbackData.data)) --not needed anymore soon.
+	--stream:write_chunk(_M._I.serialization.dump(callbackData.data)) --not needed anymore soon.
 	stream:write_chunk(callbackData.data)
 	stream:write_chunk("", true)
 end

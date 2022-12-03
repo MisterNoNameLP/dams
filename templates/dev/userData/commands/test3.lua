@@ -18,6 +18,6 @@ io.flush()
 ]]
 --print(_M)
 
---print(_M.lib.ut.tostring(_M))
+--print(_M._I.lib.ut.tostring(_M))
 
---_M.startFileThread("TEST", "TEST_THREAD")
+--_M._I.startFileThread("TEST", "TEST_THREAD")

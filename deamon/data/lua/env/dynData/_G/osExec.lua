@@ -2,7 +2,7 @@ local osDirPath = "./data/os/"
 local len = require("utf8").len
 
 return function(cmd, ...)
-    local path = _E.ut.seperatePath(cmd)
+    local path = _M._I.ut.seperatePath(cmd)
     cmd = cmd:sub(len(path))
 
     cmd = "cd " .. osDirPath .. path .. "; ./" .. cmd

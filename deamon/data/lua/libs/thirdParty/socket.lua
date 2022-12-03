@@ -16,15 +16,15 @@ local _M = socket
 -----------------------------------------------------------------------------
 -- Exported auxiliar functions
 -----------------------------------------------------------------------------
-function _M.connect4(address, port, laddress, lport)
+function _M._I.connect4(address, port, laddress, lport)
     return socket.connect(address, port, laddress, lport, "inet")
 end
 
-function _M.connect6(address, port, laddress, lport)
+function _M._I.connect6(address, port, laddress, lport)
     return socket.connect(address, port, laddress, lport, "inet6")
 end
 
-function _M.bind(host, port, backlog)
+function _M._I.bind(host, port, backlog)
     if host == "*" then host = "0.0.0.0" end
     local addrinfo, err = socket.dns.getaddrinfo(host);
     if not addrinfo then return nil, err end
@@ -53,9 +53,9 @@ function _M.bind(host, port, backlog)
     return nil, err
 end
 
-_M.try = _M.newtry()
+_M._I.try = _M._I.newtry()
 
-function _M.choose(table)
+function _M._I.choose(table)
     return function(name, opt1, opt2)
         if base.type(name) ~= "string" then
             name, opt1, opt2 = "default", name, opt1
@@ -71,10 +71,10 @@ end
 -----------------------------------------------------------------------------
 -- create namespaces inside LuaSocket namespace
 local sourcet, sinkt = {}, {}
-_M.sourcet = sourcet
-_M.sinkt = sinkt
+_M._I.sourcet = sourcet
+_M._I.sinkt = sinkt
 
-_M.BLOCKSIZE = 2048
+_M._I.BLOCKSIZE = 2048
 
 sinkt["close-when-done"] = function(sock)
     return base.setmetatable({
@@ -104,7 +104,7 @@ end
 
 sinkt["default"] = sinkt["keep-open"]
 
-_M.sink = _M.choose(sinkt)
+_M._I.sink = _M._I.choose(sinkt)
 
 sourcet["by-length"] = function(sock, length)
     return base.setmetatable({
@@ -144,6 +144,6 @@ end
 
 sourcet["default"] = sourcet["until-closed"]
 
-_M.source = _M.choose(sourcet)
+_M._I.source = _M._I.choose(sourcet)
 
 return _M

@@ -1,4 +1,4 @@
-local sqlite = _M.sqlite
+local sqlite = _M._I.sqlite
 
 --===== local functions =====--
 local orgPrint = print

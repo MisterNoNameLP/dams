@@ -1,7 +1,7 @@
 --====== debug =====--
-debug.tostring = _M.ut.tostring
+debug.tostring = _M._I.ut.tostring
 debug.dump = function(...) 
-    dlog(_M.ut.tostring(...))
+    dlog(_M._I.ut.tostring(...))
 end
 
 --====== _M =====--

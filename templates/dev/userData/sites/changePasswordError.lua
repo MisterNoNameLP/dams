@@ -1,4 +1,4 @@
-local body = _M.dyn.html.Body.new()
+local body = _M._I.dyn.html.Body.new()
 
 body:addHeader(3, "Changing password failed")
 body:addP("Reason: " .. tostring(requestData.reason))

@@ -10,4 +10,4 @@ rename `/data/userdata` to `/data/api`.
 
 ### default vars
 replace `env` with `_E`.  
-replace `_M.dyn` with `_D`.  
+replace `_M._I.dyn` with `_D`.  

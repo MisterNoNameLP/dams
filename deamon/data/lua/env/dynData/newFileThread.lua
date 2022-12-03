@@ -1,7 +1,7 @@
 local _M, shared = ...
 
-local idChannel = _M.thread.getChannel("GET_THREAD_ID")
-local threadRegistrationChannel = _M.thread.getChannel("THREAD_REGISTRATION")
+local idChannel = _M._I.thread.getChannel("GET_THREAD_ID")
+local threadRegistrationChannel = _M._I.thread.getChannel("THREAD_REGISTRATION")
 
 return function(dir, name, args)
 	ldlog("Load thread " .. name .. " from file: " .. dir)
@@ -14,10 +14,10 @@ return function(dir, name, args)
 		local thread
 
 		threadID = idChannel:push(name); idChannel:pop() --potential BUG if 2 threads acll this line at the exact same moment.
-		threadCode = _M.getThreadInitCode(file:read("*all"), {name = name, id = threadID, args = args, damsVersion = _E.damsVersion})
+		threadCode = _M._I.getThreadInitCode(file:read("*all"), {name = name, id = threadID, args = args, damsVersion = _M._I.damsVersion})
 		file:close()
 
-		thread = _M.thread.newThread(threadCode)
+		thread = _M._I.thread.newThread(threadCode)
 		
 		threadRegistrationChannel:push({
 			thread = thread,

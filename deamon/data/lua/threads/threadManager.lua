@@ -1,11 +1,11 @@
 log("Starting thread manager")
 
-local threadRegistrationChannel = _M.thread.getChannel("THREAD_REGISTRATION")
-local activeThreadsChannel = _M.thread.getChannel("ACTIVE_THREADS")
+local threadRegistrationChannel = _M._I.thread.getChannel("THREAD_REGISTRATION")
+local activeThreadsChannel = _M._I.thread.getChannel("ACTIVE_THREADS")
 
 local function newThread(thread) 
 	if thread ~= nil then
-		tdlog("Registering new thread (".. tostring(thread.id) .."): " .. _M.ut.parseArgs(thread.name, "UNKNOWN") .. "(" .. tostring(thread.thread) .. ")")
+		tdlog("Registering new thread (".. tostring(thread.id) .."): " .. _M._I.ut.parseArgs(thread.name, "UNKNOWN") .. "(" .. tostring(thread.thread) .. ")")
 		
 		activeThreadsChannel:push(thread)
 	end

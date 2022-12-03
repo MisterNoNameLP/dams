@@ -25,4 +25,4 @@ function lua.autoComp(text, ti)
 	end
 end
 
-_M.terminal.setTerminal(lua, "[LUA]")
+_M._I.terminal.setTerminal(lua, "[LUA]")

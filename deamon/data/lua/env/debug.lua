@@ -128,10 +128,10 @@ local function clog(...) --clean log
 		msgs = msgs .. tostring(msg) .. "  "
 	end
 
-	msgString = "[" .. os.date(_M.devConf.dateFormat) .. "]" .. getInternalPrefix() .. msgs
+	msgString = "[" .. os.date(_M._I.devConf.dateFormat) .. "]" .. getInternalPrefix() .. msgs
 
 	if not debug.silenceMode then
-		--print(_M.mainThread, _M.terminal, _M.initData.logfile, msgString)
+		--print(_M._I.mainThread, _M._I.terminal, _M._I.initData.logfile, msgString)
 		print(msgString)
 	end
 	setInternalPrefix("")
@@ -187,8 +187,8 @@ local function fatal(...)
 	--love.quit(1, ...) --ToDo: replace with an exit event once event system is done.
 	--os.exit(1)
 	mail("[FATAL]", ...)
-	if _G._M.stopProgram() then
-		_G._M.stopProgram()
+	if _G._M._I.stopProgram() then
+		_G._M._I.stopProgram()
 	else
 		io.stderr:write("Usual stopProgram routine not avaiable. Not even fully initialized?")
 		for _, line in pairs({...}) do

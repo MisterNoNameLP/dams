@@ -59,7 +59,7 @@ _M = setmetatable({}, {
     end
   end,
 })
-_M._PROMPT = tostring(_M._PROMPT or "\27[32mlua> \27[37m")
+_M._I._PROMPT = tostring(_M._I._PROMPT or "\27[32mlua> \27[37m")
 
 local function findTable(t, path)
   if type(t) ~= "table" then return nil end
@@ -116,9 +116,9 @@ local function readHandler(line, index)
   return hints
 end
 
-_M._M = global
+_M._I._M = global
 --[[
-_M.print = function(...)
+_M._I.print = function(...)
 	local s = "[LUA]: " .. tostring(...)
 
 	global.print(s)
@@ -126,11 +126,11 @@ end
 ]]
 
 local function textInput(text)
-  --global.log(_M._PROMPT)
+  --global.log(_M._I._PROMPT)
   
   if text == "exit" or text == "quit" then
 	  plog("Exitting LUA terminal")
-	  _M._M.terminal.setTerminal()
+	  _M._I._M._I.terminal.setTerminal()
 	  return 0
   end
   

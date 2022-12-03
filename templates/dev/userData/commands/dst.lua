@@ -1,4 +1,4 @@
-local requestChannel = _M.thread.getChannel("SHARED_REQUEST")
+local requestChannel = _M._I.thread.getChannel("SHARED_REQUEST")
 
 log("Dumping shared table")
 requestChannel:push({

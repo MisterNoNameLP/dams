@@ -1,6 +1,6 @@
 return function(self, perm)
 	local userID = self:getID()
-	local db = _M.loginDB
+	local db = _M._I.loginDB
 	local reason, suc = nil, nil
 	local permLevel
 	

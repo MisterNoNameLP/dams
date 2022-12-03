@@ -1,3 +1,3 @@
 return function(reason, wait)
-	_M.event.push("STOP_PROGRAM", reason)
+	_M._I.event.push("STOP_PROGRAM", reason)
 end
