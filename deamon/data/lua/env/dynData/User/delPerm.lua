@@ -1,6 +1,6 @@
 return function(self, perm, level)
 	local userID = self:getID()
-	local db = env.loginDB
+	local db = _M.loginDB
 	local reason, suc = nil, nil
 	
 	local permSetAlready, permLevelError = self:getPerm(perm)

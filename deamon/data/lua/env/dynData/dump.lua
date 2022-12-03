@@ -1,4 +1,4 @@
 return function(...)
-	dlog(env.lib.ut.tostring({...}))
+	dlog(_M.lib.ut.tostring({...}))
 	return ...
 end

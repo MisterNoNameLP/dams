@@ -1,5 +1,5 @@
 return function(username)
-	local db = env.loginDB
+	local db = _M.loginDB
 	local userExists = false
 	local errCode, reason = nil, nil
 	local userID = nil

@@ -1,6 +1,6 @@
 
-if env.mainThread and false then
-    print(env.getThreadInfos().name)
+if _M.mainThread and false then
+    print(_M.getThreadInfos().name)
 
     print("T1")
     io.write("IO WRITE")

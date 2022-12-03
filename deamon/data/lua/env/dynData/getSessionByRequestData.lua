@@ -1,5 +1,5 @@
 return function(requestData)
-    local cookie = env.dyn.getCookies(requestData)
+    local cookie = _M.dyn.getCookies(requestData)
     local token 
 
     if requestData.request and requestData.request.token then
@@ -10,5 +10,5 @@ return function(requestData)
         return false, "Can't find a sesssion token."
     end
 
-    return env.dyn.Session.new(token)
+    return _M.dyn.Session.new(token)
 end

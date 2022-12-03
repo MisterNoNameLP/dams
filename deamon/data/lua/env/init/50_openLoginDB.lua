@@ -1,2 +1,2 @@
 log("Open user DB")
-env.loginDB = env.lib.sqlite.open(env.devConf.userLoginDatabasePath)
+_M.loginDB = _M.lib.sqlite.open(_M.devConf.userLoginDatabasePath)

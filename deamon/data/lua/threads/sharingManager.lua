@@ -23,11 +23,11 @@ local lockTable = {locks = {}}
 local _internal = {}
 
 local responseChannels = {}
-local requestChannel = env.thread.getChannel("SHARED_REQUEST")
-local requestIDChannel = env.thread.getChannel("SHARED_CURRENT_REQUEST_ID")
+local requestChannel = _M.thread.getChannel("SHARED_REQUEST")
+local requestIDChannel = _M.thread.getChannel("SHARED_CURRENT_REQUEST_ID")
 
 local ldlog = debug.sharingThread
-local generateIndexString = getmetatable(env.shared)._internal.generateIndexString
+local generateIndexString = getmetatable(_M.shared)._internal.generateIndexString
 
 --===== local functions =====--
 local function getValue(source, indexTable)
@@ -84,11 +84,11 @@ function _internal.execRequest(request)
 	if request ~= nil then
 		if responseChannels[request.threadID] == nil then
 			--os.execute("echo " .. request.threadID .. " > tt")
-			responseChannels[request.threadID] = env.thread.getChannel("SHARED_RESPONSE#" .. tostring(request.threadID))
+			responseChannels[request.threadID] = _M.thread.getChannel("SHARED_RESPONSE#" .. tostring(request.threadID))
 		end
 
 		if request.request == "get" then
-			if env.devConf.debug.logLevel.sharingThread then --double check to prevent string concatenating process if debug output is disabled.
+			if _M.devConf.debug.logLevel.sharingThread then --double check to prevent string concatenating process if debug output is disabled.
 				ldlog("GET request (CID: " .. tostring(request.threadID) .. "); index: '" .. generateIndexString(request.indexTable) .. "' requestID: " .. tostring(request.requestID))
 			end
 
@@ -109,7 +109,7 @@ function _internal.execRequest(request)
 				indexString = string.sub(indexString, 2)
 			end
 
-			if env.devConf.debug.logLevel.sharingThread then --double check to prevent string concatenating process if debug output is disabled.
+			if _M.devConf.debug.logLevel.sharingThread then --double check to prevent string concatenating process if debug output is disabled.
 				ldlog("SET request (CID: " .. tostring(request.threadID) .. "); index: " .. indexString .. "; new value: '" .. tostring(request.value) .. "' requestID: " .. tostring(request.requestID))
 			end
 
@@ -125,12 +125,12 @@ function _internal.execRequest(request)
 		elseif request.request == "call" then
 			_internal.execCallRequest(request)
 		elseif request.request == "dump" then
-			log("Dumping shared table:\n" .. env.tostring(sharedData))
+			log("Dumping shared table:\n" .. _M.tostring(sharedData))
 		elseif request.request == "dump_lockTable" then
-			log("Dumping lockTable:\n" .. env.tostring(lockTable))
+			log("Dumping lockTable:\n" .. _M.tostring(lockTable))
 		elseif request.request == "stop" then --debug
 			ldlog("Stop sharing manager")
-			env.stop()
+			_M.stop()
 		end
 	end
 end
@@ -144,7 +144,7 @@ function _internal.execCallRequest(request)
 		log("Sharing table test call; requestID: " .. tostring(request.requestID))
 		success = true
 	elseif request.order == "dump" then
-		log("Dumping shared table: '" .. generateIndexString(request.indexTable) .. "': " .. env.tostring(getValue(sharedData, request.indexTable)) .."; requestID: " .. tostring(request.requestID))
+		log("Dumping shared table: '" .. generateIndexString(request.indexTable) .. "': " .. _M.tostring(getValue(sharedData, request.indexTable)) .."; requestID: " .. tostring(request.requestID))
 		success = true
 	elseif request.order == "get" then
 		returnTable.value = getValue(sharedData, request.indexTable)
@@ -209,7 +209,7 @@ function _internal.execCallRequest(request)
 		returnTable.error = "No valid order"
 	end
 	if not success then
-		warn("Could not successfully execute call order: " .. request.order .. "; thread: " .. tostring(request.threadID) .. "; requestID: " .. tostring(request.requestID) .. "; error: \"" .. env.tostring(returnTable.error) .. "\"\nFull returnTable: ".. env.tostring(returnTable) .. "\nFull order request: " .. env.tostring(request))
+		warn("Could not successfully execute call order: " .. request.order .. "; thread: " .. tostring(request.threadID) .. "; requestID: " .. tostring(request.requestID) .. "; error: \"" .. _M.tostring(returnTable.error) .. "\"\nFull returnTable: ".. _M.tostring(returnTable) .. "\nFull order request: " .. _M.tostring(request))
 	end
 	returnTable.success = success
 	responseChannels[request.threadID]:push(returnTable)

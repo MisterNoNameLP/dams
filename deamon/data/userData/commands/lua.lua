@@ -1,6 +1,6 @@
---local env, args = ...
+--local _M, args = ...
 local lua = {}
-local luaShell = loadfile("lua/libs/thirdParty/luaShell.lua")(env)
+local luaShell = loadfile("lua/libs/thirdParty/luaShell.lua")(_M)
 local lastAutoCompBase = ""
 
 function lua.input(input, command, args)
@@ -25,4 +25,4 @@ function lua.autoComp(text, ti)
 	end
 end
 
-env.terminal.setTerminal(lua, "[LUA]")
+_M.terminal.setTerminal(lua, "[LUA]")

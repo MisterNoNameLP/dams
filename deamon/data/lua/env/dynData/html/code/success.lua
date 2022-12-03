@@ -1,5 +1,5 @@
 return function(requestData)
-    local referer = env.dyn.http.getReferer(requestData, true)
+    local referer = _M.dyn.http.getReferer(requestData, true)
     local returnString = [[
 <html>
     <head>

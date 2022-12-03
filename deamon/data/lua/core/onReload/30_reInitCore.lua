@@ -1,13 +1,13 @@
-local env, shared = ...
+local _M, shared = ...
 
-if env.devConf.onReload.core then
+if _M.devConf.onReload.core then
 	dlog("Re init core")
 
-	_G.loadfile = env.org.loadfile
+	_G.loadfile = _M.org.loadfile
 
-	local _, newEnv, newShared = loadfile("data/lua/core/init.lua")(env.damsVersion, env.args)
+	local _, newEnv, newShared = loadfile("data/lua/core/init.lua")(_M.damsVersion, _M.args)
 	
 	newEnv.oldEnv = env
 	
-	env.dl.setEnv(newEnv, newShared)
+	_M.dl.setEnv(newEnv, newShared)
 end

@@ -1,5 +1,5 @@
-local env = ...
+local _M = ...
 
-_G.sleep = env.timer.sleep
+_G.sleep = _M.timer.sleep
 
-return env.timer.sleep
+return _M.timer.sleep

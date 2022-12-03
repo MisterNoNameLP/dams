@@ -1,4 +1,4 @@
---env table sketch
+--_M table sketch
 
 _M = {
     _E -- users env

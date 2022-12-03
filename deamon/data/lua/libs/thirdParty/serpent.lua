@@ -120,15 +120,15 @@ local function s(t, opts)
 end
 
 local function deserialize(data, opts)
-  local env = (opts and opts.safe == false) and G
+  local _M = (opts and opts.safe == false) and G
     or setmetatable({}, {
         __index = function(t,k) return t end,
         __call = function(t,...) error("cannot call functions") end
       })
-  local f, res = (loadstring or load)('return '..data, nil, nil, env)
-  if not f then f, res = (loadstring or load)(data, nil, nil, env) end
+  local f, res = (loadstring or load)('return '..data, nil, nil, _M)
+  if not f then f, res = (loadstring or load)(data, nil, nil, _M) end
   if not f then return f, res end
-  if setfenv then setfenv(f, env) end
+  if setfenv then setfenv(f, _M) end
   return pcall(f)
 end
 

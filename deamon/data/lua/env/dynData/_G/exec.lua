@@ -8,7 +8,7 @@ return function(cmd, envTable, secret, pollTimeout)
     local returnSignal
     
     if envTable then
-        execString = execString .. env.dyn.sh.envSetup(envTable)
+        execString = execString .. _M.dyn.sh.envSetup(envTable)
     end
     execString = execString .. " " .. cmd .. " 2>&1; printf \"\n$?\""
 

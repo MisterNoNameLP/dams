@@ -5,19 +5,19 @@ return function(user, expireDate, name, note, requestData)
 		error("No valid user given", 2)
 	end
 
-	return env.dyn.Session.create(user, expireDate, name, note, requestData)
+	return _M.dyn.Session.create(user, expireDate, name, note, requestData)
 
 	--[[
-	local sessionID = env.ut.randomString(32)
+	local sessionID = _M.ut.randomString(32)
 	local user
 	
-	while env.getSession(sessionID) ~= nil do
-		sessionID = env.ut.randomString(32)
+	while _M.getSession(sessionID) ~= nil do
+		sessionID = _M.ut.randomString(32)
 	end
 	
 	userData.loginToken = sessionID
-	user = env.User.new(userData)
-	env.shared.openSessions[sessionID] = user:getData()
+	user = _M.User.new(userData)
+	_M.shared.openSessions[sessionID] = user:getData()
 	
 	return sessionID
 	]]

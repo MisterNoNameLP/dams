@@ -1,5 +1,5 @@
 --DAMS main file
-local env, shared = ...
+local _M, shared = ...
 
 local getch = require("getch")
 
@@ -8,7 +8,7 @@ local terminal = {
 	currentTerminal = nil,
 	currentTerminalPrefix = "",
 	
-	terminal = loadfile(env.devConf.terminalPath .. "terminal.lua")(env),
+	terminal = loadfile(_M.devConf.terminalPath .. "terminal.lua")(_M),
 }
 
 function terminal.setTerminal(t, prefix)
@@ -25,7 +25,7 @@ function terminal.input(input)
 	
 	for c in string.gmatch(input, "[^ ]+") do
 		if command == "" then
-			if c == env.devConf.terminal.commands.forceMainTerminal then
+			if c == _M.devConf.terminal.commands.forceMainTerminal then
 				callMainTerminal = true
 			else
 				command = c
@@ -45,9 +45,9 @@ function terminal.input(input)
 	
 	if terminal.currentTerminal ~= nil and not callMainTerminal then
 		terminal.currentTerminal.input(input, command, args)
-	elseif env.commands[command] ~= nil then
-		local suc, err = xpcall(env.commands[command], debug.traceback, env, args, env.lib)
-		--local suc, err = env.startFileThread("userData/commands/" .. command .. ".lua", "[COMMAND_THREAD][" .. command .. "]") --terminal.setTerminal is not working this way.
+	elseif _M.commands[command] ~= nil then
+		local suc, err = xpcall(_M.commands[command], debug.traceback, _M, args, _M.lib)
+		--local suc, err = _M.startFileThread("userData/commands/" .. command .. ".lua", "[COMMAND_THREAD][" .. command .. "]") --terminal.setTerminal is not working this way.
 		
 		plog(suc, err)
 	elseif command ~= "" then
@@ -68,4 +68,4 @@ function love.update()
 	terminal.terminal.draw()
 end
 
-env.terminal = terminal
+_M.terminal = terminal

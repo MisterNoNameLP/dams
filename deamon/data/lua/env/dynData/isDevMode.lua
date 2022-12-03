@@ -1,3 +1,3 @@
 return function()
-	return env.devConf.devMode
+	return _M.devConf.devMode
 end

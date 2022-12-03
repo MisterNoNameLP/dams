@@ -1,5 +1,5 @@
 return function(envTable)
-    local execString = "env "
+    local execString = "_M "
 
     for index, value in pairs(envTable) do
         execString = execString .. index .. "=\"" .. tostring(value) .. "\" " 

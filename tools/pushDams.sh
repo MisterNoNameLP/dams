@@ -21,7 +21,7 @@ cd $damsDir
 #mv $damsGitIgnore .gitignore
 
 #  push to dams repo
-git add ./*
+git add .
 git commit -m "$@"
 git push
 

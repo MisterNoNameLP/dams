@@ -1,7 +1,7 @@
---pre initializes the env for all threads
+--pre initializes the _M for all threads
 
 local initData = ...
-local env = {
+local _M = {
 	--threadName = initData.name,
 	mainThread = initData.mainThread,
 	initData = initData,
@@ -12,9 +12,9 @@ local _internal = {
 	threadName = initData.name,
 	threadIsActive = true,
 }
-setmetatable(env, {_internal = _internal})
-_G.env = env --obsolet in v1.x
-_G._E = env
+setmetatable(_M, {_internal = _internal})
+_G._M = _M --obsolet in v1.x
+_G._E = _M
 
 if initData.mainThread == true then --makes the print funciton logging into the logfile until the terminal is initialized. wich then replaces the global print function and takes take about the logging.
 	local orgPrint = print
@@ -34,49 +34,49 @@ end
 
 --=== load devConf ===--
 local devConf = loadfile("data/devConf.lua")()
-env.devConf = devConf
+_M.devConf = devConf
 
 package.path = devConf.requirePath .. ";" .. package.path
 package.cpath = devConf.cRequirePath .. ";" .. package.cpath
 
 --=== set debug ===--
-env.debug = loadfile("data/lua/env/debug.lua")(devConf, tostring(_internal.threadName) .. "[ENV_INIT]")
+_M.debug = loadfile("data/lua/env/debug.lua")(devConf, tostring(_internal.threadName) .. "[ENV_INIT]")
 
---=== disable env init logs for non main threads ===--
-if not env.mainThread and not env.devConf.debug.logLevel.threadEnvInit then
+--=== disable _M init logs for non main threads ===--
+if not _M.mainThread and not _M.devConf.debug.logLevel.threadEnvInit then
 	debug.setSilenceMode(true)
 end
 
 --=== set environment ===--
 dlog("Load coreEnv")
-loadfile("data/lua/env/coreEnv.lua")(env, env.mainThread)
+loadfile("data/lua/env/coreEnv.lua")(_M, _M.mainThread)
 
 --NOTE: "data/" is default path from here on
 
 dlog("Loading core libs")
-env.fs = require("love.filesystem")
-env.ut = require("UT")
-env.dl = loadfile("lua/libs/dataLoading.lua")(env)
+_M.fs = require("love.filesystem")
+_M.ut = require("UT")
+_M.dl = loadfile("lua/libs/dataLoading.lua")(_M)
 
 dlog("Initialize the environment")
 debug.setLogPrefix(tostring(_internal.threadName))
 
-env.dl.executeDir("lua/env/init", "envInit")
+_M.dl.executeDir("lua/env/init", "envInit")
 
-dlog("Load dynamic env data")
+dlog("Load dynamic _M data")
 
-env.dyn = {}
-_G._D = env.dyn
-env.dl.load({
-	target = env.dyn, 
+_M.dyn = {}
+_G._D = _M.dyn
+_M.dl.load({
+	target = _M.dyn, 
 	dir = "lua/env/dynData", 
 	name = "dynData", 
 	structured = true,
 	execute = true,
 })
 
-env.dl.load({ --legacy
-	target = env, 
+_M.dl.load({ --legacy
+	target = _M, 
 	dir = "lua/env/dynData", 
 	name = "dynData", 
 	structured = true,
@@ -84,13 +84,13 @@ env.dl.load({ --legacy
 })
 
 _G._S = _E.shared
-for i, c in pairs(env._G) do
+for i, c in pairs(_M._G) do
 	_G[i] = c
 end
 
---env.dl.loadDir("lua/env/dynData/test", {}, "dynData")
+--_M.dl.loadDir("lua/env/dynData/test", {}, "dynData")
 
 --=== enable logs again ===--
 debug.setSilenceMode(false)
 
-return env, env.shared
+return _M, _M.shared

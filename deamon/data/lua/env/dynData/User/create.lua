@@ -1,5 +1,5 @@
 return function(username, password)
-	local db = env.loginDB
+	local db = _M.loginDB
 	local createUser, reason, suc = true, nil, nil
 	local userID = nil
 	
@@ -34,7 +34,7 @@ return function(username, password)
 	if createUser then
 		log("Create userDB entry: username: \"" .. username .. "\", ID: " .. tostring(userID) .. "")
 		
-		suc = db:exec([[INSERT INTO users VALUES ("]] .. username .. [[", "]] .. env.hashPasswd(password) .. [[", ]] .. tostring(userID) .. [[)]])
+		suc = db:exec([[INSERT INTO users VALUES ("]] .. username .. [[", "]] .. _M.hashPasswd(password) .. [[", ]] .. tostring(userID) .. [[)]])
 	end
 	
 	if createUser ~= true or suc ~= 0 then

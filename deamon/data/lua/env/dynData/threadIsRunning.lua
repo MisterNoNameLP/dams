@@ -1,5 +1,5 @@
-local env = ...
+local _M = ...
 
 return function()
-	return getmetatable(env)._internal.threadIsActive
+	return getmetatable(_M)._internal.threadIsActive
 end

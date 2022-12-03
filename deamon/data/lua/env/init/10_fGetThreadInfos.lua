@@ -1,5 +1,5 @@
-env.getThreadInfos = function()
-	local _internal = getmetatable(env)._internal
+_M.getThreadInfos = function()
+	local _internal = getmetatable(_M)._internal
 	
 	return {
 		id = _internal.threadID,

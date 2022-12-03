@@ -1,7 +1,7 @@
 debug.setFuncPrefix("[DB]")
 dlog("Prepare login DB")
 
-local db, err = env.lib.sqlite.open(env.devConf.userLoginDatabasePath)
+local db, err = _M.lib.sqlite.open(_M.devConf.userLoginDatabasePath)
 local createSysinfoEntry = true
 
 ldlog(db, err)
@@ -45,7 +45,7 @@ dlog("Create sessions table: " .. tostring(db:exec([[
 ]])))
 
 
-dlog("Prepare sysinfo table: " .. tostring(env.loginDB:exec([[
+dlog("Prepare sysinfo table: " .. tostring(_M.loginDB:exec([[
 	SELECT userCount FROM sysinfo
 ]], function(udata,cols,values,names)
 	for i=1,cols do 

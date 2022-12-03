@@ -1,4 +1,4 @@
---default debug env for all threads.
+--default debug _M for all threads.
 
 local devConf, defaultPrefix = ...
 
@@ -128,10 +128,10 @@ local function clog(...) --clean log
 		msgs = msgs .. tostring(msg) .. "  "
 	end
 
-	msgString = "[" .. os.date(env.devConf.dateFormat) .. "]" .. getInternalPrefix() .. msgs
+	msgString = "[" .. os.date(_M.devConf.dateFormat) .. "]" .. getInternalPrefix() .. msgs
 
 	if not debug.silenceMode then
-		--print(env.mainThread, env.terminal, env.initData.logfile, msgString)
+		--print(_M.mainThread, _M.terminal, _M.initData.logfile, msgString)
 		print(msgString)
 	end
 	setInternalPrefix("")
@@ -187,8 +187,8 @@ local function fatal(...)
 	--love.quit(1, ...) --ToDo: replace with an exit event once event system is done.
 	--os.exit(1)
 	mail("[FATAL]", ...)
-	if _G.env.stopProgram() then
-		_G.env.stopProgram()
+	if _G._M.stopProgram() then
+		_G._M.stopProgram()
 	else
 		io.stderr:write("Usual stopProgram routine not avaiable. Not even fully initialized?")
 		for _, line in pairs({...}) do

@@ -1,7 +1,7 @@
---default env for all threads.
-local env, mainThread, originalIoFunctions = ...
+--default _M for all threads.
+local _M, mainThread, originalIoFunctions = ...
 
-env.org = {
+_M.org = {
 	require = require,
 	loadfile = loadfile,
 	print = print,
@@ -17,12 +17,12 @@ env.org = {
 local orgRequire = require
 local orgLoadfile = loadfile
 
-env.debug.internal.ioWriteBuffer = ""
+_M.debug.internal.ioWriteBuffer = ""
 
 local thread = orgRequire("love.thread")
 local debug_print = thread.getChannel("debug_print")
 
-if not env.mainThread then --the main thread gets its own print function through the terminal. as well as an preinit print function through envInit.lua.
+if not _M.mainThread then --the main thread gets its own print function through the terminal. as well as an preinit print function through envInit.lua.
 	_G.print = function(...)
 		local msgs = ""
 		for _, msg in pairs({...}) do
@@ -34,23 +34,23 @@ end
 
 _G.io.write = function(...)
 	for _, msg in pairs({...}) do
-		env.debug.internal.ioWriteBuffer = env.debug.internal.ioWriteBuffer .. tostring(msg)
+		_M.debug.internal.ioWriteBuffer = _M.debug.internal.ioWriteBuffer .. tostring(msg)
 	end
 end
 
 _G.io.flush = function()
-	_G.print(env.debug.internal.ioWriteBuffer)
-	env.debug.internal.ioWriteBuffer = ""
+	_G.print(_M.debug.internal.ioWriteBuffer)
+	_M.debug.internal.ioWriteBuffer = ""
 end
 
 getmetatable(io.stdout).__index.write = function(...) --sets the index for all userdata.write functions! 
 	local args = {...}
 	local msgString = ""
 
-	env.org.io.stdoutMetatable.write(...)
+	_M.org.io.stdoutMetatable.write(...)
 
 	if args[1] == io.stdout or args[1] == io.stderr then --BUG: the value gets protet to the terminal twice if the main thread writes to it. logfile is not affected.
-		env.org.io.stdoutMetatable.write(args[1], "\n")
+		_M.org.io.stdoutMetatable.write(args[1], "\n")
 
 		table.remove(args, 1)
 
@@ -63,14 +63,14 @@ end
 
 local function require(p)
 	debug.setFuncPrefix("[REQUIRE]")
-	env.debug.requireLog(tostring(p))
+	_M.debug.requireLog(tostring(p))
 	return orgRequire(p)
 end
 
 local function loadfile(p)
 	local func, err
 	debug.setFuncPrefix("[LOADFILE]")
-	env.debug.loadfileLog(tostring(p))
+	_M.debug.loadfileLog(tostring(p))
 	func, err = orgLoadfile("data/" .. p)
 	if func == nil then
 		debug.err(func, err)

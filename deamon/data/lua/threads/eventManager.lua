@@ -2,8 +2,8 @@ log("Starting event manager")
 
 local listeners = {}
 
-local eventQueue = env.thread.getChannel("EVENT_QUEUE_MAIN")
-local listnerRegistation = env.thread.getChannel("EVENT_LISTENER_REGISTRATION")
+local eventQueue = _M.thread.getChannel("EVENT_QUEUE_MAIN")
+local listnerRegistation = _M.thread.getChannel("EVENT_LISTENER_REGISTRATION")
 
 local function registrateNewListeners()
 	while listnerRegistation:peek() ~= nil do
@@ -15,7 +15,7 @@ local function registrateNewListeners()
 		
 		if request.request == "listen" then
 			edlog("Registrate new listener thread: " .. tostring(request.threadName) .. "(" .. tostring(request.threadID) .. ")" .. " for event: " .. request.eventName)
-			listeners[request.eventName][request.threadID] = env.thread.getChannel("EVENT_QUEUE_THREAD#" .. tostring(request.threadID))
+			listeners[request.eventName][request.threadID] = _M.thread.getChannel("EVENT_QUEUE_THREAD#" .. tostring(request.threadID))
 		elseif request.request == "ignore" then
 			edlog("Ignore listener thread: " .. tostring(request.threadName) .. "(" .. tostring(request.threadID) .. ")" .. " for event: " .. request.eventName)
 			listeners[request.eventName][request.threadID] = nil

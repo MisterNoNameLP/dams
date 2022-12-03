@@ -1,4 +1,4 @@
 return function()
-	env.event.ignoreAll()
-	getmetatable(env)._internal.threadIsActive = false
+	_M.event.ignoreAll()
+	getmetatable(_M)._internal.threadIsActive = false
 end

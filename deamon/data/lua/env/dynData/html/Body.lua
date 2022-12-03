@@ -1,6 +1,6 @@
 local Body = {}
 
-local parseArgs = env.lib.ut.parseArgs
+local parseArgs = _M.lib.ut.parseArgs
 
 function Body.new()
     local self = setmetatable({}, {__index = function(...)
@@ -53,7 +53,7 @@ end
 
 function Body:addGoBackButton(requestData, name)
     local html
-    local referer = env.dyn.http.getReferer(requestData, true)
+    local referer = _M.dyn.http.getReferer(requestData, true)
     if referer then
         html = [[
 <a href="]]..referer..[[">  
@@ -146,7 +146,7 @@ end
 
 function Body:goBack(requestData, delay)
     local html
-    local referer = env.dyn.http.getReferer(requestData, true)
+    local referer = _M.dyn.http.getReferer(requestData, true)
     if referer then
         html = [[
 <meta http-equiv="Refresh" content="]]..tostring(delay or 0)..[[; url=']]..referer..[['" />

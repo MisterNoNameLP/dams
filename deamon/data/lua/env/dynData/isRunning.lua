@@ -1,6 +1,6 @@
-local env = ...
+local _M = ...
 
-local channel = env.thread.getChannel("PROGRAM_IS_RUNNING")
+local channel = _M.thread.getChannel("PROGRAM_IS_RUNNING")
 
 return function()
 	return channel:peek()

@@ -1,5 +1,5 @@
 return function(self)
-	local db = env.loginDB
+	local db = _M.loginDB
 	local userExists = false
 	local errCode, reason = 0, nil
 	

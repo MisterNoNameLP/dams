@@ -1,3 +1,3 @@
 return function(sessionID)
-	return env.shared.openSessions[sessionID]
+	return _M.shared.openSessions[sessionID]
 end

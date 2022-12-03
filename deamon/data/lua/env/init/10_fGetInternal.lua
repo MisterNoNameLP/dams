@@ -1,3 +1,3 @@
-env.getInternal = function()
-	return getmetatable(env)._internal
+_M.getInternal = function()
+	return getmetatable(_M)._internal
 end

@@ -1,7 +1,7 @@
 # v1 roadmap
 ### folder structure
 anything needed / shippied with DAMS gets into `/data/dams`.  
-adding `/data/env` as env for the user to add.  
+adding `/data/env` as _M for the user to add.  
 move `/data/userdata/sites` to `/data`.  
 rename `/data/userdata` to `/data/api`.  
 
@@ -10,4 +10,4 @@ rename `/data/userdata` to `/data/api`.
 
 ### default vars
 replace `env` with `_E`.  
-replace `env.dyn` with `_D`.  
+replace `_M.dyn` with `_D`.  

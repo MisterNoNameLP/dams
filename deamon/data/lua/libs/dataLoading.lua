@@ -1,13 +1,13 @@
-local env, shared = ...
+local _M, shared = ...
 
 local DL = {}
-local pa = env.ut.parseArgs
+local pa = _M.ut.parseArgs
 
-local defaultFileCode = [[local env, shared = ...;]]
+local defaultFileCode = [[local _M, shared = ...;]]
 
 --===== lib functions =====--
 local function loadDir(target, dir, logFuncs, overwrite, subDirs, structured, priorityOrder, loadFunc, executeFiles)
-	local path = dir .. "/" --= env.shell.getWorkingDirectory() .. "/" .. dir .. "/"
+	local path = dir .. "/" --= _M.shell.getWorkingDirectory() .. "/" .. dir .. "/"
 	logFuncs = logFuncs or {}
 	--local print = logFuncs.log or dlog
 	local print = logFuncs.log or debug.dataLoadingLog
@@ -17,15 +17,15 @@ local function loadDir(target, dir, logFuncs, overwrite, subDirs, structured, pr
 	local loadedFiles = 0
 	local failedFiles = 0
 	
-	subDirs = env.ut.parseArgs(subDirs, true)
+	subDirs = _M.ut.parseArgs(subDirs, true)
 	
-	for _, file in pairs(env.fs.getDirectoryItems(path)) do
-		local p, name, ending = env.ut.seperatePath(path .. file)
+	for _, file in pairs(_M.fs.getDirectoryItems(path)) do
+		local p, name, ending = _M.ut.seperatePath(path .. file)
 		
 		--print(p)
 		
 		if name ~= "gitignore" and name ~= "gitkeep" then
-			if env.fs.getInfo(path .. file).type == "directory" and subDirs then
+			if _M.fs.getInfo(path .. file).type == "directory" and subDirs then
 				if structured then
 					if target[string.sub(file, 0, #file)] == nil or overwrite then
 						target[string.sub(file, 0, #file)] = {}
@@ -54,7 +54,7 @@ local function loadDir(target, dir, logFuncs, overwrite, subDirs, structured, pr
 				else
 					--suc, err = loadfile(path .. file)
 					local filePath = "data/" .. path .. file
-					local fileCode, fileErr = env.ut.readFile(filePath)
+					local fileCode, fileErr = _M.ut.readFile(filePath)
 					local tracebackPathNote = filePath
 					--print(path .. file)
 					if fileCode == nil then
@@ -92,7 +92,7 @@ local function loadDir(target, dir, logFuncs, overwrite, subDirs, structured, pr
 					target[name] = suc
 					if executeFiles then
 						if type(suc) == "function" then
-							local suc, returnValue = xpcall(suc, debug.traceback, env, shared)
+							local suc, returnValue = xpcall(suc, debug.traceback, _M, shared)
 							if suc == false then
 								warn("Failed to execute: " .. name)
 								warn(returnValue)
@@ -148,7 +148,7 @@ local function execute(t, dir, name, callback, callbackArgs)
 		if scripts ~= nil then
 			for name, func in pairs(scripts) do
 				debug.lowDataExecutionLog("Execute: " .. name .. " (" .. tostring(func) .. ")")
-				local suc, err = xpcall(func, debug.traceback, env, shared)
+				local suc, err = xpcall(func, debug.traceback, _M, shared)
 				
 				if suc == false then
 					warn("Failed to execute: " .. name)
@@ -178,7 +178,7 @@ local function loadDir(dir, target, name) --is this user or even done?
 		structured = true,
 	})
 	print("################################")
-	print(env.ut.tostring(scripts))
+	print(_M.ut.tostring(scripts))
 	
 	local function sortIn(value, orgName, args)
 		local index = args.index
@@ -217,7 +217,7 @@ local function loadDir(dir, target, name) --is this user or even done?
 	end
 	iterate(scripts)
 	
-	print(env.ut.tostring(target))
+	print(_M.ut.tostring(target))
 end
 
 local function executeDir(dir, name)
@@ -240,7 +240,7 @@ local function executeDir(dir, name)
 end
 
 local function setEnv(newEnv, newShared)
-	env = newEnv
+	_M = newEnv
 	shared = newShared
 end
 

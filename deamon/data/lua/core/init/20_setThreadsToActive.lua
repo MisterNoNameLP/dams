@@ -1,6 +1,6 @@
-local env = ...
+local _M = ...
 
-local programActiveChannel = env.thread.getChannel("PROGRAM_IS_RUNNING")
+local programActiveChannel = _M.thread.getChannel("PROGRAM_IS_RUNNING")
 
 programActiveChannel:pop()
 programActiveChannel:push(true)

@@ -1,15 +1,15 @@
-local env = ...
+local _M = ...
 
 local shared = {
 }
 local _internal = {
-	channelID = env.getThreadInfos().id,
+	channelID = _M.getThreadInfos().id,
 }
 --setmetatable(shared, {_internal = _internal})
 
-local requestChannel = env.thread.getChannel("SHARED_REQUEST")
-local responseChannel = env.thread.getChannel("SHARED_RESPONSE#" .. tostring(_internal.channelID))
-local requestIDChannel = env.thread.getChannel("SHARED_CURRENT_REQUEST_ID")
+local requestChannel = _M.thread.getChannel("SHARED_REQUEST")
+local responseChannel = _M.thread.getChannel("SHARED_RESPONSE#" .. tostring(_internal.channelID))
+local requestIDChannel = _M.thread.getChannel("SHARED_CURRENT_REQUEST_ID")
 
 local ldlog = debug.sharingDebug
 
@@ -39,7 +39,7 @@ function _internal.index(sharedTable, index, internalRun)
 	local newIndexTable = {}
 	local requestID = _internal.getRequestID()
 
-	if env.devConf.debug.logLevel.sharingDebug then  --double check to prevent string concatenating process if debug output is disabled.
+	if _M.devConf.debug.logLevel.sharingDebug then  --double check to prevent string concatenating process if debug output is disabled.
 		ldlog("Get value: '" .. _internal.generateIndexString(getmetatable(sharedTable).indexTable or {}) .. "." .. tostring(index) .. "'; requestID: " .. tostring(requestID))
 	end
 
@@ -85,7 +85,7 @@ function _internal.newindex(sharedTable, index, value)
 	metatable = getmetatable(sharedTable)
 	local requestID = _internal.getRequestID()
 
-	if env.devConf.debug.logLevel.sharingDebug then  --double check to prevent string concatenating process if debug output is disabled.
+	if _M.devConf.debug.logLevel.sharingDebug then  --double check to prevent string concatenating process if debug output is disabled.
 		ldlog("Set value: '" .. _internal.generateIndexString(getmetatable(sharedTable).indexTable or {}) .. "." .. tostring(index) .. "'; new value: " .. tostring(value) .. "; requestID: " .. tostring(requestID))
 	end
 
@@ -121,7 +121,7 @@ function _internal.call(sharedTable, ...)
 		requestID = requestID,
 		indexTable = getmetatable(sharedTable).indexTable,
 		order = order,
-		bypassLock = env.ut.parseArgs(bypassLock, _internal.bypassLock),
+		bypassLock = _M.ut.parseArgs(bypassLock, _internal.bypassLock),
 	})
 
 	response = responseChannel:demand()
@@ -155,5 +155,5 @@ setmetatable(shared, {
 })
 
 
-env.shared = shared
+_M.shared = shared
 --_G.shared = shared

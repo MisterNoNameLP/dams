@@ -16,7 +16,7 @@ function Session.new(sessionLogin, force)
         return false, -12, "No valid session token given"
     end
 
-    errCode = env.loginDB:exec([[SELECT token, userID, expireTime, name, note, createdAutomatically, deletionTime FROM sessions WHERE sessionID = "]] .. sessionID .. [[" AND status == 0]], function(_, cols, values, names)
+    errCode = _M.loginDB:exec([[SELECT token, userID, expireTime, name, note, createdAutomatically, deletionTime FROM sessions WHERE sessionID = "]] .. sessionID .. [[" AND status == 0]], function(_, cols, values, names)
         for index, name in ipairs(names) do
             self.sessionData[name] = values[index]
         end
@@ -32,14 +32,14 @@ function Session.new(sessionLogin, force)
     end
 
     if tonumber(self.sessionData.expireTime) ~= -1 and tonumber(self.sessionData.expireTime) < os.time() then
-        if env.devConf.session.deleteExpiredSessions then
+        if _M.devConf.session.deleteExpiredSessions then
             self:delete()
         end
 
         return false, -11, "sessionID expired"
     end
 
-    if not env.verifyPasswd(self.sessionData.token, token) and not force then
+    if not _M.verifyPasswd(self.sessionData.token, token) and not force then
         return false, -13, "Can not verify session token"
     end
 
@@ -47,9 +47,9 @@ function Session.new(sessionLogin, force)
 end
 
 function Session.create(user, expireTime, name, note, requestData, createdAutomatically) --expireTime in seconds ongoing from 1970 00:00:00 UTC (os.time(...) in unix systems) or a time table.
-    local token = env.lib.ut.randomString(32)
-    local sessionID = env.lib.ut.randomString(16)
-    local userAgent = env.dyn.getHeader(requestData, "user-agent")
+    local token = _M.lib.ut.randomString(32)
+    local sessionID = _M.lib.ut.randomString(16)
+    local userAgent = _M.dyn.getHeader(requestData, "user-agent")
     local suc
 
 
@@ -60,9 +60,9 @@ function Session.create(user, expireTime, name, note, requestData, createdAutoma
         userAgent = "UNKNOWN"
     end
     
-    --print([[INSERT INTO sessions VALUES ("]] .. sessionID .. [[", "]] .. env.hashPasswd(token) .. [[", ]] .. expireTime ..[[, ]] .. tostring(user:getID()) .. [[)]])
+    --print([[INSERT INTO sessions VALUES ("]] .. sessionID .. [[", "]] .. _M.hashPasswd(token) .. [[", ]] .. expireTime ..[[, ]] .. tostring(user:getID()) .. [[)]])
 
-    suc = env.loginDB:exec([[INSERT INTO sessions VALUES ("]] .. sessionID .. [[", "]] .. env.hashPasswd(token) .. [[", ]] .. os.time() ..[[, ]] .. expireTime .. [[, ]] .. tostring(user:getID()) .. [[, "]] .. tostring(name) .. [[", "]] .. tostring(note) .. [[", "]] .. userAgent .. [[", ]] .. env.ut.parseArgs(createdAutomatically, 1) .. [[, 0, -1)]])
+    suc = _M.loginDB:exec([[INSERT INTO sessions VALUES ("]] .. sessionID .. [[", "]] .. _M.hashPasswd(token) .. [[", ]] .. os.time() ..[[, ]] .. expireTime .. [[, ]] .. tostring(user:getID()) .. [[, "]] .. tostring(name) .. [[", "]] .. tostring(note) .. [[", "]] .. userAgent .. [[", ]] .. _M.ut.parseArgs(createdAutomatically, 1) .. [[, 0, -1)]])
 
     if suc ~= 0 then
         return false, suc
@@ -99,7 +99,7 @@ function Session:setName(name)
         error("Invalid name given", 2)
     end
 
-    suc = env.loginDB:exec([[UPDATE sessions SET name = "]] .. tostring(name) .. [[" WHERE sessionID = "]] .. self:getSessionID() .. [["]])
+    suc = _M.loginDB:exec([[UPDATE sessions SET name = "]] .. tostring(name) .. [[" WHERE sessionID = "]] .. self:getSessionID() .. [["]])
 
     if suc == 0 then
         return true
@@ -115,7 +115,7 @@ function Session:setNote(note)
         error("Invalid note given", 2)
     end
 
-    suc = env.loginDB:exec([[UPDATE sessions SET note = "]] .. tostring(note) .. [[" WHERE sessionID = "]] .. self:getSessionID() .. [["]])
+    suc = _M.loginDB:exec([[UPDATE sessions SET note = "]] .. tostring(note) .. [[" WHERE sessionID = "]] .. self:getSessionID() .. [["]])
 
     if suc == 0 then
         return true
@@ -135,7 +135,7 @@ function Session:setExpireTime(expireTime)
         error("Invalid expire time given", 2)
     end
 
-    suc = env.loginDB:exec([[UPDATE sessions SET expireTime = ]] .. tostring(expireTime) .. [[ WHERE sessionID = "]] .. self:getSessionID() .. [["]])
+    suc = _M.loginDB:exec([[UPDATE sessions SET expireTime = ]] .. tostring(expireTime) .. [[ WHERE sessionID = "]] .. self:getSessionID() .. [["]])
 
     if suc == 0 then
         return true
@@ -155,7 +155,7 @@ function Session:setDeletionTime(deletionTime)
         error("Invalid deletion time given", 2)
     end
 
-    suc = env.loginDB:exec([[UPDATE sessions SET deletionTime = ]] .. tostring(deletionTime) .. [[ WHERE sessionID = "]] .. self:getSessionID() .. [["]])
+    suc = _M.loginDB:exec([[UPDATE sessions SET deletionTime = ]] .. tostring(deletionTime) .. [[ WHERE sessionID = "]] .. self:getSessionID() .. [["]])
 
     if suc == 0 then
         return true
@@ -167,7 +167,7 @@ end
 function Session:delete()
     local suc
 
-    suc = env.loginDB:exec([[DELETE FROM sessions WHERE sessionID = "]] .. self:getSessionID() .. [["]])
+    suc = _M.loginDB:exec([[DELETE FROM sessions WHERE sessionID = "]] .. self:getSessionID() .. [["]])
 
     if suc == 0 then
         return true

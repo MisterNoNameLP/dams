@@ -12,18 +12,18 @@ deamon/data/lua/test
 
 ### keep folder structure ###
 deamon/logs/*
-!*/deamon/logs/.gitkeep
+!deamon/logs/.gitkeep
 
 deamon/data/os/*
-!*/deamon/data/os/.gitkeep
+!deamon/data/os/.gitkeep
 
 deamon/data/userData/actions/*
-!*/deamon/data/userData/actions/.gitkeep
+!deamon/data/userData/actions/.gitkeep
 deamon/data/userData/init/*
-!*/deamon/data/userData/init/.gitkeep
+!deamon/data/userData/init/.gitkeep
 deamon/data/userData/onReload/*
-!*/deamon/data/userData/onReload/.gitkeep
+!deamon/data/userData/onReload/.gitkeep
 deamon/data/userData/actions/*
-!*/deamon/data/userData/actions/.gitkeep
+!deamon/data/userData/actions/.gitkeep
 deamon/data/userData/sites/*
-!*/deamon/data/userData/sites/.gitkeep
+!deamon/data/userData/sites/.gitkeep

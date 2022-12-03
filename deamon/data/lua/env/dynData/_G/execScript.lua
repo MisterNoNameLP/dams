@@ -4,7 +4,7 @@ return function(cmd, envTable, secret)
     local returnSignal
     
     if envTable then
-        execString = execString .. env.dyn.sh.envSetup(envTable)
+        execString = execString .. _M.dyn.sh.envSetup(envTable)
     end
     execString = execString .. " data/os/" .. cmd
     execString = execString .. "; printf \"\n$?\""

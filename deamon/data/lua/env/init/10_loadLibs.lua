@@ -1,4 +1,4 @@
-local env = ...
+local _M = ...
 
 dlog("Loading libs")
 
@@ -6,27 +6,27 @@ dlog("Loading libs")
 --===== load libs =====--
 --NOTE: could add dynamic lib loading to reduce processing time of thread init.
 
-env.lib = {}
+_M.lib = {}
 
-env.lib.thread = require("love.thread")
-env.lib.timer = require("love.timer")
-env.lib.serialization = require("serpent")
+_M.lib.thread = require("love.thread")
+_M.lib.timer = require("love.timer")
+_M.lib.serialization = require("serpent")
 
-env.lib.cqueues = require("cqueues")
-env.lib.sqlite = require("lsqlite3complete")
+_M.lib.cqueues = require("cqueues")
+_M.lib.sqlite = require("lsqlite3complete")
 
-env.lib.fs = require("love.filesystem")
-env.lib.ut = require("UT")
-env.lib.lfs = require("lfs")
-env.lib.argon2 = require("argon2")
-env.lib.ini = require("LIP")
+_M.lib.fs = require("love.filesystem")
+_M.lib.ut = require("UT")
+_M.lib.lfs = require("lfs")
+_M.lib.argon2 = require("argon2")
+_M.lib.ini = require("LIP")
 
 
 --====== legacy =====--
 --ToDo: have to be removed from older source files.
-env.thread = require("love.thread")
-env.timer = require("love.timer")
-env.serialization = require("serpent")
+_M.thread = require("love.thread")
+_M.timer = require("love.timer")
+_M.serialization = require("serpent")
 
-env.cqueues = require("cqueues")
-env.sqlite = require("lsqlite3complete")
+_M.cqueues = require("cqueues")
+_M.sqlite = require("lsqlite3complete")

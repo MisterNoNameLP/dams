@@ -1,4 +1,4 @@
-env.loginDB:exec([[
+_M.loginDB:exec([[
 	SELECT * FROM sysinfo
 ]], function(udata,cols,values,names)
 	print('sysinfo:')

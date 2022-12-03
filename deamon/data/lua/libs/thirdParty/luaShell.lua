@@ -38,8 +38,8 @@ local function optrequire(...)
   end
 end
 
-local env -- forward declare for binding in metamethod
-env = setmetatable({}, {
+local _M -- forward declare for binding in metamethod
+_M = setmetatable({}, {
   __index = function(_, k)
     _ENV[k] = _ENV[k] or optrequire(k)
     return _ENV[k]
@@ -47,7 +47,7 @@ env = setmetatable({}, {
   __pairs = function(t)
     return function(_, key)
       local k, v = next(t, key)
-      if not k and t == env then
+      if not k and t == _M then
         t = _ENV
         k, v = next(t)
       end
@@ -59,7 +59,7 @@ env = setmetatable({}, {
     end
   end,
 })
-env._PROMPT = tostring(env._PROMPT or "\27[32mlua> \27[37m")
+_M._PROMPT = tostring(_M._PROMPT or "\27[32mlua> \27[37m")
 
 local function findTable(t, path)
   if type(t) ~= "table" then return nil end
@@ -71,7 +71,7 @@ local function findTable(t, path)
     end
   end
   local mt = getmetatable(t)
-  if t == env then mt = {__index=_ENV} end
+  if t == _M then mt = {__index=_ENV} end
   if mt then
     return findTable(mt.__index, path)
   end
@@ -91,7 +91,7 @@ local function findKeys(t, r, prefix, name)
     end
   end
   local mt = getmetatable(t)
-  if t == env then mt = {__index=_ENV} end
+  if t == _M then mt = {__index=_ENV} end
   if mt then
     return findKeys(mt.__index, r, prefix, name)
   end
@@ -105,7 +105,7 @@ local function readHandler(line, index)
   if not path then return nil end
   local suffix = string.match(path, "[^.]+$") or ""
   local prefix = string.sub(path, 1, #path - #suffix)
-  local tbl = findTable(env, prefix)
+  local tbl = findTable(_M, prefix)
   if not tbl then return nil end
   local keys = {}
   local hints = {}
@@ -116,9 +116,9 @@ local function readHandler(line, index)
   return hints
 end
 
-env.env = global
+_M._M = global
 --[[
-env.print = function(...)
+_M.print = function(...)
 	local s = "[LUA]: " .. tostring(...)
 
 	global.print(s)
@@ -126,11 +126,11 @@ end
 ]]
 
 local function textInput(text)
-  --global.log(env._PROMPT)
+  --global.log(_M._PROMPT)
   
   if text == "exit" or text == "quit" then
 	  plog("Exitting LUA terminal")
-	  env.env.terminal.setTerminal()
+	  _M._M.terminal.setTerminal()
 	  return 0
   end
   
@@ -140,11 +140,11 @@ local function textInput(text)
   end
   local code, reason
   if string.sub(command, 1, 1) == "=" then
-    code, reason = load("return " .. string.sub(command, 2), "=stdin", "t", env)
+    code, reason = load("return " .. string.sub(command, 2), "=stdin", "t", _M)
   else
-    code, reason = load("return " .. command, "=stdin", "t", env)
+    code, reason = load("return " .. command, "=stdin", "t", _M)
     if not code then
-      code, reason = load(command, "=stdin", "t", env)
+      code, reason = load(command, "=stdin", "t", _M)
     end
   end
   if code then

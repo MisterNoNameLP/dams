@@ -1,6 +1,6 @@
-local eventQueueMain = env.thread.getChannel("EVENT_QUEUE_MAIN")
-local listnerRegistation = env.thread.getChannel("EVENT_LISTENER_REGISTRATION")
-local eventQueueOwn = env.thread.getChannel("EVENT_QUEUE_THREAD#" .. tostring(env.getThreadInfos().id))
+local eventQueueMain = _M.thread.getChannel("EVENT_QUEUE_MAIN")
+local listnerRegistation = _M.thread.getChannel("EVENT_LISTENER_REGISTRATION")
+local eventQueueOwn = _M.thread.getChannel("EVENT_QUEUE_THREAD#" .. tostring(_M.getThreadInfos().id))
 
 debug.setFuncPrefix("[EVENT_API]")
 
@@ -11,7 +11,7 @@ local _internal = {
 setmetatable(event, {_internal = _internal})
 
 function event.listen(eventName, callback)
-	local threadInfos = env.getThreadInfos()
+	local threadInfos = _M.getThreadInfos()
 	local registrateListener = false
 	ledlog("Register new event listener: " .. tostring(eventName) .. " to: " .. tostring(callback))
 	if _internal.listeners[eventName] == nil then 
@@ -28,7 +28,7 @@ function event.ignore(eventName, callback, executeEventQueueFirst)
 		event.pull()
 	end
 	if _internal.listeners[eventName] ~= nil and _internal.listeners[eventName][callback] ~= nil then
-		local threadInfos = env.getThreadInfos()
+		local threadInfos = _M.getThreadInfos()
 		ledlog("Ignore event listener: " .. tostring(eventName) .. " for: " .. tostring(callback))
 		_internal.listeners[eventName][callback] = nil
 		for _ in pairs(_internal.listeners[eventName]) do return true end --only continues if no event listener is active.
@@ -87,5 +87,5 @@ function event.pull(waitTime)
 	end
 end
 
-env.event = event
+_M.event = event
 --_G.event = event
