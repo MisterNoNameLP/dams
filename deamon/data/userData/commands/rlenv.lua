@@ -2,7 +2,7 @@
 
 _M._I.dl.load({
 	target = _M._I, 
-	dir = "lua/env/dynData", 
+	dir = "lua/_I/dynData", 
 	name = "dynData", 
 	structured = true,
 	execute = true,
@@ -11,7 +11,7 @@ _M._I.dl.load({
 
 _M._I.dl.load({ --legacy
 	target = _M, 
-	dir = "lua/env/dynData", 
+	dir = "lua/_I/dynData", 
 	name = "dynData", 
 	structured = true,
 	execute = true,

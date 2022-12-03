@@ -1,4 +1,4 @@
-local session, user = env.dyn.loginRequired(requestData)
+local session, user = _I.loginRequired(requestData)
 if session == false then
     response.html.body = user
     return response
@@ -19,7 +19,7 @@ do --error check
 end
 
 if response.error.code == nil then
-    local session, err, msg = env.dyn.Session.new(request.tokenID, true)
+    local session, err, msg = _I.Session.new(request.tokenID, true)
     local expireTime
     local suc = {}
 

@@ -1,4 +1,4 @@
-local user, err, msg = env.dyn.User.new(requestData.request.username)
+local user, err, msg = _I.User.new(requestData.request.username)
 
 log("Logging in")
 
@@ -10,7 +10,7 @@ if user == false then
 	response.error.err = msg
 	response.html.forwardInternal = "error"
 elseif user:checkPasswd(requestData.request.password) then
-	local suc, err, loginToken = env.newSession(user, -1, "Login", "Created during a login process.", requestData)
+	local suc, err, loginToken = _I.newSession(user, -1, "Login", "Created during a login process.", requestData)
 	
 	--log(loginToken)
 

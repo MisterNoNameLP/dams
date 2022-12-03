@@ -1,6 +1,6 @@
 local requestData = ...
 
-local body = env.dyn.html.Body.new()
+local body = _I.html.Body.new()
 
 if requestData.exitCode == 0 then
     body:addHeader(3, "Password changed successfully!")

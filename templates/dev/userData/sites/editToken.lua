@@ -1,4 +1,4 @@
-local session, user = env.dyn.loginRequired(requestData)
+local session, user = _I.loginRequired(requestData)
 if session == false then
     return user
 end
@@ -9,15 +9,15 @@ local name, description, expireTimeValue, expireTimeUnit, tokenID = "", "", "", 
 
 
 if request then
-    local session, err, msg = env.dyn.Session.new(request.tokenID, true)
+    local session, err, msg = _I.Session.new(request.tokenID, true)
 
     if session == false then
-        return select(2, env.dyn.execSite("error", {error = {
+        return select(2, _I.execSite("error", {error = {
             headline = "Token editor failure",
             err = msg,
             code = err,
         }}, requestData))
-        --return env.dyn.execSite("error", {})
+        --return _I.execSite("error", {})
     end
 
     log(session)

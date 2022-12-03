@@ -6,8 +6,8 @@ local _M = {
 		mainThread = initData.mainThread,
 		initData = initData,
 		damsVersion = initData.damsVersion,
-	} --contains all internal variables.
-	--threadName = initData.name,
+	}, --contains all internal variables.
+	_E = {}, --the env for the API functions.
 }
 local _internal = {
 	threadID = initData.id,
@@ -15,8 +15,7 @@ local _internal = {
 	threadIsActive = true,
 }
 setmetatable(_M, {_internal = _internal})
-_G._M = _M --obsolet in v1.x
-_G._E = _M
+_G._M = _M
 
 if initData.mainThread == true then --makes the print funciton logging into the logfile until the terminal is initialized. wich then replaces the global print function and takes take about the logging.
 	local orgPrint = print
@@ -42,7 +41,7 @@ package.path = devConf.requirePath .. ";" .. package.path
 package.cpath = devConf.cRequirePath .. ";" .. package.cpath
 
 --=== set debug ===--
-_M._I.debug = loadfile("data/lua/env/debug.lua")(devConf, tostring(_internal.threadName) .. "[ENV_INIT]")
+_M._I.debug = loadfile("data/lua/env/debug.lua")(devConf, tostring(_internal.threadName) .. "[ENV_INIT]", _M)
 
 --=== disable _M init logs for non main threads ===--
 if not _M._I.mainThread and not _M._I.devConf.debug.logLevel.threadEnvInit then

@@ -1,6 +1,6 @@
 --default debug _M for all threads.
 
-local devConf, defaultPrefix = ...
+local devConf, defaultPrefix, _M = ...
 
 local orgDebug = _G.debug
 local debug = {

@@ -1,4 +1,4 @@
-local id = tostring(env.getThreadInfos().id)
+local id = tostring(_I.getThreadInfos().id)
 
 local returnTable = {}
 

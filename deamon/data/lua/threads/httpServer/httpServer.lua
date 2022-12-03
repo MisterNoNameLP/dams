@@ -15,6 +15,8 @@ local cert = _M._I.lib.ut.readFile(_M._I.devConf.http.certPath)
 local privateKey = _M._I.lib.ut.readFile(_M._I.devConf.http.privateKeyPath)
 local forceTLS
 
+_G._M = _M --relevant for the serverCallback
+
 _M._I.httpCQ = {lastID = 0}
 
 --_M._I.httpCQ = _M._I.cqueues.new()

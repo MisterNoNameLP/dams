@@ -1,9 +1,9 @@
-local session, user = env.dyn.loginRequired(requestData)
+local session, user = _I.loginRequired(requestData)
 if session == false then
     return user
 end
 
-local body = env.dyn.html.Body.new()
+local body = _I.html.Body.new()
 
 body:addRaw([[
 <style>
