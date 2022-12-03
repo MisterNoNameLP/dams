@@ -206,7 +206,7 @@ function terminal.update()
 		end
 
 		if action == "RELOAD_CORE" then
-			loadfile("lua/core/reload.lua")(_M, shared)
+			loadfile("core/lua/core/reload.lua")(_M, shared)
 		elseif action == "RELOAD_USER" then
 			_M._I.dl.executeDir("userData/onReload", "RELOAD_USER")
 		elseif action == "RELOAD_SYSTEM" then

@@ -1,1 +1,1 @@
-_M._I.startFileThread("lua/threads/httpServer/httpServer.lua", "HTTPServer")
+_M._I.startFileThread("core/lua/threads/httpServer/httpServer.lua", "HTTPServer")

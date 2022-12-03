@@ -59,7 +59,7 @@ local myserver = httpServer.listen({
 	--cq = _M._I.httpCQ;
 	host = "0.0.0.0";
 	port = port;
-	onstream = getFunc("lua/threads/httpServer/serverCallback.lua");
+	onstream = getFunc("core/lua/threads/httpServer/serverCallback.lua");
 	onerror = function(myserver, context, op, err, errno) -- luacheck: ignore 212
 		local msg = op .. " on " .. tostring(context) .. " failed"
 		if err then
@@ -79,7 +79,7 @@ if _M._I.isDevMode() then
 	dlog("Set event listeners")
 	_M._I.event.listen("reloadHttpServerCallback", function() 
 		log("Relaod HTTP server callback")
-		local newCallback = getFunc("lua/threads/httpServer/serverCallback.lua");
+		local newCallback = getFunc("core/lua/threads/httpServer/serverCallback.lua");
 		if newCallback == nil then
 			err("Cant load new HTTP server callback")
 		else

@@ -10,8 +10,6 @@ local logfile = loadfile("core/lua/core/initLogfile.lua")(devConf, args)
 
 local _M, shared = loadfile("core/lua/env/envInit.lua")({name = "[MAIN]", mainThread = true, id = 0, logfile = logfile, damsVersion = version})
 
---NOTE: "core/" is now default path for loadfile.
-
 _M._I.debug.logfile = logfile
 _M._I.args = args
 
@@ -20,7 +18,7 @@ log("Start initialization")
 debug.setFuncPrefix("[INIT]")
 
 dlog("Initialize main env")
-local mainTable = loadfile("lua/core/mainTable.lua")()
+local mainTable = loadfile("core/lua/core/mainTable.lua")()
 for i, c in pairs(mainTable) do
 	_M[i] = c
 end
@@ -34,7 +32,7 @@ _M._I.dl.executeDir("lua/core/init", "INIT")
 dlog("Initialize terminal")
 loadfile(_M._I.devConf.terminalPath .. "terminalManager.lua")(_M)
 
-loadfile("lua/core/shutdown.lua")(_M)
+loadfile("core/lua/core/shutdown.lua")(_M)
 
 --=== load dynamic data ===--
 _M._I.dl.load({

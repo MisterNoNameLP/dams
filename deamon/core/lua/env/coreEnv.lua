@@ -71,7 +71,8 @@ local function loadfile(p)
 	local func, err
 	debug.setFuncPrefix("[LOADFILE]")
 	_M._I.debug.loadfileLog(tostring(p))
-	func, err = orgLoadfile("core/" .. p)
+	--func, err = orgLoadfile("core/" .. p)
+	func, err = orgLoadfile(p)
 	if func == nil then
 		debug.err(func, err)
 	end

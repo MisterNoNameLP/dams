@@ -10,7 +10,7 @@ local requestData = _M._I.initData.args
 
 local requestFormatter, responseFormatter
 local requestFormatterName, responseFormatterName
-local requestFormatterPath, responseFormatterPath = "./userData/requestFormatters/", "./userData/responseFormatters/"
+local requestFormatterPath, responseFormatterPath = "./api/requestFormatters/", "./api/responseFormatters/"
 
 local canExecuteUserOrder = true
 local userRequest
@@ -28,7 +28,7 @@ local function executeUserOrder(request)
 	end
 	
 	if requestedAction ~= nil then
-		func, err = _M._I.getActionFunc("core/userData/actions/" .. requestedAction .. ".lua")
+		func, err = _M._I.getActionFunc("api/actions/" .. requestedAction .. ".lua")
 	end
 	
 	if type(func) == "function" then

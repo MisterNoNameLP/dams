@@ -36,7 +36,7 @@ local function callback(myserver, stream)
 
 	--===== start callback thread =====--
 	ldlog("Start callback thread")
-	local _, thr, id = _M._I.startFileThread("lua/threads/httpServer/callbackThread.lua", "HTTP_CALLBACK_THREAD", requestData)
+	local _, thr, id = _M._I.startFileThread("core/lua/threads/httpServer/callbackThread.lua", "HTTP_CALLBACK_THREAD", requestData)
 	callbackStream = _M._I.thread.getChannel("HTTP_CALLBACK_STREAM#" .. tostring(id))
 
 	--=== wait for callback thread to stop ===--

@@ -7,7 +7,7 @@ return function(dir, name, args)
 	ldlog("Load thread " .. name .. " from file: " .. dir)
 
 	if type(name) == "string" then name = "[" .. name .. "]" end
-	local suc, file = pcall(io.open, "core/" .. dir, "r")
+	local suc, file = pcall(io.open, dir, "r")
 	local threadID, threadCode
 
 	if type(file) == "userdata" then

@@ -2,7 +2,7 @@ return function(path) --generates avtion/site functions.
     local siteCode = _M._I.lib.ut.readFile(path)
     local tracebackPathNote = path
 
-    tracebackPathNote = string.sub(tracebackPathNote, select(2, string.find(tracebackPathNote, "userData")) + 2)
+    tracebackPathNote = string.sub(tracebackPathNote, select(2, string.find(tracebackPathNote, "api")) + 2)
 
     if not siteCode then
         return false, "File not found: " .. tracebackPathNote 

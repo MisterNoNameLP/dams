@@ -52,12 +52,11 @@ end
 dlog("Load coreEnv")
 loadfile("core/lua/env/coreEnv.lua")(_M, _M._I.mainThread)
 
---NOTE: "core/" is default path from here on
 
 dlog("Loading core libs")
 _M._I.fs = require("love.filesystem")
 _M._I.ut = require("UT")
-_M._I.dl = loadfile("lua/libs/dataLoading.lua")(_M)
+_M._I.dl = loadfile("core/lua/libs/dataLoading.lua")(_M)
 
 dlog("Initialize the environment")
 debug.setLogPrefix(tostring(_internal.threadName))
