@@ -1,4 +1,4 @@
-local version = "v0.2"
+local version = "v0.3"
 
 local DamsClient = {}
 
@@ -27,9 +27,6 @@ function DamsClient:request(requestTable, args)
 
     local responseHeaders, responseStream, responseBody, responseError
 
-    local responseHeaders = {}
-    local responseData = nil
-
     --set up request
     request.headers:upsert(":method", "ACTION")
     request.headers:upsert("request-format", "lua-table")
@@ -39,26 +36,34 @@ function DamsClient:request(requestTable, args)
     --error check
     responseHeaders, responseStream = request:go()
     if responseHeaders == nil then
-        return false, 1, responseStream
+        return false, nil, responseStream
     end
 
-    responseBody, responseError = responseStream:get_body_as_string()
-    if not responseBody or responseError then
-        return false, 2, responseError
-    end
-
-    --process response
+    --build header table
     for index, value in responseHeaders:each() do
         responseHeaders[index] = value
     end
 
-    if args.getRawResponse then
-        responseData = responseBody    
-    else
-        responseData = load(responseBody)()
+    --get response body
+    responseBody, responseError = responseStream:get_body_as_string()
+    if not responseBody or responseError then
+        return false, responseHeaders, responseError
     end
 
-    return responseHeaders, responseData
+    --build response
+    if args.getRawResponse then
+        return nil, responseHeaders, responseBody
+    elseif responseHeaders["dams-version"] == nil or responseHeaders["content-type"] ~= "lua-table" then
+        return false, responseHeaders, responseBody
+    else --BUG; DANGEROUS; CRUCIAL; executing the response opens a door to execute harmful code!
+        local _, responseData = pcall(load(responseBody))
+
+        if not responseData.success then
+            return false, responseHeaders, responseData
+        else
+            return true, responseHeaders, responseData.returnValue
+        end
+    end
 end
 
 return DamsClient
