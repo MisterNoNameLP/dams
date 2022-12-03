@@ -7,23 +7,23 @@ testStart.sh
 
 test
 
-deamon/data/clibs_src
-deamon/data/lua/test
+deamon/core/clibs_src
+deamon/core/lua/test
 
 ### keep folder structure ###
 deamon/logs/*
 !deamon/logs/.gitkeep
 
-deamon/data/os/*
-!deamon/data/os/.gitkeep
+deamon/core/os/*
+!deamon/core/os/.gitkeep
 
-deamon/data/userData/actions/*
-!deamon/data/userData/actions/.gitkeep
-deamon/data/userData/init/*
-!deamon/data/userData/init/.gitkeep
-deamon/data/userData/onReload/*
-!deamon/data/userData/onReload/.gitkeep
-deamon/data/userData/actions/*
-!deamon/data/userData/actions/.gitkeep
-deamon/data/userData/sites/*
-!deamon/data/userData/sites/.gitkeep
+deamon/core/userData/actions/*
+!deamon/core/userData/actions/.gitkeep
+deamon/core/userData/init/*
+!deamon/core/userData/init/.gitkeep
+deamon/core/userData/onReload/*
+!deamon/core/userData/onReload/.gitkeep
+deamon/core/userData/actions/*
+!deamon/core/userData/actions/.gitkeep
+deamon/core/userData/sites/*
+!deamon/core/userData/sites/.gitkeep
