@@ -1,6 +1,6 @@
 --local _M, args = ...
 local lua = {}
-local luaShell = loadfile("core/lua/libs/thirdParty/luaShell.lua")(_M)
+local luaShell = loadfile("core/lua/libs/thirdParty/luaShell.lua")(_M._I)
 local lastAutoCompBase = ""
 
 function lua.input(input, command, args)

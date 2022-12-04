@@ -38,8 +38,8 @@ local function optrequire(...)
   end
 end
 
-local _M -- forward declare for binding in metamethod
-_M = setmetatable({}, {
+local env -- forward declare for binding in metamethod
+env = setmetatable({}, {
   __index = function(_, k)
     _ENV[k] = _ENV[k] or optrequire(k)
     return _ENV[k]
@@ -47,7 +47,7 @@ _M = setmetatable({}, {
   __pairs = function(t)
     return function(_, key)
       local k, v = next(t, key)
-      if not k and t == _M then
+      if not k and t == env then
         t = _ENV
         k, v = next(t)
       end
@@ -59,7 +59,7 @@ _M = setmetatable({}, {
     end
   end,
 })
-_M._I._PROMPT = tostring(_M._I._PROMPT or "\27[32mlua> \27[37m")
+env._PROMPT = tostring(env._PROMPT or "\27[32mlua> \27[37m")
 
 local function findTable(t, path)
   if type(t) ~= "table" then return nil end
@@ -71,7 +71,7 @@ local function findTable(t, path)
     end
   end
   local mt = getmetatable(t)
-  if t == _M then mt = {__index=_ENV} end
+  if t == env then mt = {__index=_ENV} end
   if mt then
     return findTable(mt.__index, path)
   end
@@ -91,7 +91,7 @@ local function findKeys(t, r, prefix, name)
     end
   end
   local mt = getmetatable(t)
-  if t == _M then mt = {__index=_ENV} end
+  if t == env then mt = {__index=_ENV} end
   if mt then
     return findKeys(mt.__index, r, prefix, name)
   end
@@ -105,7 +105,7 @@ local function readHandler(line, index)
   if not path then return nil end
   local suffix = string.match(path, "[^.]+$") or ""
   local prefix = string.sub(path, 1, #path - #suffix)
-  local tbl = findTable(_M, prefix)
+  local tbl = findTable(env, prefix)
   if not tbl then return nil end
   local keys = {}
   local hints = {}
@@ -116,9 +116,9 @@ local function readHandler(line, index)
   return hints
 end
 
-_M._I = global
+env.env = global
 --[[
-_M._I.print = function(...)
+env.print = function(...)
 	local s = "[LUA]: " .. tostring(...)
 
 	global.print(s)
@@ -126,11 +126,11 @@ end
 ]]
 
 local function textInput(text)
-  --global.log(_M._I._PROMPT)
+  --global.log(env._PROMPT)
   
   if text == "exit" or text == "quit" then
 	  plog("Exitting LUA terminal")
-	  _M._I.terminal.setTerminal()
+	  env.env.terminal.setTerminal()
 	  return 0
   end
   
@@ -140,11 +140,11 @@ local function textInput(text)
   end
   local code, reason
   if string.sub(command, 1, 1) == "=" then
-    code, reason = load("return " .. string.sub(command, 2), "=stdin", "t", _M)
+    code, reason = load("return " .. string.sub(command, 2), "=stdin", "t", env)
   else
-    code, reason = load("return " .. command, "=stdin", "t", _M)
+    code, reason = load("return " .. command, "=stdin", "t", env)
     if not code then
-      code, reason = load(command, "=stdin", "t", _M)
+      code, reason = load(command, "=stdin", "t", env)
     end
   end
   if code then
@@ -156,7 +156,7 @@ local function textInput(text)
       if type(result[2]) == "table" and result[2].reason == "terminated" then
         fatal(result[2].code)
       end
-      err(tostring(result[2]) .. "\n")
+      plog(tostring(result[2]) .. "\n")
     else
       local ok, why = pcall(function()
         for i = 2, result.n do
@@ -165,14 +165,14 @@ local function textInput(text)
       end)
       if not ok then
 	    if tostring(why) == "too long without yielding" then
-		  err("table too big to serialize.")
+        plog("table too big to serialize.")
 		else
-		  err("crashed serializing result: ", tostring(why))
+		  plog("crashed serializing result: ", tostring(why))
 		end
       end
     end
   else
-    err(tostring(reason) .. "\n")
+    plog(tostring(reason) .. "\n")
   end
 end
 

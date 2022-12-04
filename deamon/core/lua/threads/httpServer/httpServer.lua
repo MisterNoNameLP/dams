@@ -1,5 +1,6 @@
 if not _M._I.devConf.http.startHTTPServer then return true end
 run = nil
+local _I = _M._I
 
 log("Initialize HTTP server")
 
@@ -10,15 +11,15 @@ local x509 = require("openssl.x509")
 local port = 8023 -- 0 means pick one at random
 
 local ctx
-local cert = _M._I.lib.ut.readFile(_M._I.devConf.http.certPath)
-local privateKey = _M._I.lib.ut.readFile(_M._I.devConf.http.privateKeyPath)
+local cert = _I.lib.ut.readFile(_I.devConf.http.certPath)
+local privateKey = _I.lib.ut.readFile(_I.devConf.http.privateKeyPath)
 local forceTLS
 
 _G._M = _M --relevant for the serverCallback
 
-_M._I.httpCQ = {lastID = 0}
+_I.httpCQ = {lastID = 0}
 
---_M._I.httpCQ = _M._I.cqueues.new()
+--_I.httpCQ = _I.cqueues.new()
 
 local function getFunc(path)
 	local suc, err = loadfile(path)
@@ -46,7 +47,7 @@ do --setup TLS by using given cert/privatekey.
 		warn("No TLS certificate given. Falling back to self-signed certificate.")
 	end
 
-	if _M._I.devConf.forceTLS then
+	if _I.devConf.forceTLS then
 		log("Force TLS on")
 		forceTLS = true
 	end
@@ -54,7 +55,7 @@ end
 
 dlog("Create server object")
 local myserver = httpServer.listen({
-	--cq = _M._I.httpCQ;
+	--cq = _I.httpCQ;
 	host = "0.0.0.0";
 	port = port;
 	onstream = getFunc("core/lua/threads/httpServer/serverCallback.lua");
@@ -73,9 +74,9 @@ local myserver = httpServer.listen({
 dlog("Set server to listen")
 myserver:listen()
 
-if _M._I.isDevMode() then
+if _I.isDevMode() then
 	dlog("Set event listeners")
-	_M._I.event.listen("reloadHttpServerCallback", function() 
+	_I.event.listen("reloadHttpServerCallback", function() 
 		log("Relaod HTTP server callback")
 		local newCallback = getFunc("core/lua/threads/httpServer/serverCallback.lua");
 		if newCallback == nil then

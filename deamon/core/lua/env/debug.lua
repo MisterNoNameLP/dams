@@ -21,8 +21,8 @@ local debug = {
 
 --===== set basic log functions =====--
 local function mail(subject, text, ...)
-	if _D.mail then
-		_D.mail(subject, text, ...)
+	if _M._I.mail then
+		_M._I.mail(subject, text, ...)
 	end
 end
 
