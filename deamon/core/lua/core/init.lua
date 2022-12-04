@@ -24,10 +24,6 @@ for i, c in pairs(mainTable) do
 end
 _M._I.args = args
 
---=== run dyn init ===--
-log("Initialize core level")
-_M._I.dl.executeDir("lua/core/init", "INIT")
-
 --=== load core files ===--
 dlog("Initialize terminal")
 loadfile(_M._I.devConf.terminalPath .. "terminalManager.lua")(_M)
@@ -37,15 +33,15 @@ loadfile("core/lua/core/shutdown.lua")(_M)
 --=== load dynamic data ===--
 _M._I.dl.load({
 	target = _M._I.commands, 
-	dir = "userData/commands", 
+	dir = "api/commands", 
 	name = "commands",
 })
 
-log("Initialize system level")
-_M._I.dl.executeDir("lua/init", "INIT_SYSTEM")
+log("Initialize core")
+_M._I.dl.executeDir("core/lua/core/init", "INIT_SYSTEM")
 
-log("Initialize user level")
-_M._I.dl.executeDir("userData/init", "INIT_USER")
+log("Initialize api")
+_M._I.dl.executeDir("api/init", "INIT_USER")
 
 log("Initialization done")
 

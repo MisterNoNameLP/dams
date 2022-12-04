@@ -19,13 +19,13 @@ local function loadDir(target, dir, logFuncs, overwrite, subDirs, structured, pr
 	
 	subDirs = _M._I.ut.parseArgs(subDirs, true)
 	
-	for _, file in pairs(_M._I.fs.getDirectoryItems(path)) do
+	for file in _M._I.fs.dir(path) do
 		local p, name, ending = _M._I.ut.seperatePath(path .. file)
 		
 		--print(p)
 		
-		if name ~= "gitignore" and name ~= "gitkeep" then
-			if _M._I.fs.getInfo(path .. file).type == "directory" and subDirs then
+		if file ~= "." and file ~= ".." and name ~= "gitignore" and name ~= "gitkeep" then
+			if _M._I.fs.attributes(path .. file).mode == "directory" and subDirs then
 				if structured then
 					if target[string.sub(file, 0, #file)] == nil or overwrite then
 						target[string.sub(file, 0, #file)] = {}
@@ -53,7 +53,8 @@ local function loadDir(target, dir, logFuncs, overwrite, subDirs, structured, pr
 					suc, err = loadFunc(path .. file)
 				else
 					--suc, err = loadfile(path .. file)
-					local filePath = "core/" .. path .. file
+					--local filePath = "core/" .. path .. file
+					local filePath = path .. file
 					local fileCode, fileErr = _M._I.ut.readFile(filePath)
 					local tracebackPathNote = filePath
 					--print(path .. file)
@@ -63,7 +64,7 @@ local function loadDir(target, dir, logFuncs, overwrite, subDirs, structured, pr
 						local cutPoint
 						cutPoint = select(2, string.find(tracebackPathNote, "/env/"))
 						if not cutPoint then
-							cutPoint = select(2, string.find(tracebackPathNote, "/userData/"))
+							cutPoint = select(2, string.find(tracebackPathNote, "/api/"))
 						end
 						
 						if cutPoint then
@@ -167,7 +168,7 @@ local function execute(t, dir, name, callback, callbackArgs)
 	return executedFiles, failedFiles
 end
 
-local function loadDir(dir, target, name) --is this user or even done?
+local function loadDir_Disabled(dir, target, name) --is this used or even done? edit1: what the frick is that and why? renamed it to loadDir_Disabled
 	name = name or ""
 	debug.dataLoadingLog("Prepare loadDir execution: " .. name .. " (" .. dir .. ")")
 	local scripts = load({

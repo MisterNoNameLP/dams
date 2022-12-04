@@ -1,7 +1,6 @@
 if not _M._I.devConf.http.startHTTPServer then return true end
 run = nil
 
-
 log("Initialize HTTP server")
 
 local httpServer = require("http.server")
@@ -52,7 +51,6 @@ do --setup TLS by using given cert/privatekey.
 		forceTLS = true
 	end
 end
-
 
 dlog("Create server object")
 local myserver = httpServer.listen({

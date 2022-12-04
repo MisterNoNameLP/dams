@@ -7,10 +7,10 @@ return function(site, requestData)
     if site == "/" then
         sitePath = "_root"
     end
-    sitePath = "userData/sites/" .. sitePath .. ".lua" --completing sitePath
+    sitePath = "api/sites/" .. sitePath .. ".lua" --completing sitePath
 
-    if _M._I.lib.lfs.attributes("core/" .. sitePath) ~= nil then
-        siteFunc, err = _M._I.getActionFunc("core/" .. sitePath)
+    if _M._I.lib.lfs.attributes(sitePath) ~= nil then
+        siteFunc, err = _M._I.getActionFunc(sitePath)
 
         if type(siteFunc) ~= "function" then
             debug.err("Cant execute site: " .. site .. "\n" .. err)

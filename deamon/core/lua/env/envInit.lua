@@ -54,19 +54,20 @@ loadfile("core/lua/env/coreEnv.lua")(_M, _M._I.mainThread)
 
 
 dlog("Loading core libs")
-_M._I.fs = require("love.filesystem")
+_M._I.fs = require("lfs")
 _M._I.ut = require("UT")
 _M._I.dl = loadfile("core/lua/libs/dataLoading.lua")(_M)
 
 dlog("Initialize the environment")
+
 debug.setLogPrefix(tostring(_internal.threadName))
 
-_M._I.dl.executeDir("lua/env/init", "envInit")
+_M._I.dl.executeDir("core/lua/env/init", "envInit")
 
 dlog("Load dynamic data")
 _M._I.dl.load({
 	target = _M._I, 
-	dir = "lua/env/dynData", 
+	dir = "core/lua/env/dynData", 
 	name = "dynData", 
 	structured = true,
 	execute = true,

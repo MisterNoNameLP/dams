@@ -208,14 +208,14 @@ function terminal.update()
 		if action == "RELOAD_CORE" then
 			loadfile("core/lua/core/reload.lua")(_M, shared)
 		elseif action == "RELOAD_USER" then
-			_M._I.dl.executeDir("userData/onReload", "RELOAD_USER")
+			_M._I.dl.executeDir("api/onReload", "RELOAD_USER")
 		elseif action == "RELOAD_SYSTEM" then
-			_M._I.dl.executeDir("lua/onReload", "RELOAD_SYSTEM")
+			_M._I.dl.executeDir("core/lua/onReload", "RELOAD_SYSTEM")
 		elseif action == "RELOAD_COMMANDS" then
 			log("Reload commands")
 			_M._I.dl.load({
 				target = _M._I.commands, 
-				dir = "userData/commands", 
+				dir = "api/commands", 
 				name = "commands",
 				overwrite = true,
 			})

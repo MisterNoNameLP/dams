@@ -3,7 +3,7 @@ function love.quit()
 
 	log("SHUTTING DOWN")
 
-	_M._I.dl.executeDir("lua/core/shutdown", "SHUTDOWN")
+	_M._I.dl.executeDir("core/lua/core/shutdown", "SHUTDOWN")
 	
 	love.update() --printing the terminal a last time
 end

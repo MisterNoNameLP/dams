@@ -17,13 +17,13 @@ deamon/logs/*
 deamon/core/os/*
 !deamon/core/os/.gitkeep
 
-deamon/core/userData/actions/*
-!deamon/core/userData/actions/.gitkeep
-deamon/core/userData/init/*
-!deamon/core/userData/init/.gitkeep
-deamon/core/userData/onReload/*
-!deamon/core/userData/onReload/.gitkeep
-deamon/core/userData/actions/*
-!deamon/core/userData/actions/.gitkeep
-deamon/core/userData/sites/*
-!deamon/core/userData/sites/.gitkeep
+deamon/api/actions/*
+!deamon/api/actions/.gitkeep
+deamon/api/init/*
+!deamon/api/init/.gitkeep
+deamon/api/onReload/*
+!deamon/api/onReload/.gitkeep
+deamon/api/actions/*
+!deamon/api/actions/.gitkeep
+deamon/api/sites/*
+!deamon/api/sites/.gitkeep
