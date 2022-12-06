@@ -12,7 +12,7 @@ local _M = {
 local _internal = {
 	threadID = initData.id,
 	threadName = initData.name,
-	threadIsActive = true,
+	threadIsActive = false,
 }
 setmetatable(_M, {_internal = _internal})
 _G._M = _M

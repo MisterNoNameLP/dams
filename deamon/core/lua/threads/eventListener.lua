@@ -13,3 +13,5 @@ _M._I.event.listen("STOP_PROGRAM", function(data)
 end)
 
 dlog("Listeners registration done")
+
+_I.keepAlive()

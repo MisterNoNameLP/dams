@@ -224,3 +224,5 @@ end
 --===== init =====--
 while requestIDChannel:pop() ~= nil do end
 requestIDChannel:push(0)
+
+_I.keepAlive()

@@ -14,3 +14,5 @@ end
 local function update()
 	newThread(threadRegistrationChannel:demand(1))
 end
+
+_I.keepAlive()

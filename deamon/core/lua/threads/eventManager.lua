@@ -41,3 +41,5 @@ end
 local function update()
 	newEvent()
 end
+
+_I.keepAlive()

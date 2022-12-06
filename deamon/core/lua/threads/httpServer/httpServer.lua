@@ -108,3 +108,5 @@ local function update()
 	
 	--print("T", os.time(), count)
 end
+
+_I.keepAlive()

@@ -12,6 +12,13 @@ local suc, headers, response = client:request({
     value = "TEST",
 }, {})
 
+for c = 1, 0 do
+    local suc, headers, response = client:request({
+        action = "ptest",
+        value = "TEST",
+    }, {})
+end
+
 print("\nSUC")
 print(suc)
 print("\nHEADERS")
