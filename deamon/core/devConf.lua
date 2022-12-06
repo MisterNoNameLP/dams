@@ -45,6 +45,12 @@ local devConf = {
 		movieLike = false, --just for the lulz :)
 		movieLikeDelay = .004,
 	},
+
+	preParsing = {
+		loadConfLine = true,
+		preparseScripts = true,
+		replacePrefix = nil, --$ per default
+	},
 	
 	sqlite = {
 		busyWaitTime = .05, --defines the time the system waits every time the sqlite DB is busy.

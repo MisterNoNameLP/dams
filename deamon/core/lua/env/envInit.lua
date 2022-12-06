@@ -16,7 +16,7 @@ local _internal = {
 }
 setmetatable(_M, {_internal = _internal})
 _G._M = _M
-local _I = _M._I
+_G._I = _M._I
 
 if initData.mainThread == true then --makes the print funciton logging into the logfile until the terminal is initialized. wich then replaces the global print function and takes take about the logging.
 	local orgPrint = print

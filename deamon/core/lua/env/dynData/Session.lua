@@ -1,3 +1,5 @@
+#?preparse=false
+
 local Session = {}
 
 function Session.new(sessionLogin, force)

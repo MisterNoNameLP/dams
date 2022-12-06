@@ -1,3 +1,5 @@
+#?preparse=false;
+
 local len = require("utf8").len
 local posix = require("posix")
 

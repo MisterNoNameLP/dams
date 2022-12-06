@@ -37,6 +37,9 @@ local function executeUserOrder(request)
 		responseData.returnValue, responseHeaders = func(requestData)
 		responseData.success = true
 		debug.setLogPrefix(logPrefix)
+	elseif func == nil then
+		debug.err("Failed to execute requested user action: " .. tostring(requestedAction) .. "; error:\n" .. tostring(err))
+		responseData.error = "Failed to execute requested action: " .. tostring(err)
 	else
 		warn("Recieved unknown user action request: " .. tostring(requestedAction))
 		responseData.error = "Invalid user action: " .. tostring(err)
