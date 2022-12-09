@@ -14,7 +14,7 @@ return function(path) --generates avtion/site functions.
         end
     end
 
-    print(fileCode)
+    --print(fileCode)
 
     if not fileCode then
         return false, "File not found: " .. tracebackPathNote 

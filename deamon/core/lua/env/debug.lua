@@ -1,6 +1,7 @@
 --default debug _M for all threads.
 
 local devConf, defaultPrefix, _M = ...
+local _I = _M._I
 
 local orgDebug = _G.debug
 local debug = {
@@ -17,12 +18,14 @@ local debug = {
 	orgDebug = orgDebug,
 
 	silenceMode = false,
+
+	currentColor = _I.devConf.debug.terminalColors.default,
 }
 
 --===== set basic log functions =====--
 local function mail(subject, text, ...)
-	if _M._I.mail then
-		_M._I.mail(subject, text, ...)
+	if _I.mail then
+		_I.mail(subject, text, ...)
 	end
 end
 
@@ -121,6 +124,15 @@ local function setLogPrefix(prefix, keepPrevious)
 	end
 end
 
+local function setColor(colors)
+	if getColor() ~= colors then
+		--print("\027[")
+	end
+end
+local function getColor()
+	return debug.currentColor
+end
+
 local function clog(...) --clean log
 	local msgs, msgString = "", ""
 	
@@ -128,10 +140,10 @@ local function clog(...) --clean log
 		msgs = msgs .. tostring(msg) .. "  "
 	end
 
-	msgString = "[" .. os.date(_M._I.devConf.dateFormat) .. "]" .. getInternalPrefix() .. msgs
+	msgString = "[" .. os.date(_I.devConf.dateFormat) .. "]" .. getInternalPrefix() .. msgs
 
 	if not debug.silenceMode then
-		--print(_M._I.mainThread, _M._I.terminal, _M._I.initData.logfile, msgString)
+		--print(_I.mainThread, _I.terminal, _I.initData.logfile, msgString)
 		print(msgString)
 	end
 	setInternalPrefix("")
@@ -187,8 +199,8 @@ local function fatal(...)
 	--love.quit(1, ...) --ToDo: replace with an exit event once event system is done.
 	--os.exit(1)
 	mail("[FATAL]", ...)
-	if _G._M._I.stopProgram() then
-		_G._M._I.stopProgram()
+	if _G._I.stopProgram() then
+		_G._I.stopProgram()
 	else
 		io.stderr:write("Usual stopProgram routine not avaiable. Not even fully initialized?")
 		for _, line in pairs({...}) do

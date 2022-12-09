@@ -65,6 +65,16 @@ local devConf = {
 
 		logDirectInput = false,
 		logInputEvent = false,
+
+		--[[ the colors are defined per log function.
+		err = "160;0" means foreground color = 160 and background color = 0.
+		if a value is not defined default values are used.
+		the color codes can be found in the notes dir.
+		]]
+		terminalColors = { 
+			default = "250;0",
+			err = "160",
+		},
 		
 		logLevel = {
 			debug = true,
