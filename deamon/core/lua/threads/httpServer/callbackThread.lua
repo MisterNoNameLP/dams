@@ -10,7 +10,7 @@ local requestData = _M._I.initData.args
 
 local requestFormatter, responseFormatter
 local requestFormatterName, responseFormatterName
-local requestFormatterPath, responseFormatterPath = "./api/requestFormatters/", "./api/responseFormatters/"
+local requestFormatterPath, responseFormatterPath = "./api/formatters/request/", "./api/formatters/response/"
 
 local canExecuteUserOrder = true
 local userRequest

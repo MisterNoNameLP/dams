@@ -12,5 +12,14 @@ for i, v in pairs(_M._I) do
     log(i, v)
 end
 
+log("\n_M._E #################")
+for i, v in pairs(_M._E) do
+    log(i, v)
+end
+
+
+log("\n")
+log(_E.dynDup)
+
 return response
 

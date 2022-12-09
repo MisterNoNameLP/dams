@@ -2,8 +2,8 @@
 
 _M._I.dl.load({
 	target = _M._I, 
-	dir = "core/lua/_I/dynData", 
-	name = "dynData", 
+	dir = "core/lua/_I/dyn", 
+	name = "dyn", 
 	structured = true,
 	execute = true,
 	overwrite = true,
@@ -11,8 +11,8 @@ _M._I.dl.load({
 
 _M._I.dl.load({ --legacy
 	target = _M, 
-	dir = "core/lua/_I/dynData", 
-	name = "dynData", 
+	dir = "core/lua/_I/dyn", 
+	name = "dyn", 
 	structured = true,
 	execute = true,
 	overwrite = true,

@@ -3,8 +3,14 @@ return function(subject, text, ...)
     
     assert(type(subject) == "string", "Subject needs to be a string")
     assert(type(text) == "string", "Text needs to be a string")
-    assert(type(_M._I.damsConf.mail.sender) == "string", "Mail sender not configured correctly")
-    assert(type(_M._I.damsConf.mail.reciever) == "string", "Mail reciever not configured correctly")
+
+    if type(_M._I.damsConf.mail.sender) ~= "string" then
+        warn("Mail sender not configured correctly")
+        return false
+    elseif type(_M._I.damsConf.mail.reciever) ~= "string" then
+        warn("Mail reciever not configured correctly")
+        return false
+    end
 
     for _, arg in ipairs(additional) do
         text = text .. _M._I.lib.ut.tostring(arg)

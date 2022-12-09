@@ -63,13 +63,26 @@ dlog("Initialize the environment")
 
 debug.setLogPrefix(tostring(_internal.threadName))
 
-_I.dl.executeDir("core/lua/env/init", "envInit")
+dlog("Execute core env init")
+_I.dl.executeDir("core/lua/env/init", "coreEnvInit")
 
-dlog("Load dynamic data")
+dlog("Execute API env init")
+_I.dl.executeDir("api/env/init", "apiEnvInit")
+
+dlog("Load dynamic core data")
 _I.dl.load({
 	target = _I, 
-	dir = "core/lua/env/dynData", 
-	name = "dynData", 
+	dir = "core/lua/env/dyn", 
+	name = "coreDyn", 
+	structured = true,
+	execute = true,
+})
+
+dlog("Load dynamic API data")
+_I.dl.load({
+	target = _M._E, 
+	dir = "api/env/dyn", 
+	name = "apiDyn", 
 	structured = true,
 	execute = true,
 })

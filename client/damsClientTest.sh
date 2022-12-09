@@ -8,7 +8,7 @@ local client = require("DamsClient").new({
 })
 
 local suc, headers, response = client:request({
-    action = "ptest",
+    action = "test",
     value = "TEST",
 }, {})
 
