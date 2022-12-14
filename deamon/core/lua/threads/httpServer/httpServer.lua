@@ -53,7 +53,7 @@ do --setup TLS by using given cert/privatekey.
 	end
 end
 
-dlog("Create server object")
+log("Create server object")
 local myserver = httpServer.listen({
 	--cq = _I.httpCQ;
 	host = "0.0.0.0";
@@ -71,11 +71,11 @@ local myserver = httpServer.listen({
 	ctx = ctx,
 })
 
-dlog("Set server to listen")
+log("Set server to listen")
 myserver:listen()
 
 if _I.isDevMode() then
-	dlog("Set event listeners")
+	log("Set event listeners")
 	_I.event.listen("reloadHttpServerCallback", function() 
 		log("Relaod HTTP server callback")
 		local newCallback = getFunc("core/lua/threads/httpServer/serverCallback.lua");

@@ -67,13 +67,28 @@ local devConf = {
 		logInputEvent = false,
 
 		--[[ the colors are defined per log function.
-		err = "160;0" means foreground color = 160 and background color = 0.
-		if a value is not defined default values are used.
-		the color codes can be found in the notes dir.
+		it uses ANSI escape sequences to achiev colors.
+		8bit color codes can be found in the notes dir.
+
+		more information about ANSI escape codes can be douns here: https://gist.github.com/fnky/458719343aabd01cfb17a3a4f7296797
 		]]
 		terminalColors = { 
-			default = "250;0",
-			err = "160",
+			default = "\027[38;5;250m",
+			log = "\027[38;5;250m",
+			dlog = "\027[38;5;68m",
+			warn = "\027[38;5;178m",
+			err = "\027[38;5;124m",
+			crucial = "\027[48;5;52m",
+			fatal = "\027[48;5;88m\027[38;5;196m",
+
+			--[[
+			default = "250,0",
+			log = "250,0",
+			warn = "184",
+			err = "124,0",
+			crucial = "0,124",
+			fatal = "232,88",
+			]]
 		},
 		
 		logLevel = {
@@ -101,3 +116,4 @@ local devConf = {
 }
 
 return devConf
+

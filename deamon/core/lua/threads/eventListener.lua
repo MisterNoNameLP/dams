@@ -3,8 +3,7 @@
 ]]
 
 log("Starting event listener")
-
-dlog("Register all listeners")
+log("Register all listeners")
 
 _M._I.event.listen("STOP_PROGRAM", function(data)
 	log("Stopping program")
@@ -12,6 +11,6 @@ _M._I.event.listen("STOP_PROGRAM", function(data)
 	require("love.event").quit("Stopped by event")
 end)
 
-dlog("Listeners registration done")
+log("Listeners registration done")
 
 _I.keepAlive()

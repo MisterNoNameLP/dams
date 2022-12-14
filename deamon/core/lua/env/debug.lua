@@ -19,7 +19,7 @@ local debug = {
 
 	silenceMode = false,
 
-	currentColor = _I.devConf.debug.terminalColors.default,
+	currentColors
 }
 
 --===== set basic log functions =====--
@@ -124,13 +124,12 @@ local function setLogPrefix(prefix, keepPrevious)
 	end
 end
 
-local function setColor(colors)
-	if getColor() ~= colors then
-		--print("\027[")
+local function setColors(colors)
+	local firstRun = true
+	if not colors then
+		colors = _I.devConf.debug.terminalColors.default
 	end
-end
-local function getColor()
-	return debug.currentColor
+	debug.currentColors = colors
 end
 
 local function clog(...) --clean log
@@ -168,33 +167,38 @@ local function plog(...)
 end
 local function log(...)
 	setDebugPrefix("[INFO]")
+	setColors(_I.devConf.debug.terminalColors.log)
 	plog(...)
 	return ...
 end
 local function warn(...)
 	setDebugPrefix("[WARN]")
+	setColors(_I.devConf.debug.terminalColors.warn)
 	plog(...)
 	return ...
 end
 local function err(...)
-	local silenceMode = debug.getSilenceMode()
-	debug.setSilenceMode(false)
+	--local silenceMode = debug.getSilenceMode()
+	--debug.setSilenceMode(false)
 	setDebugPrefix("[ERROR]")
+	setColors(_I.devConf.debug.terminalColors.err)
 	plog(...)
-	debug.setSilenceMode(true)
+	--debug.setSilenceMode(true)
 	return ...
 end
 local function crucial(...)
-	local silenceMode = debug.getSilenceMode()
-	debug.setSilenceMode(false)
+	--local silenceMode = debug.getSilenceMode()
+	--debug.setSilenceMode(false)
 	setDebugPrefix("[CRUCIAL]")
+	setColors(_I.devConf.debug.terminalColors.crucial)
 	plog(...)
-	debug.setSilenceMode(true)
+	--debug.setSilenceMode(true)
 	mail("[CRUCIAL]", ...)
 	return ...
 end
 local function fatal(...)
 	setDebugPrefix("[FATAL]")
+	setColors(_I.devConf.debug.terminalColors.fatal)
 	plog(...)
 	--love.quit(1, ...) --ToDo: replace with an exit event once event system is done.
 	--os.exit(1)
@@ -207,7 +211,7 @@ local function fatal(...)
 			io.stderr:write(tostring(line))
 		end
 		io.stderr:flush()
-		os.exit(1)
+		--os.exit(1)
 	end
 	return ...
 end
@@ -218,6 +222,7 @@ local function addDebugLogLevel(name, prefix, confLevelIndex, global)
 	
 	if devConf.devMode and devConf.debug.logLevel[confLevelIndex] then
 		func = function(...)
+			setColors(_I.devConf.debug.terminalColors[name])
 			setDebugPrefix(prefix)
 			plog(...)
 			return ...
@@ -269,6 +274,8 @@ debug.getFuncPrefix = getFuncPrefix
 debug.setDebugPrefix = setDebugPrefix
 debug.getDebugPrefix = getDebugPrefix
 
+debug.setColors = setColors
+
 --===== set global debug functions =====--
 debug.global.clog = clog
 debug.global.plog = plog
@@ -290,5 +297,8 @@ end})
 _G = setmetatable(_G, {__index = function(t, i)
 	return debug.global[i]
 end})
+
+--=== init ===--
+setColors()
 
 return debug

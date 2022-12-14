@@ -14,7 +14,7 @@ _M._I.getInternal().stopThreads = function()
 		if thread == nil then break end
 		
 		if thread.thread:isRunning() then
-			dlog("Waiting for thread to stop: " .. tostring(thread.name) .. "(" .. tostring(thread.thread) .. ")")
+			log("Waiting for thread to stop: " .. tostring(thread.name) .. "(" .. tostring(thread.thread) .. ")")
 			
 			pcall(function() thread.thread:wait() end)
 		end

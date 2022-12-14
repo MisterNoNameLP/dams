@@ -28,7 +28,7 @@ if not _M._I.mainThread then --the main thread gets its own print function throu
 		for _, msg in pairs({...}) do
 			msgs = msgs .. tostring(msg) .. "\t"
 		end
-		debug_print:push(msgs)
+		debug_print:push({msg = msgs, colors = debug.currentColors})
 	end
 end
 

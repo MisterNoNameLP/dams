@@ -35,13 +35,21 @@ if initData.mainThread == true then --makes the print funciton logging into the 
 end
 
 --=== load devConf ===--
-local devConf = loadfile("core/devConf.lua")()
+local devConf
+do --loadl dev conf
+	local suc, err = loadfile("core/devConf.lua")
+	if not suc then
+		error("Could not load devConf: " .. err)
+	end
+	devConf = suc()
+end
 _I.devConf = devConf
 
 package.path = devConf.requirePath .. ";" .. package.path
 package.cpath = devConf.cRequirePath .. ";" .. package.cpath
 
 --=== set debug ===--
+print(loadfile("core/lua/env/debug.lua"))
 _I.debug = loadfile("core/lua/env/debug.lua")(devConf, tostring(_internal.threadName) .. "[ENV_INIT]", _M)
 
 --=== disable _M init logs for non main threads ===--

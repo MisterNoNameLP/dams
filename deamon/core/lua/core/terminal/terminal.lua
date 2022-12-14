@@ -168,6 +168,8 @@ end
 
 local function draw(text, cursorPos)
 	local _, terminalHeight = getTerminalSize()
+
+	w("\027[1;0m")
 	w(ansi.setCursor:format(terminalHeight, 1))
 	w(ansi.clearLine)
 	w(text)
@@ -241,7 +243,11 @@ function terminal.update()
 	end
 	
 	while debug_print:peek() ~= nil and true do
-		print(debug_print:pop())
+		local msgData = debug_print:pop()
+		if msgData.colors then 
+			w("\027[1;0m" .. msgData.colors)
+		end
+		print(msgData.msg)
 		drawNeeded = true
 	end
 end
