@@ -11,8 +11,8 @@ if request.tokenAction == "disable" then
 
     expireDate.day = expireDate.day + 7 --ToDo: add expire date setting.
     
-    suc = _I.loginDB:exec([[UPDATE sessions SET status = 1 WHERE sessionID = "]] .. request.tokenID .. [["]])
-    suc = _I.loginDB:exec([[UPDATE sessions SET deletionTime = ]] .. os.time(expireDate) .. [[ WHERE sessionID = "]] .. request.tokenID .. [["]])
+    suc = _I.userDB:exec([[UPDATE sessions SET status = 1 WHERE sessionID = "]] .. request.tokenID .. [["]])
+    suc = _I.userDB:exec([[UPDATE sessions SET deletionTime = ]] .. os.time(expireDate) .. [[ WHERE sessionID = "]] .. request.tokenID .. [["]])
     if suc ~= 0 then
         response.html.body = "Something went wrong. Please contact an admin.\nError: " .. tostring(suc)
     else
@@ -20,8 +20,8 @@ if request.tokenAction == "disable" then
     end
 elseif request.tokenAction == "restore" then
     local suc
-    suc = _I.loginDB:exec([[UPDATE sessions SET status = 0 WHERE sessionID = "]] .. request.tokenID .. [["]])
-    suc = _I.loginDB:exec([[UPDATE sessions SET deletionTime = -1 WHERE sessionID = "]] .. request.tokenID .. [["]])
+    suc = _I.userDB:exec([[UPDATE sessions SET status = 0 WHERE sessionID = "]] .. request.tokenID .. [["]])
+    suc = _I.userDB:exec([[UPDATE sessions SET deletionTime = -1 WHERE sessionID = "]] .. request.tokenID .. [["]])
     if suc ~= 0 then
         response.html.body = "Something went wrong. Please contact an admin.\nError: " .. tostring(suc)
     else
@@ -30,7 +30,7 @@ elseif request.tokenAction == "restore" then
 elseif request.tokenAction == "delete" then
     local suc
 
-    suc = _I.loginDB:exec([[DELETE FROM sessions WHERE sessionID = "]] .. request.tokenID .. [["]])
+    suc = _I.userDB:exec([[DELETE FROM sessions WHERE sessionID = "]] .. request.tokenID .. [["]])
 
     if suc ~= 0 then
         response.html.body = "Something went wrong. Please contact an admin.\nError: " .. tostring(suc)

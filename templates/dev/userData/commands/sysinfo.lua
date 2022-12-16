@@ -1,4 +1,4 @@
-_M._I.loginDB:exec([[
+_M._I.userDB:exec([[
 	SELECT * FROM sysinfo
 ]], function(udata,cols,values,names)
 	print('sysinfo:')

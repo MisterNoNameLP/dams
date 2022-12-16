@@ -1,7 +1,7 @@
 debug.setFuncPrefix("[DB]")
 dlog("Prepare login DB")
 
-local db, err = _M._I.lib.sqlite.open(_M._I.devConf.userLoginDatabasePath)
+local db, err = _M._I.lib.sqlite.open(_M._I.devConf.userDatabasePath)
 local createSysinfoEntry = true
 
 ldlog(db, err)
@@ -45,7 +45,7 @@ dlog("Create sessions table: " .. tostring(db:exec([[
 ]])))
 
 
-dlog("Prepare sysinfo table: " .. tostring(_M._I.loginDB:exec([[
+dlog("Prepare sysinfo table: " .. tostring(_M._I.userDB:exec([[
 	SELECT userCount FROM sysinfo
 ]], function(udata,cols,values,names)
 	for i=1,cols do 

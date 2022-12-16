@@ -49,7 +49,6 @@ package.path = devConf.requirePath .. ";" .. package.path
 package.cpath = devConf.cRequirePath .. ";" .. package.cpath
 
 --=== set debug ===--
-print(loadfile("core/lua/env/debug.lua"))
 _I.debug = loadfile("core/lua/env/debug.lua")(devConf, tostring(_internal.threadName) .. "[ENV_INIT]", _M)
 
 --=== disable _M init logs for non main threads ===--

@@ -1,5 +1,5 @@
 return function(username, password)
-	local db = _M._I.loginDB
+	local db = _M._I.userDB
 	local createUser, reason, suc = true, nil, nil
 	local userID = nil
 	

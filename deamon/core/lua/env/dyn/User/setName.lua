@@ -1,6 +1,6 @@
 return function(self, username)
     local userID = self:getID()
-    local db = _M._I.loginDB
+    local db = _M._I.userDB
     local suc, reason
 
     if _M._I.User.getIDByName(username) then

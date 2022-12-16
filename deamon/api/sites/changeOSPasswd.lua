@@ -1,5 +1,10 @@
 local body = _I.html.Body.new()
 
+do
+    warn("This should not be a thing lul")
+    return
+end
+
 body:addHeader(3, "Change password")
 body:addP("Here you can change your password.")
 body:addP("Tip: do never use the same passwoed for multiple services.")

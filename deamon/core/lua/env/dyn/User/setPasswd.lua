@@ -1,6 +1,6 @@
 return function(self, passwd)
 	local userID = self:getID()
-	local db = _M._I.loginDB
+	local db = _M._I.userDB
 	local reason, suc = nil, nil
 	local execString = ""
 	

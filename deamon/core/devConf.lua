@@ -1,5 +1,6 @@
 local devConf = {
-	userLoginDatabasePath = "users.sqlite3",
+	userDatabasePath = "users.sqlite3", --contains user, permissions and session data.
+	dataDatabasePath = "data.sqlite3", --contains data used by API functions (_DB).
 	
 	requirePath = "core/lua/libs/?.lua;core/lua/libs/thirdParty/?.lua;/home/noname/.luarocks/share/lua/5.1/?.lua",
 	cRequirePath = "core/bin/libs/?.so;/home/noname/.luarocks/lib/lua/5.1/?.so",
