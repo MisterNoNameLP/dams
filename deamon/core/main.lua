@@ -1,8 +1,9 @@
 --LÖVE main file 
-local version = "v0.19.1p-v1_15"
+--this version is based on v0.19.1
+local version = "1.0-prerelease-16"
 
 function love.load(args)
-	print("--===== Starting DAMS " .. tostring(version) .. " =====--")
+	print("--===== Starting DAMS v" .. tostring(version) .. " =====--")
 	
 	loadfile("core/lua/core/init.lua")(version, args)
 end

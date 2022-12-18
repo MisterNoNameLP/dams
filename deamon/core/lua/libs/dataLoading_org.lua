@@ -91,7 +91,7 @@ local function preparse(input, replacePrefix, logFuncs)
 				end
 			elseif symbol == replacePrefix then
 				--local varNameEndPattern = string.gsub("%s\"']", status, "")
-				
+
 				local tmpInput = input:sub(pos + 1)
 				local spacePos = tmpInput:find("[%s\"'%]]")
 				local varName = tmpInput:sub(0, spacePos - 1)

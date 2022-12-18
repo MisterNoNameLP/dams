@@ -32,7 +32,7 @@ local function callback(myserver, stream)
 	requestData.body = stream:get_body_as_string()
 	requestData.meta = {realIP = realIP, connectionIP = connectionIP}
 
-	log("Got user request: realIP: " .. realIP .. "; connectionIP: " .. tostring(select(2, stream:peername())))	
+	log("Got user request: connectionIP/realIP: " .. tostring(select(2, stream:peername()) .. "/" .. realIP))
 
 	--===== start callback thread =====--
 	ldlog("Start callback thread")

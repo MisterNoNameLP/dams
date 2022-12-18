@@ -36,6 +36,18 @@ local function executeUserOrder(request)
 		debug.setLogPrefix("[ACTION]")
 		responseData.returnValue, responseHeaders = func(requestData)
 		responseData.success = true
+
+		do --remove error table from response if not used
+			local used = false
+			for _ in pairs(responseData.returnValue.error) do
+				used = true
+				break
+			end
+			if not used then
+				responseData.returnValue.error = nil
+			end
+		end
+
 		debug.setLogPrefix(logPrefix)
 	elseif func == nil then
 		debug.err("Failed to execute requested user action: " .. tostring(requestedAction) .. "; error:\n" .. tostring(err))
