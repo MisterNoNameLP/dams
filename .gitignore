@@ -6,6 +6,7 @@
 testStart.sh
 
 test
+wiki
 
 deamon/core/clibs_src
 deamon/core/lua/test

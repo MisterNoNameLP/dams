@@ -178,21 +178,21 @@ local function warn(...)
 	return ...
 end
 local function err(...)
-	--local silenceMode = debug.getSilenceMode()
-	--debug.setSilenceMode(false)
+	local silenceMode = debug.getSilenceMode()
+	debug.setSilenceMode(false)
 	setDebugPrefix("[ERROR]")
 	setColors(_I.devConf.debug.terminalColors.err)
 	plog(...)
-	--debug.setSilenceMode(true)
+	debug.setSilenceMode(true)
 	return ...
 end
 local function crucial(...)
-	--local silenceMode = debug.getSilenceMode()
-	--debug.setSilenceMode(false)
+	local silenceMode = debug.getSilenceMode()
+	debug.setSilenceMode(false)
 	setDebugPrefix("[CRUCIAL]")
 	setColors(_I.devConf.debug.terminalColors.crucial)
 	plog(...)
-	--debug.setSilenceMode(true)
+	debug.setSilenceMode(true)
 	mail("[CRUCIAL]", ...)
 	return ...
 end

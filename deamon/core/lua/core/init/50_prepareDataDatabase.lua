@@ -9,7 +9,8 @@ ldlog(db, err)
 
 dlog("Create data table: " .. tostring(db:exec([[
 	CREATE TABLE data (
-		userCountß INTEGER NOT NULL
+		name TEXT NOT NULL,
+		content TEXT NOT NULL
 	);
 ]])))
 
