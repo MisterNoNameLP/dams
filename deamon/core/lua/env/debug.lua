@@ -183,7 +183,9 @@ local function err(...)
 	setDebugPrefix("[ERROR]")
 	setColors(_I.devConf.debug.terminalColors.err)
 	plog(...)
-	debug.setSilenceMode(true)
+	if silenceMode then
+		debug.setSilenceMode(true)
+	end
 	return ...
 end
 local function crucial(...)
@@ -192,7 +194,9 @@ local function crucial(...)
 	setDebugPrefix("[CRUCIAL]")
 	setColors(_I.devConf.debug.terminalColors.crucial)
 	plog(...)
-	debug.setSilenceMode(true)
+	if silenceMode then
+		debug.setSilenceMode(true)
+	end
 	mail("[CRUCIAL]", ...)
 	return ...
 end

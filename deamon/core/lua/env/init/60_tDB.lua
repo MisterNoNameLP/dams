@@ -2,7 +2,7 @@ local db = {}
 
 log("=================")
 
-local t = {}
+local t = {} --debug
 
 local metatable = {
     __newindex = function(_, index, value)
@@ -37,11 +37,12 @@ local metatable = {
                     --dlog(content, tbl)
                     dlog("_NEWINDEX", index, value)
                     
-
                     --tbl[index] = value
                     --metatable.__newindex(nil, rootTable, content)
                 end,
-                __index = content,
+                __index = function(index)
+                    
+                end,
                 __tostring = function() return "DBTable: " .. rootTable end,
             })
 
