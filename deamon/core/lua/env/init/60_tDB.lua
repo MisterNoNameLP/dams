@@ -35,11 +35,9 @@ end
 local function removeValue(index, valueType)
 	debug.dataDBLog("Remove value: " .. index)
 	local suc
-
 	if valueType ~= "table" then
 		suc = db:exec([[DELETE FROM dataDB WHERE fullIndex = "]] .. index .. [[";]])
 	else
-		dlog("tbl")
 		suc = db:exec([[DELETE FROM dataDB WHERE fullIndex LIKE "]] .. index .. [[%";]])
 	end
 	if suc ~= 0 then
@@ -64,7 +62,6 @@ metafunctions.newindex = function(handler, index, value)
 	if not valueIsLegal then
 		error("Invalid value type: " .. tostring(valueType), 2)
 	end
-
 	if orgValueType then
 		if valueType == "nil" then
 			removeValue(fullIndex, orgValueType)

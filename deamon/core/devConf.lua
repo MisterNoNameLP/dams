@@ -113,7 +113,7 @@ local devConf = {
 
 			exec = false, --prints whats is executet in the shell. WARNING: if used wrong this can expose passwords in the logfile!
 			user = true, --print User / login db actions.
-			dataDB = true, --prints dataDB actions.
+			dataDB = false, --prints dataDB actions.
 		},
 	},
 }
