@@ -213,8 +213,8 @@ local function loadDir(target, dir, logFuncs, overwrite, subDirs, structured, pr
 						if type(suc) == "function" then
 							local suc, returnValue = xpcall(suc, debug.traceback, _M, shared)
 							if suc == false then
-								warn("Failed to execute: " .. name)
-								warn(returnValue)
+								debug.err("Failed to execute: " .. name)
+								debug.err(returnValue)
 							else
 								target[name] = returnValue
 							end
@@ -224,7 +224,7 @@ local function loadDir(target, dir, logFuncs, overwrite, subDirs, structured, pr
 				
 				if suc == nil then 
 					failedFiles = failedFiles +1
-					warn("Failed to load file: " .. dir .. "/" .. file .. ": " .. tostring(err))
+					debug.err("Failed to load file: " .. dir .. "/" .. file .. ": " .. tostring(err))
 				else
 					loadedFiles = loadedFiles +1
 					debug.lowDataLoadingLog(debugString .. tostring(suc))
@@ -251,7 +251,7 @@ local function load(args)
 	loadedFiles, failedFiles = loadDir(target, dir, nil, overwrite, nil, structured, priorityOrder, loadFunc, executeFiles)
 	debug.dataLoadingLog("Successfully loaded files: " .. tostring(loadedFiles) .. " (" .. name .. ")")
 	if failedFiles > 0 then
-		warn("Failed to load " .. tostring(failedFiles) .. " (" .. name .. ")")
+		debug.err("Failed to load " .. tostring(failedFiles) .. " (" .. name .. ")")
 	end
 	debug.dataLoadingLog("Loading dir done: " .. dir .. " (" .. name .. ")")
 	return target
@@ -270,8 +270,8 @@ local function execute(t, dir, name, callback, callbackArgs)
 				local suc, err = xpcall(func, debug.traceback, _M, shared)
 				
 				if suc == false then
-					warn("Failed to execute: " .. name)
-					warn(err)
+					debug.err("Failed to execute: " .. name)
+					debug.err(err)
 					failedFiles = failedFiles +1
 				else
 					if callback ~= nil then 

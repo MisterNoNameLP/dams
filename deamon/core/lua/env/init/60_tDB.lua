@@ -1,60 +1,56 @@
-local db = {}
+local dbTable = {}
+local db = _I.dataDB
+local metafunctions = {}
 
 log("=================")
-
-local t = {} --debug
-
-local metatable = {
-    __newindex = function(_, index, value)
-        dlog("NEWINDEX", index, value)
-
-        local varType = type(value)
-        local newText = "do local _ = "
-
-        if varType == "number" or varType == "table" then
-            newText = newText .. _I.ut.tostring(value) 
-        elseif varType == "string" then
-            newText = newText .. "\"" .. _I.ut.tostring(value)  .. "\""
-        else
-            error("Invalid value type: " .. varType, 2)
-        end
-        newText = newText .. "; return _ end"
-        t[index] = newText
-    end,
-    __index = function(_, index)
-        dlog("INDEX", index)
-
-        local content = load(t[index])()
-        local varType = type(content)
-
-        if varType == "table" then
-            local rootTable = index
-            local handler = {}
-            
-
-            handler = setmetatable(handler, {
-                __newindex = function(tbl, index, value)
-                    --dlog(content, tbl)
-                    dlog("_NEWINDEX", index, value)
-                    
-                    --tbl[index] = value
-                    --metatable.__newindex(nil, rootTable, content)
-                end,
-                __index = function(index)
-                    
-                end,
-                __tostring = function() return "DBTable: " .. rootTable end,
-            })
-
-            --debug.dump(content)
-
-            return handler
-        else
-            return content
-        end
+--===== local functions =====--
+local function getContent(index)
+	local contentType, content
+	local suc = db:exec([[SELECT contentType, content FROM dbTable WHERE tableIndex = "]] .. index .. [["]], function(udata, cols, values, names)
+		contentType, content = values[1], values[2]
+		return 0
+	end)
+    if suc ~= 0 then
+        err("Unknown dataDB error: " .. tostring(suc))
     end
-}
+	return contentType, content
+end
 
-db = setmetatable(db, metatable)
+--===== metafunctions =====--
+metafunctions.index = function(handler, index)
+    debug.setFuncPrefix("[DDB_MAININDEX]", true)
+	--dlog("T")
 
-_M._DB = db
+	local fullIndex = _I.ut.parseArgs(getmetatable(handler).fullIndex, "") .. "." .. index
+    local contentType, content = getContent(fullIndex)
+
+    if contentType == "string" then
+		return content 
+	elseif contentType == "number" then
+		return tonumber(content)
+	elseif contentType == "table" then
+		local newHandler = setmetatable({}, {
+			fullIndex = fullIndex,
+			__index = metafunctions.index,
+			__tostring = metafunctions.tostring,
+		})
+		return newHandler
+	end
+end
+metafunctions.newindex = function(handler, index, value)
+	local fullIndex = getmetatable(handler).fullIndex
+
+
+end
+metafunctions.tostring = function(handler)
+    return "dbHandler: " .. string.sub(_I.ut.parseArgs(getmetatable(handler).fullIndex, ".(root)"), 2)
+end
+
+--===== set root handler =====--
+dbTable = setmetatable(dbTable, {
+    __index = metafunctions.index,
+    __newindex = metafunctions.newindex,
+    __tostring = metafunctions.tostring,
+})
+
+_M._DB = dbTable

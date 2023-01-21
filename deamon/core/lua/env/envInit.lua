@@ -71,11 +71,14 @@ dlog("Initialize the environment")
 debug.setLogPrefix(tostring(_internal.threadName))
 
 dlog("Execute core env init")
+debug.setFuncPrefix("[CORE_ENV_INI]")
 _I.dl.executeDir("core/lua/env/init", "coreEnvInit")
 
 dlog("Execute API env init")
+debug.setFuncPrefix("[API_ENV_INI]")
 _I.dl.executeDir("api/env/init", "apiEnvInit")
 
+debug.setFuncPrefix("[CORE_ENV_DYN]")
 dlog("Load dynamic core data")
 _I.dl.load({
 	target = _I, 
@@ -85,6 +88,7 @@ _I.dl.load({
 	execute = true,
 })
 
+debug.setFuncPrefix("[API_ENV_DYN]")
 dlog("Load dynamic API data")
 _I.dl.load({
 	target = _M._E, 
@@ -93,6 +97,8 @@ _I.dl.load({
 	structured = true,
 	execute = true,
 })
+
+debug.setFuncPrefix("")
 
 _G._S = _I.shared
 for i, c in pairs(_I._G) do
