@@ -254,6 +254,7 @@ addDebugLogLevel("dataExecutionLog", "[DATA_EXECUTION]", "dataExecution", false)
 addDebugLogLevel("lowDataExecutionLog", "[LOW_DATA_EXECUTION]", "lowDataExecution", false)
 addDebugLogLevel("exec", "[EXEC]", "exec", false)
 addDebugLogLevel("ulog", "[USER]", "user", false)
+addDebugLogLevel("dataDBLog", "[DATA_DB]", "dataDB", false)
 
 --===== set debug function =====--
 setLogPrefix(defaultPrefix)

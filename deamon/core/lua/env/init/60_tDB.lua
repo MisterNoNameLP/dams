@@ -1,46 +1,94 @@
 local dbTable = {}
 local db = _I.dataDB
 local metafunctions = {}
+local legalValueTypes = {string = true, number = true, table = true, boolean = true, ["nil"] = true}
 
-log("=================")
 --===== local functions =====--
-local function getContent(index)
-	local contentType, content
-	local suc = db:exec([[SELECT contentType, content FROM dbTable WHERE tableIndex = "]] .. index .. [["]], function(udata, cols, values, names)
-		contentType, content = values[1], values[2]
+local function getValue(index)
+	debug.dataDBLog("Get value: " .. index)
+	local valueType, value
+	local suc = db:exec([[SELECT valueType, value FROM dataDB WHERE fullIndex = "]] .. index .. [["]], function(udata, cols, values, names)
+		valueType, value = values[1], values[2]
 		return 0
 	end)
     if suc ~= 0 then
-        err("Unknown dataDB error: " .. tostring(suc))
+        error("Unknown dbAPIData error: " .. tostring(suc), 2)
     end
-	return contentType, content
+	return valueType, value
+end
+local function addValue(index, valueType, value)
+	debug.dataDBLog("Add value: " .. index .. ", " .. valueType .. ", " .. tostring(value))
+	local suc = db:exec([[INSERT INTO dataDB VALUES ("]] .. index .. [[", "]] .. valueType .. [[", "]] .. tostring(value) .. [[");]])
+	if suc ~= 0 then
+		error("Could not add to dataDB: " .. tostring(fullIndex) .. ", " .. tostring(value), 2)
+	end
+end
+local function updateValue(index, valueType, value)
+	debug.dataDBLog("Update value: " .. index .. ", " .. valueType .. ", " .. tostring(value))
+	local suc = db:exec([[UPDATE dataDB SET valueType = "]] .. valueType .. [[", value = "]] .. tostring(value) .. [[" WHERE fullIndex = "]] .. index .. [[";]])
+	if suc ~= 0 then
+		error("Could not update in dataDB: " .. tostring(fullIndex) .. ", " .. tostring(value), 2)
+	end
+end
+local function removeValue(index)
+	debug.dataDBLog("Remove value: " .. index)
+	local suc = db:exec([[DELETE FROM dataDB WHERE fullIndex = "]] .. index .. [[";]])
+	if suc ~= 0 then
+		error("Could not remove from dataDB: " .. tostring(fullIndex) .. ", " .. tostring(value), 2)
+	end
+end
+local function isValueLegal(value)
+	local valueType = type(value)
+	if legalValueTypes[valueType] then
+		return true, valueType
+	else
+		return false, valueType
+	end
 end
 
 --===== metafunctions =====--
-metafunctions.index = function(handler, index)
-    debug.setFuncPrefix("[DDB_MAININDEX]", true)
-	--dlog("T")
-
+metafunctions.newindex = function(handler, index, value)
 	local fullIndex = _I.ut.parseArgs(getmetatable(handler).fullIndex, "") .. "." .. index
-    local contentType, content = getContent(fullIndex)
+	local orgValueType = getValue(fullIndex) --just to check if entry exists
+	local valueIsLegal, valueType = isValueLegal(value)
 
-    if contentType == "string" then
-		return content 
-	elseif contentType == "number" then
-		return tonumber(content)
-	elseif contentType == "table" then
+	if not valueIsLegal then
+		error("Invalid value type: " .. tostring(valueType), 2)
+	end
+
+	if orgValueType then
+		if valueType == "nil" then
+			removeValue(fullIndex)
+		else
+			updateValue(fullIndex, valueType, value)
+		end
+	elseif valueType ~= "nil" then
+		addValue(fullIndex, valueType, value)
+	end
+end
+metafunctions.index = function(handler, index)
+	local fullIndex = _I.ut.parseArgs(getmetatable(handler).fullIndex, "") .. "." .. index
+    local valueType, value = getValue(fullIndex)
+
+    if valueType == "string" then
+		return value 
+	elseif valueType == "number" then
+		return tonumber(value)
+	elseif valueType == "boolean" then
+		if value == "true" then
+			return true
+		else
+			return false
+		end
+	elseif valueType == "table" then
 		local newHandler = setmetatable({}, {
 			fullIndex = fullIndex,
 			__index = metafunctions.index,
+			__newindex = metafunctions.newindex,
 			__tostring = metafunctions.tostring,
 		})
 		return newHandler
 	end
-end
-metafunctions.newindex = function(handler, index, value)
-	local fullIndex = getmetatable(handler).fullIndex
-
-
 end
 metafunctions.tostring = function(handler)
     return "dbHandler: " .. string.sub(_I.ut.parseArgs(getmetatable(handler).fullIndex, ".(root)"), 2)
