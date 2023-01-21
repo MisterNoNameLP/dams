@@ -4,8 +4,10 @@ local metafunctions = {}
 local legalValueTypes = {string = true, number = true, table = true, boolean = true, ["nil"] = true}
 
 --===== local functions =====--
-local function getValue(index)
-	debug.dataDBLog("Get value: " .. index)
+local function getValue(index, internalCall)
+	if internalCall ~= true then
+		debug.dataDBLog("Get value: " .. index)
+	end
 	local valueType, value
 	local suc = db:exec([[SELECT valueType, value FROM dataDB WHERE fullIndex = "]] .. index .. [["]], function(udata, cols, values, names)
 		valueType, value = values[1], values[2]
@@ -30,9 +32,16 @@ local function updateValue(index, valueType, value)
 		error("Could not update in dataDB: " .. tostring(fullIndex) .. ", " .. tostring(value), 2)
 	end
 end
-local function removeValue(index)
+local function removeValue(index, valueType)
 	debug.dataDBLog("Remove value: " .. index)
-	local suc = db:exec([[DELETE FROM dataDB WHERE fullIndex = "]] .. index .. [[";]])
+	local suc
+
+	if valueType ~= "table" then
+		suc = db:exec([[DELETE FROM dataDB WHERE fullIndex = "]] .. index .. [[";]])
+	else
+		dlog("tbl")
+		suc = db:exec([[DELETE FROM dataDB WHERE fullIndex LIKE "]] .. index .. [[%";]])
+	end
 	if suc ~= 0 then
 		error("Could not remove from dataDB: " .. tostring(fullIndex) .. ", " .. tostring(value), 2)
 	end
@@ -49,7 +58,7 @@ end
 --===== metafunctions =====--
 metafunctions.newindex = function(handler, index, value)
 	local fullIndex = _I.ut.parseArgs(getmetatable(handler).fullIndex, "") .. "." .. index
-	local orgValueType = getValue(fullIndex) --just to check if entry exists
+	local orgValueType = getValue(fullIndex, true)
 	local valueIsLegal, valueType = isValueLegal(value)
 
 	if not valueIsLegal then
@@ -58,8 +67,11 @@ metafunctions.newindex = function(handler, index, value)
 
 	if orgValueType then
 		if valueType == "nil" then
-			removeValue(fullIndex)
+			removeValue(fullIndex, orgValueType)
 		else
+			if orgValueType == "table" then
+				removeValue(fullIndex .. ".", orgValueType)
+			end
 			updateValue(fullIndex, valueType, value)
 		end
 	elseif valueType ~= "nil" then
