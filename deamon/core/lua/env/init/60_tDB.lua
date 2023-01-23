@@ -4,6 +4,14 @@ local metafunctions = {}
 local legalValueTypes = {string = true, number = true, table = true, boolean = true, ["nil"] = true}
 
 --===== local functions =====--
+local function isValueLegal(value)
+	local valueType = type(value)
+	if legalValueTypes[valueType] then
+		return true, valueType
+	else
+		return false, valueType
+	end
+end
 local function getValue(index, internalCall)
 	if internalCall ~= true then
 		debug.dataDBLog("Get value: " .. index)
@@ -20,14 +28,47 @@ local function getValue(index, internalCall)
 end
 local function addValue(index, valueType, value)
 	debug.dataDBLog("Add value: " .. index .. ", " .. valueType .. ", " .. tostring(value))
-	local suc = db:exec([[INSERT INTO dataDB VALUES ("]] .. index .. [[", "]] .. valueType .. [[", "]] .. tostring(value) .. [[");]])
-	if suc ~= 0 then
-		error("Could not add to dataDB: " .. tostring(fullIndex) .. ", " .. tostring(value), 2)
+	local suc
+	if valueType == "table" then
+		value = nil
 	end
+	if valueType == "table" then
+		suc = db:exec([[INSERT INTO dataDB VALUES ("]] .. index .. [[", "]] .. valueType .. [[", NULL);]])
+	else
+		suc = db:exec([[INSERT INTO dataDB VALUES ("]] .. index .. [[", "]] .. valueType .. [[", "]] .. tostring(value) .. [[");]])
+	end
+	if suc ~= 0 then
+		error("Could not add to dataDB (" .. tostring(suc) .. "): " .. tostring(fullIndex) .. ", " .. tostring(value), 2)
+	end
+end
+local function addTableRecursively(index, tbl)
+	debug.dataDBLog("Add table recursively: " .. index .. ", " .. tostring(value))
+	local valueIsLegal, valueType
+	addValue(index, "table")
+	for i, v in pairs(tbl) do
+		valueIsLegal, valueType = isValueLegal(v)
+		if not valueIsLegal then
+			error("Table contains invalid value type: " .. tostring(valueType), 3)
+		end
+		if valueType == "table" then
+			addTableRecursively(index .. "." .. i, v)
+		else
+			addValue(index .. "." .. i, valueType, v)
+		end
+	end
+	
 end
 local function updateValue(index, valueType, value)
 	debug.dataDBLog("Update value: " .. index .. ", " .. valueType .. ", " .. tostring(value))
-	local suc = db:exec([[UPDATE dataDB SET valueType = "]] .. valueType .. [[", value = "]] .. tostring(value) .. [[" WHERE fullIndex = "]] .. index .. [[";]])
+	local suc
+	if valueType == "table" then
+		value = nil
+	end
+	if valueType == "table" then
+		suc = db:exec([[UPDATE dataDB SET valueType = "]] .. valueType .. [[", value = NULL WHERE fullIndex = "]] .. index .. [[";]])
+	else
+		suc = db:exec([[UPDATE dataDB SET valueType = "]] .. valueType .. [[", value = "]] .. tostring(value) .. [[" WHERE fullIndex = "]] .. index .. [[";]])
+	end
 	if suc ~= 0 then
 		error("Could not update in dataDB: " .. tostring(fullIndex) .. ", " .. tostring(value), 2)
 	end
@@ -44,35 +85,34 @@ local function removeValue(index, valueType)
 		error("Could not remove from dataDB: " .. tostring(fullIndex) .. ", " .. tostring(value), 2)
 	end
 end
-local function isValueLegal(value)
-	local valueType = type(value)
-	if legalValueTypes[valueType] then
-		return true, valueType
-	else
-		return false, valueType
-	end
-end
+
 
 --===== metafunctions =====--
 metafunctions.newindex = function(handler, index, value)
 	local fullIndex = _I.ut.parseArgs(getmetatable(handler).fullIndex, "") .. "." .. index
-	local orgValueType = getValue(fullIndex, true)
+	local storedValueType = getValue(fullIndex, true)
 	local valueIsLegal, valueType = isValueLegal(value)
 
 	if not valueIsLegal then
 		error("Invalid value type: " .. tostring(valueType), 2)
 	end
-	if orgValueType then
+	if storedValueType then
 		if valueType == "nil" then
-			removeValue(fullIndex, orgValueType)
+			removeValue(fullIndex, storedValueType)
 		else
-			if orgValueType == "table" then
-				removeValue(fullIndex .. ".", orgValueType)
+			if valueType == "table" then
+				removeValue(fullIndex, storedValueType)
+				addTableRecursively(fullIndex, value)
+			else
+				updateValue(fullIndex, valueType, value)
 			end
-			updateValue(fullIndex, valueType, value)
 		end
 	elseif valueType ~= "nil" then
-		addValue(fullIndex, valueType, value)
+		if valueType == "table" then
+			addTableRecursively(fullIndex, value)
+		else
+			addValue(fullIndex, valueType, value)
+		end
 	end
 end
 metafunctions.index = function(handler, index)

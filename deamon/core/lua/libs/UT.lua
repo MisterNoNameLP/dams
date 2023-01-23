@@ -18,7 +18,7 @@
 --[[UsefullThings libary
 	
 ]]
-local UT = {version = "v0.8.8"}
+local UT = {version = "v0.8.8d"}
 
 function UT.getVersion()
 	return UT.version

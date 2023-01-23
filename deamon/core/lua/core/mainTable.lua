@@ -1,5 +1,4 @@
 local main = {
-	commands = {},
 	userScripts = {},
 	
 	terminal = {},

@@ -26,7 +26,7 @@ log("Start initialization")
 debug.setFuncPrefix("[INIT]")
 
 dlog("Initialize main env")
-local mainTable = loadfile("core/lua/core/mainTable.lua")()
+local mainTable = loadfile("core/lua/core/mainTable.lua")() --TODO: still needed?
 for i, c in pairs(mainTable) do
 	_M._I[i] = c
 end
@@ -39,14 +39,6 @@ loadfile(_I.devConf.terminalPath .. "terminalManager.lua")(_M)
 loadfile("core/lua/core/shutdown.lua")(_M)
 
 --=== load dynamic data ===--
-_I.dl.load({
-	target = _I.commands, 
-	dir = "api/commands", 
-	name = "commands",
-})
-
-print(_I.commands)
-
 log("Initialize core")
 _I.dl.executeDir("core/lua/core/init", "INIT_SYSTEM")
 

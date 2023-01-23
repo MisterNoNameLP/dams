@@ -98,6 +98,15 @@ _I.dl.load({
 	execute = true,
 })
 
+debug.setFuncPrefix("[API_COMMANDS]")
+dlog("Load commands")
+_I.commands = {}
+_I.dl.load({
+	target = _I.commands, 
+	dir = "api/commands", 
+	name = "commands",
+})
+
 debug.setFuncPrefix("")
 
 _G._S = _I.shared
