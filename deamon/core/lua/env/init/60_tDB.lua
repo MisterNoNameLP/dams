@@ -2,6 +2,19 @@ local dbTable = {}
 local db = _I.dataDB
 local metafunctions = {}
 local legalValueTypes = {string = true, number = true, table = true, boolean = true, ["nil"] = true}
+local legalIndexTypes = {string = true}
+
+--===== init db error handlers =====--
+db:busy_handler(function(_, attempt) 
+	love.timer.sleep(_I.devConf.sqlite.busyWaitTime)
+
+	if attempt >= _I.devConf.sqlite.maxBusyTries then
+		err("dataDB action took too long")
+		return false
+	end
+	
+	return 1
+end)
 
 --===== local functions =====--
 local function isValueLegal(value)
@@ -10,6 +23,14 @@ local function isValueLegal(value)
 		return true, valueType
 	else
 		return false, valueType
+	end
+end
+local function isIndexLegal(index)
+	local indexType = type(index)
+	if legalIndexTypes[indexType] then
+		return true, indexType
+	else
+		return false, indexType
 	end
 end
 local function getValue(index, internalCall)
@@ -22,7 +43,7 @@ local function getValue(index, internalCall)
 		return 0
 	end)
     if suc ~= 0 then
-        error("Unknown dbAPIData error: " .. tostring(suc), 2)
+		error("Could not get dataDB value: " .. tostring(index) .. ": " .. _I.getSQLiteErrMsg(suc))
     end
 	return valueType, value
 end
@@ -38,17 +59,21 @@ local function addValue(index, valueType, value)
 		suc = db:exec([[INSERT INTO dataDB VALUES ("]] .. index .. [[", "]] .. valueType .. [[", "]] .. tostring(value) .. [[");]])
 	end
 	if suc ~= 0 then
-		error("Could not add to dataDB (" .. tostring(suc) .. "): " .. tostring(fullIndex) .. ", " .. tostring(value), 2)
+		error("Could not add to dataDB: " .. tostring(fullIndex) .. ", " .. tostring(value) .. ": " .. _I.getSQLiteErrMsg(suc))
 	end
 end
 local function addTableRecursively(index, tbl)
 	debug.dataDBLog("Add table recursively: " .. index .. ", " .. tostring(value))
 	local valueIsLegal, valueType
+	local indexIsLegal, indexType
 	addValue(index, "table")
 	for i, v in pairs(tbl) do
 		valueIsLegal, valueType = isValueLegal(v)
+		indexIsLegal, indexType = isIndexLegal(i)
 		if not valueIsLegal then
 			error("Table contains invalid value type: " .. tostring(valueType), 3)
+		elseif not indexIsLegal then
+			error("Table contains invalid index type: " .. tostring(indexType), 3)
 		end
 		if valueType == "table" then
 			addTableRecursively(index .. "." .. i, v)
@@ -70,7 +95,7 @@ local function updateValue(index, valueType, value)
 		suc = db:exec([[UPDATE dataDB SET valueType = "]] .. valueType .. [[", value = "]] .. tostring(value) .. [[" WHERE fullIndex = "]] .. index .. [[";]])
 	end
 	if suc ~= 0 then
-		error("Could not update in dataDB: " .. tostring(fullIndex) .. ", " .. tostring(value), 2)
+		error("Could not update in dataDB: " .. tostring(fullIndex) .. ", " .. tostring(value) .. ": " .. _I.getSQLiteErrMsg(suc))
 	end
 end
 local function removeValue(index, valueType)
@@ -82,7 +107,7 @@ local function removeValue(index, valueType)
 		suc = db:exec([[DELETE FROM dataDB WHERE fullIndex LIKE "]] .. index .. [[%";]])
 	end
 	if suc ~= 0 then
-		error("Could not remove from dataDB: " .. tostring(fullIndex) .. ", " .. tostring(value), 2)
+		error("Could not remove from dataDB: " .. tostring(fullIndex) .. ", " .. tostring(value))
 	end
 end
 
@@ -92,9 +117,12 @@ metafunctions.newindex = function(handler, index, value)
 	local fullIndex = _I.ut.parseArgs(getmetatable(handler).fullIndex, "") .. "." .. index
 	local storedValueType = getValue(fullIndex, true)
 	local valueIsLegal, valueType = isValueLegal(value)
+	local indexIsLegal, indexType = isIndexLegal(index)
 
 	if not valueIsLegal then
 		error("Invalid value type: " .. tostring(valueType), 2)
+	elseif not indexIsLegal then
+		error("Invalid index type: " .. tostring(indexType), 2)
 	end
 	if storedValueType then
 		if valueType == "nil" then

@@ -54,7 +54,8 @@ local devConf = {
 	},
 	
 	sqlite = {
-		busyWaitTime = .05, --defines the time the system waits every time the sqlite DB is busy.
+		busyWaitTime = .5, --defines the time the system waits every time the sqlite DB is busy.
+		maxBusyTries = 10, --defines how often the priogeam will try to accoplish new attemts if the sqlite database is busy.
 	},
 	
 	onReload = {
@@ -113,7 +114,7 @@ local devConf = {
 
 			exec = false, --prints whats is executet in the shell. WARNING: if used wrong this can expose passwords in the logfile!
 			user = true, --print User / login db actions.
-			dataDB = true, --prints dataDB actions.
+			dataDB = false, --prints dataDB actions.
 		},
 	},
 }
