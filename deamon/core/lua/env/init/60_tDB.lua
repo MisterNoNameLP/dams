@@ -7,18 +7,17 @@ local legalIndexTypes = {string = true}
 --===== init db error handlers =====--
 db:busy_handler(function(_, attempt) 
 	love.timer.sleep(_I.devConf.sqlite.busyWaitTime)
-
 	if attempt >= _I.devConf.sqlite.maxBusyTries then
 		err("dataDB action took too long")
 		return false
 	end
-	
 	return 1
 end)
 
 --===== local functions =====--
 local function isValueLegal(value)
 	local valueType = type(value)
+
 	if legalValueTypes[valueType] then
 		return true, valueType
 	else
@@ -27,6 +26,7 @@ local function isValueLegal(value)
 end
 local function isIndexLegal(index)
 	local indexType = type(index)
+
 	if legalIndexTypes[indexType] then
 		return true, indexType
 	else
@@ -50,6 +50,7 @@ end
 local function addValue(index, valueType, value)
 	debug.dataDBLog("Add value: " .. index .. ", " .. valueType .. ", " .. tostring(value))
 	local suc
+
 	if valueType == "table" then
 		value = nil
 	end
@@ -66,6 +67,7 @@ local function addTableRecursively(index, tbl)
 	debug.dataDBLog("Add table recursively: " .. index .. ", " .. tostring(value))
 	local valueIsLegal, valueType
 	local indexIsLegal, indexType
+
 	addValue(index, "table")
 	for i, v in pairs(tbl) do
 		valueIsLegal, valueType = isValueLegal(v)
@@ -86,6 +88,7 @@ end
 local function updateValue(index, valueType, value)
 	debug.dataDBLog("Update value: " .. index .. ", " .. valueType .. ", " .. tostring(value))
 	local suc
+
 	if valueType == "table" then
 		value = nil
 	end
@@ -101,6 +104,7 @@ end
 local function removeValue(index, valueType)
 	debug.dataDBLog("Remove value: " .. index)
 	local suc
+
 	if valueType ~= "table" then
 		suc = db:exec([[DELETE FROM dataDB WHERE fullIndex = "]] .. index .. [[";]])
 	else
