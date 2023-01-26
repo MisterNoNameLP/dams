@@ -167,6 +167,7 @@ metafunctions.index = function(handler, index)
 			__index = metafunctions.index,
 			__newindex = metafunctions.newindex,
 			__tostring = metafunctions.tostring,
+			__call = metafunctions.call,
 		})
 		return newHandler
 	end
@@ -174,12 +175,16 @@ end
 metafunctions.tostring = function(handler)
     return "dbHandler: " .. string.sub(_I.ut.parseArgs(getmetatable(handler).fullIndex, ".(root)"), 2)
 end
+metafunctions.call = function(handler, arg) --TODO: add lock feature.
+	log(_S)
+end
 
 --===== set root handler =====--
 dbTable = setmetatable(dbTable, {
     __index = metafunctions.index,
     __newindex = metafunctions.newindex,
     __tostring = metafunctions.tostring,
+	__call = metafunctions.call,
 })
 
 _M._DB = dbTable

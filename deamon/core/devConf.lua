@@ -55,7 +55,7 @@ local devConf = {
 	
 	sqlite = {
 		busyWaitTime = .5, --defines the time the system waits every time the sqlite DB is busy.
-		maxBusyTries = 10, --defines how often the priogeam will try to accoplish new attemts if the sqlite database is busy.
+		maxBusyTries = 10, --defines how often the priogeam will try to accoplish new sqlite actions if the database is busy.
 	},
 	
 	onReload = {

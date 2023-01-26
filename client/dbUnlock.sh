@@ -8,16 +8,8 @@ local client = require("DamsClient").new({
 })
 
 local suc, headers, response = client:request({
-    action = "gtest",
-    value = "TEST",
+    action = "dbUnlock",
 }, {})
-
-for c = 1, 0 do
-    local suc, headers, response = client:request({
-        action = "ptest",
-        value = "TEST",
-    }, {})
-end
 
 print("\nSUC")
 print(suc)
