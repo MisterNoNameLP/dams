@@ -3,7 +3,7 @@ local devConf = {
 	dataDatabasePath = "data.sqlite3", --contains data used by API functions (_DB).
 	
 	requirePath = "core/lua/libs/?.lua;core/lua/libs/thirdParty/?.lua;/home/noname/.luarocks/share/lua/5.1/?.lua",
-	cRequirePath = "core/bin/libs/?.so;/home/noname/.luarocks/lib/lua/5.1/?.so",
+	cRequirePath = "core/bin/libs/?.so;",
 	terminalPath = "core/lua/core/terminal/",
 	
 	sleepTime = .1, --the time the terminal is waiting for an input. this affect the CPU time as well as the time debug messanges needs to be updated.

@@ -4,11 +4,11 @@ package.path = "libs/?.lua;" .. package.path
 local ut = require("UT")
 
 local client = require("DamsClient").new({
-    uri = "http://localhost:8023",
+    uri = "http://127.0.0.1:8023",
 })
 
 local suc, headers, response = client:request({
-    action = "gtest",
+    action = "test2",
     value = "TEST",
 }, {})
 

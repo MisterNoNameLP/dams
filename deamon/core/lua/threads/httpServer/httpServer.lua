@@ -44,7 +44,7 @@ do --setup TLS by using given cert/privatekey.
 		ctx:setCertificate(x509.new(cert))
 		ctx:setPrivateKey(pkey.new(privateKey))
 	else
-		warn("No TLS certificate given. Falling back to self-signed certificate.")
+		log("No TLS certificate given. Falling back to self-signed certificate.")
 	end
 
 	if _I.devConf.forceTLS then

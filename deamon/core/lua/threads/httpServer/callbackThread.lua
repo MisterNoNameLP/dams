@@ -37,7 +37,7 @@ local function executeUserOrder(request)
 		responseData.returnValue, responseHeaders = func(requestData)
 		responseData.success = true
 
-		do --remove error table from response if not used
+		if responseData.returnValue.error then --remove error table from response if not used
 			local used = false
 			for _ in pairs(responseData.returnValue.error) do
 				used = true
