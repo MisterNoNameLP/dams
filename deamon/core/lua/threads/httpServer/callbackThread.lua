@@ -1,5 +1,6 @@
 ldlog("CALLBACK THREAD START")
 
+--===== local variables =====--
 local callbackStream = _M._I.thread.getChannel("HTTP_CALLBACK_STREAM#" .. tostring(_M._I.getThreadInfos().id))
 
 local responseHeaders = {}
@@ -15,49 +16,8 @@ local requestFormatterPath, responseFormatterPath = "./api/formatters/request/",
 local canExecuteUserOrder = true
 local userRequest
 
-local function executeUserOrder(request)
-	local func, err, requestedAction
 
-	if type(request) ~= "table" then
-		warn("Recieved invalid request: " .. tostring(request))
-		responseData.error = "Invalid request format."
-		return false
-	else
-		requestData.request = request
-		requestedAction = request.action
-	end
-	
-	if requestedAction ~= nil then
-		func, err = _M._I.getActionFunc("api/actions/" .. requestedAction)
-	end
-	
-	if type(func) == "function" then
-		local logPrefix = _M._I.debug.getLogPrefix()
-		debug.setLogPrefix("[ACTION]")
-		responseData.returnValue, responseHeaders = func(requestData)
-		responseData.success = true
-
-		if responseData.returnValue.error then --remove error table from response if not used
-			local used = false
-			for _ in pairs(responseData.returnValue.error) do
-				used = true
-				break
-			end
-			if not used then
-				responseData.returnValue.error = nil
-			end
-		end
-
-		debug.setLogPrefix(logPrefix)
-	elseif func == nil then
-		debug.err("Failed to execute requested user action: " .. tostring(requestedAction) .. "; error:\n" .. tostring(err))
-		responseData.error = "Failed to execute requested action: " .. tostring(err)
-	else
-		warn("Recieved unknown user action request: " .. tostring(requestedAction))
-		responseData.error = "Invalid user action: " .. tostring(err)
-	end
-end
-
+--===== local functions =====--
 local function loadFormatter(headerName, path)
 	ldlog("Load " .. headerName .. " formatter, dir: " .. path)
 
@@ -92,12 +52,10 @@ local function loadFormatter(headerName, path)
 	end
 end
 
---dlog(requestData.headers[":method"].value)
---dlog(requestData.body)
 
+--===== processing user request =====--
 _M._I.cookie.current = _M._I.getCookies(requestData)
-
-if requestData.headers[":method"].value == "GET" then
+if requestData.headers[":method"].value == "GET" then --=== exec site ===--
 	local logPrefix = _M._I.debug.getLogPrefix()
 	local requestedSite = requestData.headers[":path"].value
 	debug.setLogPrefix("[SITE]")
@@ -109,7 +67,7 @@ if requestData.headers[":method"].value == "GET" then
 	end
 
 	debug.setLogPrefix(logPrefix)
-else
+else --=== exec action ===--
 	do --formatting user request
 		local suc
 		local logPrefix
@@ -159,9 +117,11 @@ else
 
 	--execute user order
 	if canExecuteUserOrder then 
-		local suc, err = xpcall(executeUserOrder, debug.traceback, userRequest)
+		local suc, err = xpcall(_I.execAction, debug.traceback, userRequest, requestData) --TODO: response processing and execAction inter sandboxing.
+		--local newResponseData, newResponseHeaders = _I.execAction(userRequest, requestData)
+
 		if suc ~= true then
-			debug.err("Execute user order: ", suc, err)
+			debug.err("Failed to execute user order: " .. tostring(userRequest.action), suc, err)
 			responseData.error = "User script crash"
 			responseData.scriptError = tostring(err)
 		end
@@ -205,6 +165,7 @@ Falling back to human readable lua-table.
 	end
 end
 
+--===== finishing up =====--
 callbackStream:push({headers = responseHeaders, data = responseDataString, cookies = _M._I.cookie.new})
 _M._I.cookie = {current = {}, new = {}}
 ldlog("CALLBACK THREAD END")

@@ -8,16 +8,18 @@ return function(site, requestData)
         sitePath = "_root"
     end
     sitePath = "api/sites/" .. sitePath --completing sitePath
+    siteFunc, err = _M._I.getActionFunc(sitePath)
 
-    if _M._I.lib.lfs.attributes(sitePath .. ".lua") ~= nil or _M._I.lib.lfs.attributes(sitePath .. ".pleal") ~= nil then
-        siteFunc, err = _M._I.getActionFunc(sitePath)
-
-        if type(siteFunc) ~= "function" then
-            debug.err("Cant execute site: " .. site .. "\n" .. err)
-            suc = false
-        else
-            suc, err, headers = xpcall(siteFunc, debug.traceback, requestData)
-        end
+    if siteFunc == 1 then
+        warn("Someone (" .. tostring(requestData.meta.realIP) .. ") tryed to access non existing site: '" .. site .. "'")
+        returnValue = "Error 404\nSite not found"
+        headers = {[":status"] = 404}
+    elseif siteFunc == 2 then
+        debug.err("Requestet site exists multiple times: " .. site)
+        returnValue = "Error: -405\nSite exists multiple times. Pleas contact an admin."
+        headers = {[":status"] = 500}
+    elseif type(siteFunc) == "function" then
+        suc, err, headers = xpcall(siteFunc, debug.traceback, requestData)
 
         if suc ~= true then
             debug.err("Site execution failed")
@@ -33,9 +35,9 @@ Stack traceback:
             returnValue = err
         end
     else
-        warn("Someone (" .. tostring(requestData.meta.realIP) .. ") tryed to access non existing site: '" .. site .. "'")
-        returnValue = "Error 404\nSite not found"
-        headers = {[":status"] = 404}
+        debug.err("Cant execute site: " .. site .. "\n" .. err)
+        suc = false
+        returnValue = err
     end
 
     return suc, returnValue, headers

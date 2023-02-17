@@ -34,7 +34,11 @@
 
 # site / action execution
 -404: site not found.
--405: error while executing site script.
+-405: site exists multiple times.
+-406: error while executing site script.
+-454: action not found.
+-455: action exists multiple times.
+-456: error while executing action script.
 
 # http communication
 -1001: no valid request-format given.
