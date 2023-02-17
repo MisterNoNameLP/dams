@@ -1,27 +1,47 @@
+--[[executes an api action
+    returns: returnCode, responseData / error, responseHeaders
+
+    returnCodes:
+        0 == successfully executet action code
+        1 == invalid request
+        2 == invalid path given
+        3 == requested action not found
+        4 == failed to load requestet action
+        5 == coult not execute requestet action
+        6 == multiple actions with the same name existing
+        99 == unknown error
+]]
+
 return function(request, requestData)
-	local func, err, requestedAction
+	local scriptFuncLoadingCode, scriptFunc, scriptFuncLoadingError
+    local requestedAction
     local responseData = {}
     local responseHeaders
 
-	if type(request) ~= "table" then
-		warn("Recieved invalid request: " .. tostring(request))
-		responseData.error = "Invalid request format."
-		return false
-	else
-		requestData.request = request
-		requestedAction = request.action
-	end
+    assert(type(request) == "table", "bad argument #1 to 'execAction' (table expected, got " .. type(request) .. ")")
+
+	requestData.request = request
+	requestedAction = request.action
 	
 	if requestedAction ~= nil then
-		func, err = _M._I.getActionFunc("api/actions/" .. requestedAction)
+		scriptFuncLoadingCode, scriptFunc, scriptFuncLoadingError = _M._I.getScriptFunc("api/actions/" .. requestedAction)
+    else
+		return 1, "Invalid request"
 	end
-	
-	if type(func) == "function" then
-		local logPrefix = _M._I.debug.getLogPrefix()
-		debug.setLogPrefix("[ACTION]")
-		responseData.returnValue, responseHeaders = func(requestData)
-		responseData.success = true
 
+	if scriptFuncLoadingCode == 0 then
+		local logPrefix = _M._I.debug.getLogPrefix()
+        local scriptExecutionSuccess, scriptReturnValue
+		
+        debug.setLogPrefix("[ACTION]")
+		scriptExecutionSuccess, scriptReturnValue, responseHeaders = xpcall(scriptFunc, debug.traceback, requestData)
+        if scriptExecutionSuccess then
+		    responseData.success = true
+            responseData.returnValue = scriptReturnValue
+            return 0, responseData, responseHeaders
+        else
+            return 5, "Action script crashed"
+        end
 		if responseData.returnValue.error then --remove error table from response if not used
 			local used = false
 			for _ in pairs(responseData.returnValue.error) do
@@ -32,15 +52,16 @@ return function(request, requestData)
 				responseData.returnValue.error = nil
 			end
 		end
-
 		debug.setLogPrefix(logPrefix)
-	elseif func == nil then
-		debug.err("Failed to load requested user action: " .. tostring(requestedAction) .. "; error:\n" .. tostring(err))
-		responseData.error = "Failed to load requested action: " .. tostring(err)
-	else
-		warn("Recieved unknown user action request: " .. tostring(requestedAction))
-		responseData.error = "Invalid user action: " .. tostring(err)
+    elseif scriptFuncLoadingCode == 1 then
+        return 2, "Invalid path given"
+    elseif scriptFuncLoadingCode == 2 then
+        return 3, "Action not found", scriptFuncLoadingError
+    elseif scriptFuncLoadingCode == 3 then
+        return 4, "Failed to load action", scriptFuncLoadingError
+    elseif scriptFuncLoadingCode == 4 then
+        return 6, "Multiple actions with that name"
+    else
+        return 99, "Unknown error", scriptFuncLoadingError
 	end
-
-    return responseData, responseHeaders
 end

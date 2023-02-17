@@ -4,8 +4,10 @@ ldlog("CALLBACK THREAD START")
 local callbackStream = _M._I.thread.getChannel("HTTP_CALLBACK_STREAM#" .. tostring(_M._I.getThreadInfos().id))
 
 local responseHeaders = {}
+--a response data table used by actions scripts and the frameworks itself to handle the response if an action is called.
 local responseData = {success = false}
-local responseDataString = "If you see this, something went terrebly wrong. Please contact a system administrator."
+--the response body sended back to the client after a request is done processing.
+local responseBody = "If you see this, something went terrebly wrong. Please contact a system administrator."
 
 local requestData = _M._I.initData.args
 
@@ -54,13 +56,46 @@ end
 
 
 --===== processing user request =====--
+--[[if a site is executed the response body will be build as a string direclty by the site script.
+	on the other hand, if an action is executet the responseData table is used to manage the response of scripts and the framework itself.
+	the responseData table is then converteted into a responseBody string using the given response formatter.
+]]
 _M._I.cookie.current = _M._I.getCookies(requestData)
 if requestData.headers[":method"].value == "GET" then --=== exec site ===--
+
+
 	local logPrefix = _M._I.debug.getLogPrefix()
 	local requestedSite = requestData.headers[":path"].value
+	local siteExecutionCode, siteExecutionResponse, responseHeaders
+
 	debug.setLogPrefix("[SITE]")
-	
-	_, responseDataString, responseHeaders = _M._I.execSite(requestedSite, requestData)
+
+	siteExecutionCode, siteExecutionResponse, responseHeaders = _I.execSite(requestedSite, requestData)
+
+	if siteExecutionCode == 0 then
+		responseBody = siteExecutionResponse
+	elseif siteExecutionCode == 1 then
+		debug.crucial("Tryed to execute an invalid site request: " .. tostring(requestedSite))
+		responseBody = "Tryed to execute an invalid site request: " .. tostring(requestedSite)
+	elseif siteExecutionCode == 2 then
+		warn("Recieved invalid site request: " .. tostring(requestedSite))
+		responseBody = "Invalid site request: '" .. tostring(requestedSite) .. "'"
+	elseif siteExecutionCode == 3 then
+		warn("Requested site not found: " .. tostring(requestedSite))
+		responseBody = "Error 404: Site not found: '" .. tostring(requestedSite) .. "'"
+	elseif siteExecutionCode == 4 then
+		debug.err("Failed to load requested site: " .. tostring(requestedSite))
+		responseBody = "Failed to load Site: '"  .. tostring(requestedSite) .. "'"
+	elseif siteExecutionCode == 5 then
+		debug.err("Failed to execute requested site: " .. tostring(requestedSite))
+		responseBody = "Failed to execute site: '" .. tostring(requestedSite) .. "'"
+	elseif siteExecutionCode == 6 then
+		debug.err("Multilpe sites with that name are existing: " .. tostring(requestedSite))
+		responseBody = "Multilpe sites with that name are existing: " .. tostring(requestedSite)
+	else
+		debug.crucial("Unknown error while executing site: " .. tostring(requestedSite))
+		responseBody = "Unknown error while executing site: '" .. tostring(requestedSite) .. "'"
+	end
 
 	if type(responseHeaders) ~= "table" then
 		responseHeaders = {}
@@ -117,13 +152,34 @@ else --=== exec action ===--
 
 	--execute user order
 	if canExecuteUserOrder then 
-		local suc, err = xpcall(_I.execAction, debug.traceback, userRequest, requestData) --TODO: response processing and execAction inter sandboxing.
-		--local newResponseData, newResponseHeaders = _I.execAction(userRequest, requestData)
+		local actionExecutionCode, newResponseData, newResponseHeaders = _I.execAction(userRequest, requestData)
 
-		if suc ~= true then
-			debug.err("Failed to execute user order: " .. tostring(userRequest.action), suc, err)
-			responseData.error = "User script crash"
-			responseData.scriptError = tostring(err)
+		if actionExecutionCode == 0 then
+			for i, c in pairs(newResponseData) do
+				if responseData[i] then
+					warn("responseData is overwritten: " .. tostring(i))
+				end
+				responseData[i] = c
+			end
+		elseif actionExecutionCode == 1 then
+			debug.crucial("Tryed to execute an invalid action request")
+		elseif actionExecutionCode == 2 then
+			warn("Recieved invalid action request: " .. tostring(userRequest.action))
+			responseData.error = "Invalid action request: " .. tostring(userRequest.action)
+		elseif actionExecutionCode == 3 then
+			warn("Requested action not found: " .. tostring(userRequest.action))
+			responseData.error = "Requestes action not found: " .. tostring(userRequest.action)
+		elseif actionExecutionCode == 4 then
+			debug.err("Failed to load requested action: " .. tostring(userRequest.action) .. "; error:\n" .. tostring(responseData.error))
+			responseData.error = "Failed to load action request: " .. tostring(userRequest.action)
+		elseif actionExecutionCode == 5 then
+			debug.err("Failed to execute requested action: " .. tostring(userRequest.action) .. "; error:\n" .. tostring(responseData.error))
+			responseData.error = "Failed to execute action request: " .. tostring(userRequest.action)
+		elseif actionExecutionCode == 6 then
+			debug.err("Multilpe actions with that name are existing: " .. tostring(requestedSite))
+			responseData.error = "Multilpe action with that name are existing: " .. tostring(userRequest.action)
+		else
+			debug.crucial("Unknown error while executing action: " .. tostring(userRequest.action) .. "; error: " .. tostring(newResponseData))
 		end
 
 		if type(responseHeaders) ~= "table" then
@@ -157,16 +213,16 @@ Falling back to human readable lua-table.
 			responseHeaders["content-type"] = "text/html"
 
 			newResponseString = newResponseString .. _M._I.lib.ut.tostring(responseData)
-			responseDataString = newResponseString
+			responseBody = newResponseString
 		else
-			responseDataString = responseString
+			responseBody = responseString
 			responseHeaders["content-type"] = responseFormatterName
 		end
 	end
 end
 
 --===== finishing up =====--
-callbackStream:push({headers = responseHeaders, data = responseDataString, cookies = _M._I.cookie.new})
+callbackStream:push({headers = responseHeaders, data = responseBody, cookies = _M._I.cookie.new})
 _M._I.cookie = {current = {}, new = {}}
 ldlog("CALLBACK THREAD END")
 _M._I.stop()

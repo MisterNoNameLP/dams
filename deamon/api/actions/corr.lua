@@ -1,1 +1,1 @@
-corruption = corruption + corruption
+corrupted

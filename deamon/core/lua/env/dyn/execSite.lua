@@ -1,44 +1,50 @@
+--[[executes an api site
+    returns: returnCode, responseBody / error, responseHeaders
+
+    returnCodes:
+        0 == successfully executet site
+        1 == invalid request
+        2 == invalid path given
+        3 == requested site not found
+        4 == failed to load requestet site
+        5 == coult not execute requestet site
+        6 == multiple actions with the same name existing
+        99 == unknown error
+]]
+
 return function(site, requestData)
     local sitePath = site
     local siteFunc
-    local suc, err, headers
+    local scriptFuncLoadingCode, scriptFunc, scriptFuncLoadingError
     local returnValue
 
     if site == "/" then
         sitePath = "_root"
     end
     sitePath = "api/sites/" .. sitePath --completing sitePath
-    siteFunc, err = _M._I.getActionFunc(sitePath)
 
-    if siteFunc == 1 then
-        warn("Someone (" .. tostring(requestData.meta.realIP) .. ") tryed to access non existing site: '" .. site .. "'")
-        returnValue = "Error 404\nSite not found"
-        headers = {[":status"] = 404}
-    elseif siteFunc == 2 then
-        debug.err("Requestet site exists multiple times: " .. site)
-        returnValue = "Error: -405\nSite exists multiple times. Pleas contact an admin."
-        headers = {[":status"] = 500}
-    elseif type(siteFunc) == "function" then
-        suc, err, headers = xpcall(siteFunc, debug.traceback, requestData)
+    scriptFuncLoadingCode, scriptFunc, scriptFuncLoadingError = _I.getScriptFunc(sitePath)
 
-        if suc ~= true then
+    if scriptFuncLoadingCode == 0 then
+        local scriptExecutionSuccess, returnBody, returnHeaders = xpcall(scriptFunc, debug.traceback, requestData)
+
+        if scriptExecutionSuccess ~= true then
             debug.err("Site execution failed")
-            debug.err(suc, err)
-            returnValue = [[
+            debug.err(scriptExecutionSuccess, returnBody)
+            return 5, [[
 Site script crashed. Please contact a system administrator.
 Stack traceback:
-]] .. err
+]] .. tostring(scriptFuncLoadingError)
         else
-            if err == nil then
-                err = ""
-            end
-            returnValue = err
+            return 0, returnBody, returnHeaders
         end
-    else
-        debug.err("Cant execute site: " .. site .. "\n" .. err)
-        suc = false
-        returnValue = err
+    elseif scriptFuncLoadingCode == 2 then
+        return 3, "Site not found"
+    elseif scriptFuncLoadingCode == 3 then
+        return 4, "Could not load site script"
+    elseif scriptFuncLoadingCode == 4 then
+        return 6, "Multiple sites with that name existing"
     end
 
-    return suc, returnValue, headers
+    return 99
 end

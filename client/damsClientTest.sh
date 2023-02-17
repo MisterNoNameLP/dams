@@ -1,5 +1,8 @@
 #!/bin/lua
 package.path = "libs/?.lua;" .. package.path
+local args = {...}
+
+local action = args[1] or ""
 
 local ut = require("UT")
 
@@ -8,13 +11,13 @@ local client = require("DamsClient").new({
 })
 
 local suc, headers, response = client:request({
-    action = "plealTest",
+    action = action,
     value = "TEST",
 }, {})
 
 for c = 1, 0 do
     local suc, headers, response = client:request({
-        action = "ptest",
+        action = action,
         value = "TEST",
     }, {})
 end

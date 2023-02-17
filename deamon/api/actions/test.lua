@@ -1,5 +1,6 @@
 response.testValue = request.value
 
+--[[
 log(tostring(_M), tostring(_E), tostring(_D), tostring(_I))
 
 log("\n_M #################")
@@ -20,6 +21,10 @@ end
 
 log("\n")
 log(_E.dynDup)
+
+]]
+
+log("Some testing happening here")
 
 return response
 
