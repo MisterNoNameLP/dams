@@ -1,5 +1,3 @@
-#?preparse=false
-
 return function(cmd, envTable, secret)
     local execString = ""
     local handlerFile, output

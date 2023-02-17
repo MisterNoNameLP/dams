@@ -10,116 +10,6 @@ local defaultFileCode = [[local _M, shared = ...;]]
 local replacePrefixBlacklist = "%\"'[]"
 
 --===== lib functions =====--
-local function preparse(input, replacePrefix, logFuncs)
-	local lineCount = 0	
-	local _, conf
-	local output = ""
-
-	if _I.devConf.preParsing.loadConfLine then
-		debug.lowDataLoadingLog("Load conf line")
-		for line in input:gmatch("[^\n]+") do --load conf line
-			if line:sub(0, 2) == "#?" then 
-				local confLine = line:sub(3)
-				local confInterpreterString = [[
-					local conf = {}
-					local globalMetatable = getmetatable(_G)
-					_G = setmetatable(_G, {__newindex = function(_, index, value) conf[index] = value end})
-				]] .. confLine .. [[
-					_G = setmetatable(_G, globalMetatable)
-					return conf
-				]]
-				local confInterpreterFunc = loadstring(confInterpreterString)
-
-				if not confInterpreterFunc then
-					--err("Invalid file conf line!")
-					return false, "Invalid file conf line!"
-				end
-				_, conf = pcall(confInterpreterFunc)
-				input = input:sub(utf8.len(line) + 1) --cut out conf line
-			end
-			break
-		end
-	end
-	if type(conf) ~= "table" then
-		conf = {}
-	end
-	
-	replacePrefix = pa(replacePrefix, conf.replacePrefix, _I.devConf.preParsing.replacePrefix, "$")
-	if type(replacePrefix) ~= "string" then
-		--error("Invalid replacePrefix.")
-		return false, "Invalid replacePrefix."
-	end
-	if utf8.len(replacePrefix) > 1 then
-		--error("replacePrefix is too long. Only a 1 char long prefix is allowed.")
-		return false, "replacePrefix is too long. Only a 1 char long prefix is allowed."
-	end
-	for c = 0, utf8.len(replacePrefixBlacklist) do
-		local blacklistedSymbol = replacePrefixBlacklist:sub(c, c)
-		if replacePrefix == blacklistedSymbol then
-			--error("replacePrefix (" .. replacePrefix .. ") is not allowed")
-			return false, "replacePrefix (" .. replacePrefix .. ") is not allowed"
-		end
-	end
-
-	if pa(conf.preparse, _I.devConf.preParsing.preparseScripts) == false then
-		return true, conf, input
-	else
-		debug.lowDataLoadingLog("Preparse script")
-		local status
-		while true do
-			local pos = input:find("[%[%]\"'"..replacePrefix.."]")
-			local symbol
-
-			if not pos then
-				break
-			end
-
-			symbol = input:sub(pos, pos)
-			if not status then
-				if symbol == "\"" or symbol == "'" then
-					status = symbol
-				elseif symbol == "[" and input:sub(pos + 1, pos + 1) == "[" and input:sub(pos - 1, pos - 1) ~= "-" then
-					status = "]"
-				end
-			elseif status == symbol then
-				if 
-					symbol == "\"" and input:sub(pos - 1, pos - 1) ~= "\\" or
-					symbol == "'" and input:sub(pos - 1, pos - 1) ~= "\\" or
-					symbol == "]" and input:sub(pos + 1, pos + 1) == "]"
-				then
-					status = nil
-				end
-			elseif symbol == replacePrefix then
-				--local varNameEndPattern = string.gsub("%s\"']", status, "")
-				
-				local tmpInput = input:sub(pos + 1)
-				local spacePos = tmpInput:find("[%s\"'%]]")
-				local varName = tmpInput:sub(0, spacePos - 1)
-				local insertion = "tostring(" .. varName ..")"
-
-				if status == "\"" then
-					insertion = "\".." .. insertion .. "..\""
-				elseif status == "'" then
-					insertion = "'.." .. insertion .. "..'"
-				elseif status == "]" then
-					insertion = "]].." .. insertion .. "..[["
-				end
-
-				output = output .. input:sub(0, pos - 1)
-				input = insertion .. input:sub(pos + utf8.len(varName) + 1)
-				pos = utf8.len(insertion)
-			end
-
-			do --input cutting
-				output = output .. input:sub(0, pos)
-				input = input:sub(pos + 1)
-			end
-		end
-		output = output .. input
-	end
-	return true, conf, output
-end
-
 local function loadDir(target, dir, logFuncs, overwrite, subDirs, structured, priorityOrder, loadFunc, executeFiles)
 	local path = dir .. "/" --= _I.shell.getWorkingDirectory() .. "/" .. dir .. "/"
 	logFuncs = logFuncs or {}
@@ -154,12 +44,12 @@ local function loadDir(target, dir, logFuncs, overwrite, subDirs, structured, pr
 			elseif target[name] == nil or overwrite then
 				local debugString = ""
 				if target[name] == nil then
-					debugString = "Loading file: " .. dir .. "/" .. file .. ": "
+					debugString = "Loading file: " .. dir .. "/" .. file .. ending .. ": "
 				else
-					debugString = "Reloading file: " .. dir .. "/" .. file .. ": "
+					debugString = "Reloading file: " .. dir .. "/" .. file .. enging .. ": "
 				end
 				
-				local suc, err 
+				local suc, conf, err 
 				if loadFunc ~= nil then
 					suc, err = loadFunc(path .. file)
 				else
@@ -181,16 +71,11 @@ local function loadDir(target, dir, logFuncs, overwrite, subDirs, structured, pr
 							tracebackPathNote = string.sub(tracebackPathNote, cutPoint + 1)
 						end
 
-						do 	
-							local preparseSuc, conf, newFileCode = preparse(fileCode)
-							if not preparseSuc then
-								suc = false
-								err = conf
-							else
-								fileCode = newFileCode
-							end
+						if ending == ".lua" then
+							suc, err = loadstring("--[[" .. tracebackPathNote .. "]] " .. defaultFileCode .. fileCode)
+						elseif ending == ".pleal" then
+							suc, err = loadstring(select(3, _I.lib.pleal.transpile("--[[" .. tracebackPathNote .. "]] " .. defaultFileCode .. fileCode)))
 						end
-						suc, err = loadstring("--[[" .. tracebackPathNote .. "]] " .. defaultFileCode .. fileCode)
 					end
 				end
 				
@@ -365,7 +250,6 @@ end
 
 --===== set functions =====--
 --DL.loadData = loadData
-DL.preparse = preparse
 DL.load = load
 DL.loadDir = loadDir
 DL.executeDir = executeDir

@@ -1,16 +1,25 @@
 return function(path) --generates avtion/site functions.
-    local fileCode = _M._I.lib.ut.readFile(path)
+    local fileCode
     local tracebackPathNote = path
     local actionFunc
 
     tracebackPathNote = string.sub(tracebackPathNote, select(2, string.find(tracebackPathNote, "api")) + 2)
 
+    if select(3, _I.ut.seperatePath(path)) then
+        fileCode = _I.lib.ut.readFile(path)
+    elseif _I.lib.lfs.attributes(path .. ".lua") then
+        fileCode = _I.lib.ut.readFile(path .. ".lua")
+    elseif _I.lib.lfs.attributes(path .. ".pleal") then
+        fileCode = select(3, _I.lib.pleal.transpileFile(path .. ".pleal"))
+    end
+
     if not fileCode then
         return false, "File not found: " .. tracebackPathNote 
     end
 
-    do 	
-        local suc, conf, newFileCode = _I.dl.preparse(fileCode)
+    if select(3, _I.ut.seperatePath(path)) == ".pleal" then
+        local suc, conf, newFileCode = _I.lib.pleal.transpile(fileCode)
+
         if not suc then
             err("Preparsing script failed: " .. tracebackPathNote .. "; error: " .. conf)
         else

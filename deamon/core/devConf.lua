@@ -104,6 +104,7 @@ local devConf = {
 			sharingDebug = false,
 			sharingThread = false,
 
+			plealTranspiling = false,
 			require = false,
 			loadfile = false,
 

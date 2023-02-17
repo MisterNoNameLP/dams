@@ -28,7 +28,7 @@ local function executeUserOrder(request)
 	end
 	
 	if requestedAction ~= nil then
-		func, err = _M._I.getActionFunc("api/actions/" .. requestedAction .. ".lua")
+		func, err = _M._I.getActionFunc("api/actions/" .. requestedAction)
 	end
 	
 	if type(func) == "function" then

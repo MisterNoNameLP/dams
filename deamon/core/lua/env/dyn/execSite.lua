@@ -7,9 +7,9 @@ return function(site, requestData)
     if site == "/" then
         sitePath = "_root"
     end
-    sitePath = "api/sites/" .. sitePath .. ".lua" --completing sitePath
+    sitePath = "api/sites/" .. sitePath --completing sitePath
 
-    if _M._I.lib.lfs.attributes(sitePath) ~= nil then
+    if _M._I.lib.lfs.attributes(sitePath .. ".lua") ~= nil or _M._I.lib.lfs.attributes(sitePath .. ".pleal") ~= nil then
         siteFunc, err = _M._I.getActionFunc(sitePath)
 
         if type(siteFunc) ~= "function" then

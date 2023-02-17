@@ -21,6 +21,9 @@ _M._I.lib.lfs = require("lfs")
 _M._I.lib.argon2 = require("argon2")
 _M._I.lib.ini = require("LIP")
 
+_M._I.lib.pleal = require("plealTranspilerAPI")
+_M._I.lib.pleal.setLogFunctions(debug.plealTranspilingLog, debug.warn, debug.error)
+
 
 --====== legacy =====--
 --ToDo: have to be removed from older source files.
