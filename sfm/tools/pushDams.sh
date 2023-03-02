@@ -11,20 +11,19 @@ damsGitIgnore=".gitignore-dams"
 currentWorkingDir=$(pwd)
 
 # copy files
-rsync -rthuE ./ $damsDir \
+rsync -rthuE $currentWorkingDir $damsDir \
     --exclude=".git" \
     --exclude=".gitignore" \
     --exclude=".gitignore-dams" \
-    --filter=":- ${damsGitIgnore}" \
-    --verbose
+    --filter=":- ${damsGitIgnore}"
 
 cd $damsDir
 #mv $damsGitIgnore .gitignore
 
 #  push to dams repo
-#git add .
-#git commit -m "$@"
-#git push
+git add .
+git commit -m "$@"
+git push
 
 # go back to current work dir
 cd $currentWorkingDir
