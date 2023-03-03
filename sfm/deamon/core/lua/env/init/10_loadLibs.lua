@@ -20,6 +20,7 @@ _M._I.lib.ut = require("UT")
 _M._I.lib.lfs = require("lfs")
 _M._I.lib.argon2 = require("argon2")
 _M._I.lib.ini = require("LIP")
+_M._I.lib.json = require("json")
 
 _M._I.lib.pleal = require("plealTranspilerAPI")
 _M._I.lib.pleal.setLogFunctions(debug.plealTranspilingLog, debug.warn, debug.error)

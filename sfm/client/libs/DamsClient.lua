@@ -1,9 +1,10 @@
-local version = "v0.3"
+local version = "v0.3d"
 
 local DamsClient = {}
 
 local httpRequest = require("http.request")
 local ut = require("UT")
+local json = require("json")
 
 local pa = ut.parseArgs
 
@@ -29,9 +30,9 @@ function DamsClient:request(requestTable, args)
 
     --set up request
     request.headers:upsert(":method", "ACTION")
-    request.headers:upsert("request-format", "lua-table")
-    request.headers:upsert("response-format", "lua-table")
-    request:set_body(ut.tostring(requestTable))
+    request.headers:upsert("request-format", "json")
+    request.headers:upsert("response-format", "json")
+    request:set_body(json.encode(requestTable))
     
     --error check
     responseHeaders, responseStream = request:go()
@@ -53,10 +54,10 @@ function DamsClient:request(requestTable, args)
     --build response
     if args.getRawResponse then
         return nil, responseHeaders, responseBody
-    elseif responseHeaders["dams-version"] == nil or responseHeaders["content-type"] ~= "lua-table" then
+    elseif responseHeaders["dams-version"] == nil or responseHeaders["content-type"] ~= "json" then
         return false, responseHeaders, responseBody
-    else --BUG; DANGEROUS; CRUCIAL; executing the response opens a door to execute harmful code!
-        local _, responseData = pcall(load(responseBody))
+    else
+        local responseData = json.decode(responseBody)
 
         if not responseData.success then
             return false, responseHeaders, responseData

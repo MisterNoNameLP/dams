@@ -1,6 +1,3 @@
-# !DO NOT USE THIS YET!
-There is a massive security leak in this programm allowing anyone with HTTP access to this API to run potential harmful code on your machine!
-
 DAMS is a framework to easly create multiuser HTTP(s) APIs using lua.
 
 It is completly written in lua.

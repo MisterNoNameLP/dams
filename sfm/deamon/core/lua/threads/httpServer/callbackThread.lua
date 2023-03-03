@@ -80,7 +80,7 @@ if requestData.headers[":method"].value == "GET" then --=== exec site ===--
 	elseif siteExecutionCode == 2 then
 		warn("Recieved invalid site request: " .. tostring(requestedSite))
 		responseBody = "Invalid site request: '" .. tostring(requestedSite) .. "'"
-	elseif siteExecutionCode == 3 then
+	elseif siteExecutionCode == 3 or siteExecutionCode == 7 then
 		warn("Requested site not found: " .. tostring(requestedSite))
 		responseBody = "Error 404: Site not found: '" .. tostring(requestedSite) .. "'"
 	elseif siteExecutionCode == 4 then
