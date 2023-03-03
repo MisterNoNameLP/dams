@@ -26,7 +26,7 @@ local responseChannels = {}
 local requestChannel = _M._I.thread.getChannel("SHARED_REQUEST")
 local requestIDChannel = _M._I.thread.getChannel("SHARED_CURRENT_REQUEST_ID")
 
-local ldlog = debug.sharingThread
+local ldlog = debug.sharingThreadLog
 local generateIndexString = getmetatable(_M._I.shared)._internal.generateIndexString
 
 --===== local functions =====--
@@ -124,10 +124,6 @@ function _internal.execRequest(request)
 			end
 		elseif request.request == "call" then
 			_internal.execCallRequest(request)
-		elseif request.request == "dump" then
-			log("Dumping shared table:\n" .. _M._I.tostring(sharedData))
-		elseif request.request == "dump_lockTable" then
-			log("Dumping lockTable:\n" .. _M._I.tostring(lockTable))
 		elseif request.request == "stop" then --debug
 			ldlog("Stop sharing manager")
 			_M._I.stop()
@@ -139,6 +135,7 @@ function _internal.execCallRequest(request)
 	ldlog("Executing call order: " .. request.order .. "; thread: " .. tostring(request.threadID) .. "; requestID: " .. tostring(request.requestID))
 
 	local success, returnTable = false, {}
+	local sendResponse = true
 
 	if request.order == "test" then
 		log("Sharing table test call; requestID: " .. tostring(request.requestID))
@@ -146,10 +143,14 @@ function _internal.execCallRequest(request)
 	elseif request.order == "dump" then
 		log("Dumping shared table: '" .. generateIndexString(request.indexTable) .. "': " .. _M._I.tostring(getValue(sharedData, request.indexTable)) .."; requestID: " .. tostring(request.requestID))
 		success = true
+	elseif request.order == "dumpLock" then
+		local indexString = generateIndexString(request.indexTable)
+		log("Dumping lock table: '" .. indexString .. "': " .. _M._I.tostring(getLock(indexString)) .."; requestID: " .. tostring(request.requestID))
+		success = true
 	elseif request.order == "get" then
 		returnTable.value = getValue(sharedData, request.indexTable)
 		success = true
-	elseif request.order == "lock" then
+	elseif request.order == "lock" or request.order == "fullLock" then
 		local indexString = generateIndexString(request.indexTable)
 		local locked, lock = isLocked(indexString, request)
 
@@ -166,6 +167,13 @@ function _internal.execCallRequest(request)
 		end
 		lockTable.locks[indexString].locked = true
 		lockTable.locks[indexString].threadID = request.threadID
+
+		if request.order == "lock" then
+			lockTable.locks[indexString].lockType = "write"
+		elseif request.order == "fullLock" then
+			lockTable.locks[indexString].lockType = "full"
+			warn("fullLock is not fully implemented yet")
+		end
 
 		success = true
 	elseif request.order == "unlock" then
@@ -199,20 +207,47 @@ function _internal.execCallRequest(request)
 					_internal.execRequest(queuedRequest)
 				end
 			end
-
 			success = true
 		else
 			returnTable.error = "Lock not found: '" .. indexString .. "'"
 			success = false
 		end
+	elseif request.order == "getLock" then
+		local indexString = generateIndexString(request.indexTable)
+		local locked, lock = isLocked(indexString, request)
+		ldlog("Returning lock for table: " .. indexString)
+		returnTable.value = lock
+		success = true
+	elseif request.order == "isLocked" then
+		local indexString = generateIndexString(request.indexTable)
+		local locked, lock = isLocked(indexString, request)
+		ldlog("Returning if table is locked: " .. indexString)
+		returnTable.value = locked
+		success = true
+	elseif request.order == "wait" then
+		local indexString = generateIndexString(request.indexTable)
+		local locked, lock = isLocked(indexString, request)
+		if locked then
+			table.insert(lock.execQueue, request)
+			sendResponse = false
+		end
+		success = true
+	elseif request.order == "dumpFullSharedTable" then
+		log("Dumping shared table:\n" .. _M._I.tostring(sharedData))
+		success = true
+	elseif request.order == "dumpFullLockTable" then
+		log("Dumping lockTable:\n" .. _M._I.tostring(lockTable))
+		success = true
 	else
 		returnTable.error = "No valid order"
 	end
 	if not success then
 		warn("Could not successfully execute call order: " .. request.order .. "; thread: " .. tostring(request.threadID) .. "; requestID: " .. tostring(request.requestID) .. "; error: \"" .. _M._I.tostring(returnTable.error) .. "\"\nFull returnTable: ".. _M._I.tostring(returnTable) .. "\nFull order request: " .. _M._I.tostring(request))
 	end
-	returnTable.success = success
-	responseChannels[request.threadID]:push(returnTable)
+	if sendResponse then
+		returnTable.success = success
+		responseChannels[request.threadID]:push(returnTable)
+	end
 end
 
 local function update()

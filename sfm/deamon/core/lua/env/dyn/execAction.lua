@@ -44,7 +44,7 @@ return function(request, requestData)
             responseData.returnValue = scriptReturnValue
             return 0, responseData, responseHeaders
         else
-            return 5, "Action script crashed"
+            return 5, "Action script crashed", scriptReturnValue
         end
 		if responseData.returnValue.error then --remove error table from response if not used
 			local used = false

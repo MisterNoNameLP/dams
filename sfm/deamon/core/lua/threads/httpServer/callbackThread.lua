@@ -189,11 +189,11 @@ else --=== exec action ===--
 	end
 
 	do --debug
-		if type(shared.requestCount) ~= "number" then
-			shared.requestCount = 0
+		if type(shared._requestCount) ~= "number" then
+			shared._requestCount = 0
 		end
-		shared.requestCount = shared.requestCount +1
-		responseData.requestID = tostring(shared.requestCount)
+		shared._requestCount = shared._requestCount +1
+		responseData.requestID = tostring(shared._requestCount)
 	end
 
 	do --formatting response table

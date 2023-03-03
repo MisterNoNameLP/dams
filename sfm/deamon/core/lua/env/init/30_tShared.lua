@@ -110,7 +110,7 @@ function _internal.call(sharedTable, ...)
 
 	ldlog("Send call request: " .. order .. "; requestID: " .. tostring(requestID))
 
-	if order == "force_unlock" then
+	if order == "forceUnlock" then
 		order = "unlock"
 		bypassLock = true
 	end
@@ -125,8 +125,7 @@ function _internal.call(sharedTable, ...)
 	})
 
 	response = responseChannel:demand()
-
-	if order == "get" then
+	if response.value ~= nil then
 		returnValue = response.value
 	else
 		if response.success then
@@ -135,8 +134,6 @@ function _internal.call(sharedTable, ...)
 			returnValue = false
 		end
 	end
-
-	
 	return returnValue, response.error
 end
 
@@ -156,4 +153,5 @@ setmetatable(shared, {
 
 
 _M._I.shared = shared
+_M._S = shared
 --_G.shared = shared
