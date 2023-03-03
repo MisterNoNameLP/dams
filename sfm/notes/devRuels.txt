@@ -22,4 +22,3 @@ _G:
 
 shared: 
 	you should not use local references to a shared table. the reference will not get updated if the shared table changes the data type.
-	using dots "." in the index can vause missbehavour with locks.

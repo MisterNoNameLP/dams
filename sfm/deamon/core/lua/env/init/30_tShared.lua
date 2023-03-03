@@ -39,6 +39,10 @@ function _internal.index(sharedTable, index, internalRun)
 	local newIndexTable = {}
 	local requestID = _internal.getRequestID()
 
+	if index:find("[.]") then
+		index = "'" .. index .. "'"
+	end
+
 	if _M._I.devConf.debug.logLevel.sharingDebug then  --double check to prevent string concatenating process if debug output is disabled.
 		ldlog("Get value: '" .. _internal.generateIndexString(getmetatable(sharedTable).indexTable or {}) .. "." .. tostring(index) .. "'; requestID: " .. tostring(requestID))
 	end
@@ -85,9 +89,20 @@ function _internal.newindex(sharedTable, index, value)
 	metatable = getmetatable(sharedTable)
 	local requestID = _internal.getRequestID()
 
+	if index:find("[.]") then
+		index = "'" .. index .. "'"
+	end
+
 	if _M._I.devConf.debug.logLevel.sharingDebug then  --double check to prevent string concatenating process if debug output is disabled.
 		ldlog("Set value: '" .. _internal.generateIndexString(getmetatable(sharedTable).indexTable or {}) .. "." .. tostring(index) .. "'; new value: " .. tostring(value) .. "; requestID: " .. tostring(requestID))
 	end
+
+	--[[
+	if string.find(index, "[.]") ~= nil then
+		warn("A dot (.) is used in an shared table index. This can cause unexpectet behavour with locked tables!")
+	end
+	]]
+	--index = index:gsub("[.]", "'.'")
 
 	requestChannel:supply({
 		request = "set",

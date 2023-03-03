@@ -176,7 +176,7 @@ metafunctions.tostring = function(handler)
     return "dbHandler: " .. string.sub(_I.ut.parseArgs(getmetatable(handler).fullIndex, ".(root)"), 2)
 end
 metafunctions.call = function(handler, arg) --TODO: add lock feature.
-	log(_S)
+	debug.dump(getmetatable(handler))
 end
 
 --===== set root handler =====--
