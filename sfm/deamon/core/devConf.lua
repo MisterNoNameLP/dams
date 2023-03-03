@@ -102,7 +102,7 @@ local devConf = {
 			eventDebug = false,
 			lowLevelEventDebug = false,
 			sharingDebug = false,
-			sharingThread = true,
+			sharingThread = false,
 
 			plealTranspiling = false,
 			require = false,

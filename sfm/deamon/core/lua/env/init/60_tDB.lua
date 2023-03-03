@@ -37,6 +37,7 @@ local function getValue(index, internalCall)
 	if internalCall ~= true then
 		debug.dataDBLog("Get value: " .. index)
 	end
+
 	local valueType, value
 	local suc = db:exec([[SELECT valueType, value FROM dataDB WHERE fullIndex = "]] .. index .. [["]], function(udata, cols, values, names)
 		valueType, value = values[1], values[2]
@@ -46,6 +47,38 @@ local function getValue(index, internalCall)
 		error("Could not get dataDB value: " .. tostring(index) .. ": " .. _I.getSQLiteErrMsg(suc))
     end
 	return valueType, value
+end
+local function getFullTable(index)
+	debug.dataDBLog("Get full table: " .. index)
+	local returnValues = {}
+
+	local suc = db:exec([[SELECT fullIndex, valueType, value FROM dataDB WHERE fullIndex LIKE "]] .. index .. [[%"]], function(udata, cols, values, names)
+		local fullIndex, valueType, value = values[1], values[2], values[3]
+		local cutIndex, lastIndexValue
+		local gsubTarget = returnValues
+		cutIndex = fullIndex:gsub(index, "")
+
+		for i in cutIndex:gmatch("[^.]+") do
+			local i = i:sub(1)
+			if lastIndexValue then
+				gsubTarget = gsubTarget[lastIndexValue]
+			end
+			if not gsubTarget[i] then 
+				gsubTarget[i] = {}
+			end
+			lastIndexValue = i
+		end
+		if valueType ~= "table" then
+			gsubTarget[lastIndexValue] = value
+		end
+
+		return 0
+	end)
+	if suc ~= 0 then
+		error("Could not get dataDB value: " .. tostring(index) .. ": " .. _I.getSQLiteErrMsg(suc))
+    end
+
+	return returnValues
 end
 local function addValue(index, valueType, value)
 	debug.dataDBLog("Add value: " .. index .. ", " .. valueType .. ", " .. tostring(value))
@@ -118,6 +151,12 @@ end
 
 --===== metafunctions =====--
 metafunctions.newindex = function(handler, index, value)
+	--if an index ciontains a dot (.) it is put into dots to avoid missbehaviour with the lock table.
+	if index:find("[.]") then
+		warn("There are dots (.) used in DB table index '" .. index .. "'. This can cause missbehaviour!")
+		index = "." .. index .. "."
+	end
+
 	local fullIndex = _I.ut.parseArgs(getmetatable(handler).fullIndex, "") .. "." .. index
 	local storedValueType = getValue(fullIndex, true)
 	local valueIsLegal, valueType = isValueLegal(value)
@@ -136,7 +175,12 @@ metafunctions.newindex = function(handler, index, value)
 				removeValue(fullIndex, storedValueType)
 				addTableRecursively(fullIndex, value)
 			else
-				updateValue(fullIndex, valueType, value)
+				if storedValueType == "table" then
+					removeValue(fullIndex, storedValueType)
+					addValue(fullIndex, valueType, value)
+				else
+					updateValue(fullIndex, valueType, value)
+				end
 			end
 		end
 	elseif valueType ~= "nil" then
@@ -148,6 +192,12 @@ metafunctions.newindex = function(handler, index, value)
 	end
 end
 metafunctions.index = function(handler, index)
+	--if an index ciontains a dot (.) it is put into dots to avoid missbehaviour with the lock table.
+	if index:find("[.]") then
+		warn("There are dots (.) used in DB table index '" .. index .. "'. This can cause missbehaviour!")
+		index = "." .. index .. "."
+	end
+
 	local fullIndex = _I.ut.parseArgs(getmetatable(handler).fullIndex, "") .. "." .. index
     local valueType, value = getValue(fullIndex)
 
@@ -175,8 +225,14 @@ end
 metafunctions.tostring = function(handler)
     return "dbHandler: " .. string.sub(_I.ut.parseArgs(getmetatable(handler).fullIndex, ".(root)"), 2)
 end
-metafunctions.call = function(handler, arg) --TODO: add lock feature.
-	debug.dump(getmetatable(handler))
+metafunctions.call = function(handler, order) --TODO: add lock feature.
+	--debug.dump(getmetatable(handler))
+
+	if order == "get" then
+		return getFullTable(getmetatable(handler).fullIndex)
+	elseif order == "dump" then
+		debug.dump(getFullTable(getmetatable(handler).fullIndex))
+	end
 end
 
 --===== set root handler =====--

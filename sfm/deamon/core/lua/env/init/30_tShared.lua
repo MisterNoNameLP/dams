@@ -39,7 +39,10 @@ function _internal.index(sharedTable, index, internalRun)
 	local newIndexTable = {}
 	local requestID = _internal.getRequestID()
 
+
+	--if an index ciontains a dot (.) it is put into single quotes to avoid missbehaviour with the lock table.
 	if index:find("[.]") then
+		warn("There are dots (.) used in shared table index '" .. index .. "'. This can cause missbehaviour!")
 		index = "'" .. index .. "'"
 	end
 
@@ -89,7 +92,9 @@ function _internal.newindex(sharedTable, index, value)
 	metatable = getmetatable(sharedTable)
 	local requestID = _internal.getRequestID()
 
+	--if an index ciontains a dot (.) it is put into single quotes to avoid missbehaviour with the lock table.
 	if index:find("[.]") then
+		warn("There are dots (.) used in shared table index '" .. index .. "'. This can cause missbehaviour!")
 		index = "'" .. index .. "'"
 	end
 
