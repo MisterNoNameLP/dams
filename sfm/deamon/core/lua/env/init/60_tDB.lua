@@ -2,7 +2,7 @@ local dbTable = {}
 local db = _I.dataDB
 local metafunctions = {}
 local legalValueTypes = {string = true, number = true, table = true, boolean = true, ["nil"] = true}
-local legalIndexTypes = {string = true}
+local legalIndexTypes = {string = true, number = true}
 
 --===== init db error handlers =====--
 db:busy_handler(function(_, attempt) 
@@ -39,7 +39,7 @@ local function getValue(index, internalCall)
 	end
 
 	local valueType, value
-	local suc = db:exec([[SELECT valueType, value FROM dataDB WHERE fullIndex = "]] .. index .. [["]], function(udata, cols, values, names)
+	local suc = db:exec([[SELECT valueType, value FROM data WHERE fullIndex = "]] .. index .. [["]], function(udata, cols, values, names)
 		valueType, value = values[1], values[2]
 		return 0
 	end)
@@ -52,21 +52,29 @@ local function getFullTable(index)
 	debug.dataDBLog("Get full table: " .. index)
 	local returnValues = {}
 
-	local suc = db:exec([[SELECT fullIndex, valueType, value FROM dataDB WHERE fullIndex LIKE "]] .. index .. [[%"]], function(udata, cols, values, names)
+	local suc = db:exec([[SELECT fullIndex, valueType, value FROM data WHERE fullIndex LIKE "]] .. index .. [[%"]], function(udata, cols, values, names)
 		local fullIndex, valueType, value = values[1], values[2], values[3]
 		local cutIndex, lastIndexValue
 		local gsubTarget = returnValues
 		cutIndex = fullIndex:gsub(index, "")
 
-		for i in cutIndex:gmatch("[^.]+") do
-			local i = i:sub(1)
+		for indexFragment in cutIndex:gmatch("[^.]+") do
+			indexFragment = indexFragment:sub(1)
+
+			if not indexFragment:find("[']") then
+				indexFragment = tonumber(indexFragment)
+			else
+				indexFragment = indexFragment:sub(2, -2)
+				indexFragment = indexFragment:gsub("''", "'")
+			end
+
 			if lastIndexValue then
 				gsubTarget = gsubTarget[lastIndexValue]
 			end
-			if not gsubTarget[i] then 
-				gsubTarget[i] = {}
+			if not gsubTarget[indexFragment] then 
+				gsubTarget[indexFragment] = {}
 			end
-			lastIndexValue = i
+			lastIndexValue = indexFragment
 		end
 		if valueType ~= "table" then
 			gsubTarget[lastIndexValue] = value
@@ -87,10 +95,11 @@ local function addValue(index, valueType, value)
 	if valueType == "table" then
 		value = nil
 	end
+
 	if valueType == "table" then
-		suc = db:exec([[INSERT INTO dataDB VALUES ("]] .. index .. [[", "]] .. valueType .. [[", NULL);]])
+		suc = db:exec([[INSERT INTO data VALUES ("]] .. index .. [[", "]] .. valueType .. [[", NULL, NULL);]])
 	else
-		suc = db:exec([[INSERT INTO dataDB VALUES ("]] .. index .. [[", "]] .. valueType .. [[", "]] .. tostring(value) .. [[");]])
+		suc = db:exec([[INSERT INTO data VALUES ("]] .. index .. [[", "]] .. valueType .. [[", "]] .. tostring(value) .. [[", NULL);]])
 	end
 	if suc ~= 0 then
 		error("Could not add to dataDB: " .. tostring(fullIndex) .. ", " .. tostring(value) .. ": " .. _I.getSQLiteErrMsg(suc))
@@ -111,9 +120,9 @@ local function addTableRecursively(index, tbl)
 			error("Table contains invalid index type: " .. tostring(indexType), 3)
 		end
 		if valueType == "table" then
-			addTableRecursively(index .. "." .. i, v)
+			addTableRecursively(_I.appendIndex(index, i), v)
 		else
-			addValue(index .. "." .. i, valueType, v)
+			addValue(_I.appendIndex(index, i), valueType, v)
 		end
 	end
 	
@@ -126,9 +135,9 @@ local function updateValue(index, valueType, value)
 		value = nil
 	end
 	if valueType == "table" then
-		suc = db:exec([[UPDATE dataDB SET valueType = "]] .. valueType .. [[", value = NULL WHERE fullIndex = "]] .. index .. [[";]])
+		suc = db:exec([[UPDATE data SET valueType = "]] .. valueType .. [[", value = NULL WHERE fullIndex = "]] .. index .. [[";]])
 	else
-		suc = db:exec([[UPDATE dataDB SET valueType = "]] .. valueType .. [[", value = "]] .. tostring(value) .. [[" WHERE fullIndex = "]] .. index .. [[";]])
+		suc = db:exec([[UPDATE data SET valueType = "]] .. valueType .. [[", value = "]] .. tostring(value) .. [[" WHERE fullIndex = "]] .. index .. [[";]])
 	end
 	if suc ~= 0 then
 		error("Could not update in dataDB: " .. tostring(fullIndex) .. ", " .. tostring(value) .. ": " .. _I.getSQLiteErrMsg(suc))
@@ -139,25 +148,22 @@ local function removeValue(index, valueType)
 	local suc
 
 	if valueType ~= "table" then
-		suc = db:exec([[DELETE FROM dataDB WHERE fullIndex = "]] .. index .. [[";]])
+		suc = db:exec([[DELETE FROM data WHERE fullIndex = "]] .. index .. [[";]])
 	else
-		suc = db:exec([[DELETE FROM dataDB WHERE fullIndex LIKE "]] .. index .. [[%";]])
+		suc = db:exec([[DELETE FROM data WHERE fullIndex LIKE "]] .. index .. [[%";]])
 	end
 	if suc ~= 0 then
 		error("Could not remove from dataDB: " .. tostring(fullIndex) .. ", " .. tostring(value))
 	end
 end
-
+local function insertValue(index, valueType, value)
+	
+end
 
 --===== metafunctions =====--
 metafunctions.newindex = function(handler, index, value)
-	--if an index ciontains a dot (.) it is put into dots to avoid missbehaviour with the lock table.
-	if index:find("[.]") then
-		warn("There are dots (.) used in DB table index '" .. index .. "'. This can cause missbehaviour!")
-		index = "." .. index .. "."
-	end
-
-	local fullIndex = _I.ut.parseArgs(getmetatable(handler).fullIndex, "") .. "." .. index
+	--local fullIndex = _I.ut.parseArgs(getmetatable(handler)._fullIndex, "") .. "." .. index
+	local fullIndex = _I.appendIndex(getmetatable(handler)._fullIndex, index)
 	local storedValueType = getValue(fullIndex, true)
 	local valueIsLegal, valueType = isValueLegal(value)
 	local indexIsLegal, indexType = isIndexLegal(index)
@@ -192,13 +198,7 @@ metafunctions.newindex = function(handler, index, value)
 	end
 end
 metafunctions.index = function(handler, index)
-	--if an index ciontains a dot (.) it is put into dots to avoid missbehaviour with the lock table.
-	if index:find("[.]") then
-		warn("There are dots (.) used in DB table index '" .. index .. "'. This can cause missbehaviour!")
-		index = "." .. index .. "."
-	end
-
-	local fullIndex = _I.ut.parseArgs(getmetatable(handler).fullIndex, "") .. "." .. index
+	local fullIndex = _I.appendIndex(getmetatable(handler)._fullIndex, index)
     local valueType, value = getValue(fullIndex)
 
     if valueType == "string" then
@@ -213,7 +213,7 @@ metafunctions.index = function(handler, index)
 		end
 	elseif valueType == "table" then
 		local newHandler = setmetatable({}, {
-			fullIndex = fullIndex,
+			_fullIndex = fullIndex,
 			__index = metafunctions.index,
 			__newindex = metafunctions.newindex,
 			__tostring = metafunctions.tostring,
@@ -223,15 +223,23 @@ metafunctions.index = function(handler, index)
 	end
 end
 metafunctions.tostring = function(handler)
-    return "dbHandler: " .. string.sub(_I.ut.parseArgs(getmetatable(handler).fullIndex, ".(root)"), 2)
+    return "dbHandler: " .. string.sub(_I.ut.parseArgs(getmetatable(handler)._fullIndex, ".(root)"), 2)
 end
-metafunctions.call = function(handler, order) --TODO: add lock feature.
+metafunctions.call = function(handler, order, ...) --TODO: add lock feature.
 	--debug.dump(getmetatable(handler))
 
 	if order == "get" then
-		return getFullTable(getmetatable(handler).fullIndex)
+		return getFullTable(getmetatable(handler)._fullIndex)
 	elseif order == "dump" then
-		debug.dump(getFullTable(getmetatable(handler).fullIndex))
+		debug.dump(getFullTable(getmetatable(handler)._fullIndex))
+	elseif order == "insert" then
+		local args = {...}
+		local value = args[1]
+		local valueIsLegal, valueType = isValueLegal(value)
+		if not valueIsLegal then
+			error("Invalid value type: " .. tostring(valueType), 2)
+		end
+		insertValue(getmetatable(handler)._fullIndex, valueType, value)
 	end
 end
 

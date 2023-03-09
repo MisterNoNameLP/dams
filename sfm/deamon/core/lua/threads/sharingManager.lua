@@ -237,6 +237,9 @@ function _internal.execCallRequest(request)
 		success = true
 	elseif request.order == "dumpFullLockTable" then
 		log("Dumping lockTable:\n" .. _M._I.tostring(lockTable))
+		for i in pairs(lockTable.locks) do
+			dlog(i)
+		end
 		success = true
 	else
 		returnTable.error = "No valid order"

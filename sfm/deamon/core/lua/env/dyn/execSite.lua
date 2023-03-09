@@ -46,7 +46,7 @@ Stack traceback:
     elseif scriptFuncLoadingCode == 4 then
         return 6, "Multiple sites with that name existing"
     elseif scriptFuncLoadingCode == 5 then
-        return 7, "unsupported file type"
+        return 7, "Unsupported file type"
     end
 
     return 99

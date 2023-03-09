@@ -8,14 +8,17 @@ local db, err = _I.lib.sqlite.open(_M._I.devConf.dataDatabasePath)
 ldlog(db, err)
 
 log("Create data table: " .. tostring(db:exec([[
-	CREATE TABLE dataDB (
+	CREATE TABLE data (
 		fullIndex TEXT NOT NULL UNIQUE,
 		valueType TEXT NOT NULL,
-		value TEXT
+		value TEXT,
+		numericInsertionIndex INTEGER
 	);
 ]])))
 
 db:close()
 
+--[[
 log("Create shared lock table")
 _M._S._dbLockTable = {}
+]]

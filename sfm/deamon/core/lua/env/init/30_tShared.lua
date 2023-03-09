@@ -19,12 +19,14 @@ function _internal.getRequestID()
 	return requestID
 end
 
-function _internal.generateIndexString(indexTable) --for debugging purpose
+function _internal.generateIndexString(indexTable)
 	local indexString = ""
 	for _, index in ipairs(indexTable) do
-		indexString = indexString .. tostring(index) .. "."
+		--indexString = indexString .. tostring(index) .. "."
+		indexString = _I.appendIndex(indexString, index)
+		dlog(indexString)
 	end
-	indexString = string.sub(indexString, 1, -2) --remove dot at the end
+	--indexString = string.sub(indexString, 1, -2) --remove dot at the end
 	--[[ --needed?
 	if string.sub(indexString, 0, 1) == "." then --remove dot at the beginning if present
 		indexString = string.sub(indexString, 2)
