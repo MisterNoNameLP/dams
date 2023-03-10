@@ -157,7 +157,7 @@ local function removeValue(index, valueType)
 	end
 end
 local function insertValue(index, valueType, value)
-	
+	dlog("TT")
 end
 
 --===== metafunctions =====--
