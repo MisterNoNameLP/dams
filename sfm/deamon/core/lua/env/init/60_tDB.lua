@@ -37,14 +37,13 @@ local function getValue(index, internalCall)
 	if internalCall ~= true then
 		debug.dataDBLog("Get value: " .. index)
 	end
-
 	local valueType, value
 	local suc = db:exec([[SELECT valueType, value FROM data WHERE fullIndex = "]] .. index .. [["]], function(udata, cols, values, names)
 		valueType, value = values[1], values[2]
 		return 0
 	end)
     if suc ~= 0 then
-		error("Could not get dataDB value: " .. tostring(index) .. ": " .. _I.getSQLiteErrMsg(suc))
+		error("Could not get dataDB value: " .. tostring(index) .. ": " .. _I.getSQLiteErrMsg(db, suc))
     end
 	return valueType, value
 end
@@ -83,7 +82,7 @@ local function getFullTable(index)
 		return 0
 	end)
 	if suc ~= 0 then
-		error("Could not get dataDB value: " .. tostring(index) .. ": " .. _I.getSQLiteErrMsg(suc))
+		error("Could not get dataDB value: " .. tostring(index) .. ": " .. _I.getSQLiteErrMsg(db, suc))
     end
 
 	return returnValues
@@ -97,12 +96,12 @@ local function addValue(index, valueType, value)
 	end
 
 	if valueType == "table" then
-		suc = db:exec([[INSERT INTO data VALUES ("]] .. index .. [[", "]] .. valueType .. [[", NULL, NULL);]])
+		suc = db:exec([[INSERT INTO data VALUES ("]] .. index .. [[", "]] .. valueType .. [[", NULL, 1);]])
 	else
-		suc = db:exec([[INSERT INTO data VALUES ("]] .. index .. [[", "]] .. valueType .. [[", "]] .. tostring(value) .. [[", NULL);]])
+		suc = db:exec([[INSERT INTO data VALUES ("]] .. index .. [[", "]] .. valueType .. [[", "]] .. tostring(value) .. [[", 1);]])
 	end
 	if suc ~= 0 then
-		error("Could not add to dataDB: " .. tostring(fullIndex) .. ", " .. tostring(value) .. ": " .. _I.getSQLiteErrMsg(suc))
+		error("Could not add to dataDB: " .. tostring(fullIndex) .. ", " .. tostring(value) .. ": " .. _I.getSQLiteErrMsg(db, suc))
 	end
 end
 local function addTableRecursively(index, tbl)
@@ -125,7 +124,6 @@ local function addTableRecursively(index, tbl)
 			addValue(_I.appendIndex(index, i), valueType, v)
 		end
 	end
-	
 end
 local function updateValue(index, valueType, value)
 	debug.dataDBLog("Update value: " .. index .. ", " .. valueType .. ", " .. tostring(value))
@@ -140,7 +138,7 @@ local function updateValue(index, valueType, value)
 		suc = db:exec([[UPDATE data SET valueType = "]] .. valueType .. [[", value = "]] .. tostring(value) .. [[" WHERE fullIndex = "]] .. index .. [[";]])
 	end
 	if suc ~= 0 then
-		error("Could not update in dataDB: " .. tostring(fullIndex) .. ", " .. tostring(value) .. ": " .. _I.getSQLiteErrMsg(suc))
+		error("Could not update in dataDB: " .. tostring(fullIndex) .. ", " .. tostring(value) .. ": " .. _I.getSQLiteErrMsg(db, suc))
 	end
 end
 local function removeValue(index, valueType)
@@ -156,8 +154,41 @@ local function removeValue(index, valueType)
 		error("Could not remove from dataDB: " .. tostring(fullIndex) .. ", " .. tostring(value))
 	end
 end
-local function insertValue(index, valueType, value)
-	dlog("TT")
+local function insertNumValue(index, valueType, value)
+	debug.dataDBLog("Insert value: " .. valueType .. ", " .. tostring(value))
+	local numericInsertionIndex, lastNumericInsertionIndex
+	local canInsert
+	local insertionChecks = 0
+	local function errCheck(code)
+		if code ~= 0 then 
+			error("Could not insert value: " .. tostring(code) .. ", " .. tostring(_I.getSQLiteErrMsg(db, suc)), 4)
+		end
+	end
+
+	errCheck(db:exec([[SELECT numericInsertionIndex FROM data WHERE fullIndex = "]] .. tostring(index) .. [[";]], function(udata, cols, values, names)
+		numericInsertionIndex = values[1]
+		return 0
+	end))
+	while not canInsert do
+		errCheck(db:exec([[SELECT fullIndex FROM data WHERE fullIndex LIKE "]] .. tostring(index) .. "." .. tostring(numericInsertionIndex) .. [[%";]], function(udata, cols, values, names)
+			if values[1] then
+				numericInsertionIndex = numericInsertionIndex + 1
+				canInsert = false
+			end
+			return 0
+		end))
+		if canInsert == nil or lastNumericInsertionIndex == numericInsertionIndex then --if the dbExec is not called the target index is not occupied. so the while can break.
+			break
+		else
+			lastNumericInsertionIndex = numericInsertionIndex
+		end
+		insertionChecks = insertionChecks +1
+		if insertionChecks >= 10000 then
+			error("[INTERNAL]: Max insertion attemts reached", 3)
+		end
+	end
+	errCheck(db:exec([[UPDATE data SET numericInsertionIndex = ]] .. tostring(numericInsertionIndex + 1) .. [[ WHERE fullIndex = "]] .. index .. [[";]]))
+	return addValue(tostring(index) .. "." .. tostring(numericInsertionIndex), valueType, value)
 end
 
 --===== metafunctions =====--
@@ -239,7 +270,7 @@ metafunctions.call = function(handler, order, ...) --TODO: add lock feature.
 		if not valueIsLegal then
 			error("Invalid value type: " .. tostring(valueType), 2)
 		end
-		insertValue(getmetatable(handler)._fullIndex, valueType, value)
+		insertNumValue(getmetatable(handler)._fullIndex, valueType, value)
 	end
 end
 
