@@ -25,9 +25,9 @@ return function(cmd, envTable, secret, pollTimeout)
     while true do
         events = posix.poll(discriptorList, pollTimeout)
 		  --reading handler file
-		  tmpOutput = handlerFile:read("*l")
+		  tmpOutput = handlerFile:read("*a")
 		  if tmpOutput then
-		  	   output = output .. tmpOutput .. "\n"
+		  	   output = output .. tmpOutput
 		  end
 
         if events > 0 and discriptorList[handlerFileDescriptor].revents.HUP then
