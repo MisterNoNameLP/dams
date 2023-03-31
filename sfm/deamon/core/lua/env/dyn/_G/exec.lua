@@ -38,7 +38,7 @@ return function(cmd, envTable, secret, pollTimeout)
     --reading rest of handler file
 	 tmpOutput = handlerFile:read("*a")
 	 if tmpOutput then
-		output = output .. tmpOutput .. "\n"
+		output = output .. tmpOutput
 	 end
 	 handlerFile:close()
 
@@ -47,7 +47,7 @@ return function(cmd, envTable, secret, pollTimeout)
         returnSignal = s
     end
 
-    output = output:sub(0, -(len(returnSignal) + 4))
+    output = output:sub(0, -(len(returnSignal) + 2))
 
     return tonumber(returnSignal), output
 end
