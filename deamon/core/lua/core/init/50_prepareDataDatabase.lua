@@ -1,5 +1,5 @@
 debug.setFuncPrefix("[DB]")
-dlog("Prepare data DB")
+log("Prepare data DB")
 
 --os.execute("rm " .. _M._I.devConf.dataDatabasePath) --DEBUG
 
@@ -7,14 +7,18 @@ local db, err = _I.lib.sqlite.open(_M._I.devConf.dataDatabasePath)
 
 ldlog(db, err)
 
-dlog("Create data table: " .. tostring(db:exec([[
-	CREATE TABLE dataDB (
+log("Create data table: " .. tostring(db:exec([[
+	CREATE TABLE data (
 		fullIndex TEXT NOT NULL UNIQUE,
 		valueType TEXT NOT NULL,
-		value TEXT
+		value TEXT,
+		numericInsertionIndex INTEGER
 	);
 ]])))
 
-
-
 db:close()
+
+--[[
+log("Create shared lock table")
+_M._S._dbLockTable = {}
+]]

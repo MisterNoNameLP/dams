@@ -8,7 +8,8 @@
         3 == requested site not found
         4 == failed to load requestet site
         5 == coult not execute requestet site
-        6 == multiple actions with the same name existing
+        6 == multiple sites with the same name existing
+        7 == unsupported file type
         99 == unknown error
 ]]
 
@@ -44,6 +45,8 @@ Stack traceback:
         return 4, "Could not load site script"
     elseif scriptFuncLoadingCode == 4 then
         return 6, "Multiple sites with that name existing"
+    elseif scriptFuncLoadingCode == 5 then
+        return 7, "Unsupported file type"
     end
 
     return 99

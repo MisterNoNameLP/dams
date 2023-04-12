@@ -1,3 +1,3 @@
 return function(sessionID)
-	return _M._I.shared.openSessions[sessionID]
+	return _M._I.shared._openSessions[sessionID]
 end

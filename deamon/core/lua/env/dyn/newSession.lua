@@ -17,7 +17,7 @@ return function(user, expireDate, name, note, requestData)
 	
 	userData.loginToken = sessionID
 	user = _M._I.User.new(userData)
-	_M._I.shared.openSessions[sessionID] = user:getData()
+	_M._I.shared._openSessions[sessionID] = user:getData()
 	
 	return sessionID
 	]]

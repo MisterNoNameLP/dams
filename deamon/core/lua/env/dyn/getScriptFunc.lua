@@ -7,6 +7,7 @@
         2 == could not find file
         3 == could not load fileCode
         4 == a pleal as well as a lua script with the same name is present
+        5 == unsupported file type
 ]]
 
 return function(givenPath)
@@ -27,6 +28,9 @@ return function(givenPath)
 
     if not ending then
         if _I.lib.lfs.attributes(path .. file .. ".lua") then
+            if ending then
+                return 4, "The requestet script exists multiple times. Refusing to execute to prevent unexpected behaviour."
+            end
             ending = ".lua"
         end
         if _I.lib.lfs.attributes(path .. file .. ".pleal") then
@@ -41,11 +45,11 @@ return function(givenPath)
     end
     fullPath = path .. file .. ending
 
-    if ending == ".lua" then
-        fileCode = _I.lib.ut.readFile(fullPath)
-    elseif ending == ".pleal" then
-        fileCode = select(3, _I.lib.pleal.transpileFile(fullPath))
+    if ending ~= ".lua" and ending ~= ".pleal" then
+        return 5, "Unsupported file type: " .. ending
     end
+
+    fileCode = _I.lib.ut.readFile(fullPath)
 
     if ending == ".pleal" then
         local suc, conf, newFileCode = _I.lib.pleal.transpile(fileCode)
@@ -58,7 +62,7 @@ return function(givenPath)
 
     --log(fileCode)
 
-    fileCode = "--[[" .. tracebackPathNote .. "]] local args = {...}; local _I, _E, _S, _DB, requestData, request, header, cookie, Session, response, body = _M._I, _M._E, _M._I.shared, _M._DB, args[1], args[1].request, args[1].headers, _M._I.cookie, _M._I.Session, {html = {}, error = {}}, _M._I.html.Body.new(); do " .. fileCode .. " end return response"
+    fileCode = "--[[" .. tracebackPathNote .. "]] local args = {...}; local _I, _E, _S, _DB, requestData, request, header, cookie, Session, response, body = _M._I, _M._E, _M._I.shared, _M._DB, args[1], args[1].request, args[1].headers, _M._I.cookie, _M._I.Session, {html = {}, error = {}}, _M._I.html.Body.new(); do " .. fileCode .. "\n end return response"
 
     scriptFunc, scriptFuncLoadingError = load(fileCode)
     

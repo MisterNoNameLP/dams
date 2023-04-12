@@ -19,12 +19,14 @@ function _internal.getRequestID()
 	return requestID
 end
 
-function _internal.generateIndexString(indexTable) --for debugging purpose
+function _internal.generateIndexString(indexTable)
 	local indexString = ""
 	for _, index in ipairs(indexTable) do
-		indexString = indexString .. tostring(index) .. "."
+		--indexString = indexString .. tostring(index) .. "."
+		indexString = _I.appendIndex(indexString, index)
+		dlog(indexString)
 	end
-	indexString = string.sub(indexString, 1, -2) --remove dot at the end
+	--indexString = string.sub(indexString, 1, -2) --remove dot at the end
 	--[[ --needed?
 	if string.sub(indexString, 0, 1) == "." then --remove dot at the beginning if present
 		indexString = string.sub(indexString, 2)
@@ -38,6 +40,13 @@ function _internal.index(sharedTable, index, internalRun)
 	local metatable = getmetatable(sharedTable)
 	local newIndexTable = {}
 	local requestID = _internal.getRequestID()
+
+
+	--if an index ciontains a dot (.) it is put into single quotes to avoid missbehaviour with the lock table.
+	if index:find("[.]") then
+		warn("There are dots (.) used in shared table index '" .. index .. "'. This can cause missbehaviour!")
+		index = "'" .. index .. "'"
+	end
 
 	if _M._I.devConf.debug.logLevel.sharingDebug then  --double check to prevent string concatenating process if debug output is disabled.
 		ldlog("Get value: '" .. _internal.generateIndexString(getmetatable(sharedTable).indexTable or {}) .. "." .. tostring(index) .. "'; requestID: " .. tostring(requestID))
@@ -85,9 +94,22 @@ function _internal.newindex(sharedTable, index, value)
 	metatable = getmetatable(sharedTable)
 	local requestID = _internal.getRequestID()
 
+	--if an index ciontains a dot (.) it is put into single quotes to avoid missbehaviour with the lock table.
+	if index:find("[.]") then
+		warn("There are dots (.) used in shared table index '" .. index .. "'. This can cause missbehaviour!")
+		index = "'" .. index .. "'"
+	end
+
 	if _M._I.devConf.debug.logLevel.sharingDebug then  --double check to prevent string concatenating process if debug output is disabled.
 		ldlog("Set value: '" .. _internal.generateIndexString(getmetatable(sharedTable).indexTable or {}) .. "." .. tostring(index) .. "'; new value: " .. tostring(value) .. "; requestID: " .. tostring(requestID))
 	end
+
+	--[[
+	if string.find(index, "[.]") ~= nil then
+		warn("A dot (.) is used in an shared table index. This can cause unexpectet behavour with locked tables!")
+	end
+	]]
+	--index = index:gsub("[.]", "'.'")
 
 	requestChannel:supply({
 		request = "set",
@@ -110,7 +132,7 @@ function _internal.call(sharedTable, ...)
 
 	ldlog("Send call request: " .. order .. "; requestID: " .. tostring(requestID))
 
-	if order == "force_unlock" then
+	if order == "forceUnlock" then
 		order = "unlock"
 		bypassLock = true
 	end
@@ -125,8 +147,7 @@ function _internal.call(sharedTable, ...)
 	})
 
 	response = responseChannel:demand()
-
-	if order == "get" then
+	if response.value ~= nil then
 		returnValue = response.value
 	else
 		if response.success then
@@ -135,8 +156,6 @@ function _internal.call(sharedTable, ...)
 			returnValue = false
 		end
 	end
-
-	
 	return returnValue, response.error
 end
 
@@ -156,4 +175,5 @@ setmetatable(shared, {
 
 
 _M._I.shared = shared
+_M._S = shared
 --_G.shared = shared

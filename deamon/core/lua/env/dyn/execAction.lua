@@ -13,7 +13,7 @@
 ]]
 
 return function(request, requestData)
-	local scriptFuncLoadingCode, scriptFunc, scriptFuncLoadingError
+	local scriptFuncLoadingCode, scriptFunc
     local requestedAction
     local responseData = {}
     local responseHeaders
@@ -24,7 +24,11 @@ return function(request, requestData)
 	requestedAction = request.action
 	
 	if requestedAction ~= nil then
-		scriptFuncLoadingCode, scriptFunc, scriptFuncLoadingError = _M._I.getScriptFunc("api/actions/" .. requestedAction)
+		scriptFuncLoadingCode, scriptFunc = _M._I.getScriptFunc("api/actions/" .. requestedAction)
+
+        --dlog(scriptFuncLoadingCode, scriptFunc)
+        --dlog(scriptFunc)
+
     else
 		return 1, "Invalid request"
 	end
@@ -40,7 +44,7 @@ return function(request, requestData)
             responseData.returnValue = scriptReturnValue
             return 0, responseData, responseHeaders
         else
-            return 5, "Action script crashed"
+            return 5, "Action script crashed", scriptReturnValue
         end
 		if responseData.returnValue.error then --remove error table from response if not used
 			local used = false
@@ -56,12 +60,12 @@ return function(request, requestData)
     elseif scriptFuncLoadingCode == 1 then
         return 2, "Invalid path given"
     elseif scriptFuncLoadingCode == 2 then
-        return 3, "Action not found", scriptFuncLoadingError
+        return 3, "Action not found", scriptFunc
     elseif scriptFuncLoadingCode == 3 then
-        return 4, "Failed to load action", scriptFuncLoadingError
+        return 4, "Failed to load action", scriptFunc
     elseif scriptFuncLoadingCode == 4 then
         return 6, "Multiple actions with that name"
     else
-        return 99, "Unknown error", scriptFuncLoadingError
+        return 99, "Unknown error", scriptFunc
 	end
 end

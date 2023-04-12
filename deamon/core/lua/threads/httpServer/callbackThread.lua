@@ -80,7 +80,7 @@ if requestData.headers[":method"].value == "GET" then --=== exec site ===--
 	elseif siteExecutionCode == 2 then
 		warn("Recieved invalid site request: " .. tostring(requestedSite))
 		responseBody = "Invalid site request: '" .. tostring(requestedSite) .. "'"
-	elseif siteExecutionCode == 3 then
+	elseif siteExecutionCode == 3 or siteExecutionCode == 7 then
 		warn("Requested site not found: " .. tostring(requestedSite))
 		responseBody = "Error 404: Site not found: '" .. tostring(requestedSite) .. "'"
 	elseif siteExecutionCode == 4 then
@@ -152,6 +152,7 @@ else --=== exec action ===--
 
 	--execute user order
 	if canExecuteUserOrder then 
+		--in case of error: errorCode, genericErrorMsg, specificErrorMsg. 
 		local actionExecutionCode, newResponseData, newResponseHeaders = _I.execAction(userRequest, requestData)
 
 		if actionExecutionCode == 0 then
@@ -170,11 +171,11 @@ else --=== exec action ===--
 			warn("Requested action not found: " .. tostring(userRequest.action))
 			responseData.error = "Requestes action not found: " .. tostring(userRequest.action)
 		elseif actionExecutionCode == 4 then
-			debug.err("Failed to load requested action: " .. tostring(userRequest.action) .. "; error:\n" .. tostring(responseData.error))
-			responseData.error = "Failed to load action request: " .. tostring(userRequest.action)
+			debug.err("Failed to load requested action: " .. tostring(userRequest.action) .. "; error:\n" .. tostring(newResponseHeaders))
+			responseData.error = "Failed to load action request: " .. tostring(userRequest.action) .. "; error:\n" .. tostring(newResponseHeaders)
 		elseif actionExecutionCode == 5 then
-			debug.err("Failed to execute requested action: " .. tostring(userRequest.action) .. "; error:\n" .. tostring(responseData.error))
-			responseData.error = "Failed to execute action request: " .. tostring(userRequest.action)
+			debug.err("Failed to execute requested action: " .. tostring(userRequest.action) .. "; error:\n" .. tostring(newResponseHeaders))
+			responseData.error = "Failed to execute action request: " .. tostring(userRequest.action) .. "; error:\n" .. tostring(newResponseHeaders)
 		elseif actionExecutionCode == 6 then
 			debug.err("Multilpe actions with that name are existing: " .. tostring(requestedSite))
 			responseData.error = "Multilpe action with that name are existing: " .. tostring(userRequest.action)
@@ -188,11 +189,11 @@ else --=== exec action ===--
 	end
 
 	do --debug
-		if type(shared.requestCount) ~= "number" then
-			shared.requestCount = 0
+		if type(shared._requestCount) ~= "number" then
+			shared._requestCount = 0
 		end
-		shared.requestCount = shared.requestCount +1
-		responseData.requestID = tostring(shared.requestCount)
+		shared._requestCount = shared._requestCount +1
+		responseData.requestID = tostring(shared._requestCount)
 	end
 
 	do --formatting response table

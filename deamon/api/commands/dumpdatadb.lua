@@ -10,6 +10,7 @@ elseif type(values) ~= "string" then
 	return false
 end
 
+debug.setColors(_I.devConf.debug.terminalColors.default)
 _M._I.dataDB:exec([[SELECT ]] .. values .. [[, rowid FROM ]] .. dbTable .. [[]], function(udata, cols, values, names)	
 	local rowid
 	
