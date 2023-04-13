@@ -1,0 +1,13 @@
+return function(user)
+	if _DB.youtubedl.users[user:getID()] then
+		return false
+	else
+		local userID = user:getID()
+		local username = user:getName()
+		log("Register new youtubedl user: '$username' ($userID)")
+		_DB.youtubedl.users[userID] = {
+			downloads = {}
+		}
+		return true
+	end
+end

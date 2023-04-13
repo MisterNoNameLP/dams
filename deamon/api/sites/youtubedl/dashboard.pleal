@@ -1,0 +1,17 @@
+local session, user = _I.loginRequired(requestData)
+if session == false then
+   return user
+end
+
+local body = _I.html.Body.new()
+body:addRaw(_E.css.defaultStyle)
+
+body:addRaw([[<div>]])
+body:addHeader(1, "YoutubeDL")
+
+body:addRefButton("Scheduled downloads", "listDownloads")
+body:addP("")
+
+body:addRaw([[</div>]])
+
+return body:generateCode()

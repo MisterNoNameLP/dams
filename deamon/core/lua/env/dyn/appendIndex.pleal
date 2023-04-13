@@ -1,0 +1,16 @@
+return function(index, newIndex)
+    if index == nil then
+        index = ""
+    end
+    if type(newIndex) == "string" then
+        --all simgle quptes are replace by 2 single quote to ansure these can be used in indexes.
+        --the double simgle quotes have to be filtered out later on.
+        newIndex = newIndex:gsub("[']", "''")
+        index = "${index}.'$newIndex'"
+    elseif type(newIndex) == "number" then
+        index = "${index}.$newIndex"
+    else
+        error("Invalid index type, only stings and numbers allowed", 2)
+    end
+    return index
+end
