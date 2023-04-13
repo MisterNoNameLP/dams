@@ -8,7 +8,7 @@ if request.password ~= request.password2 then
 	response.error.err = "Passwords are not matching"
 	response.html.forwardInternal = "error"
 else
-	user, err = env.dyn.User.create(request.username, request.password)
+	user, err = _I.User.create(request.username, request.password)
 	if user ~= 0 then
 		response.success = false
 		response.error.err = err

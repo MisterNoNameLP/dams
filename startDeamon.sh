@@ -1,5 +1,5 @@
 #!/bin/sh
 
-#./data/bin/love ./data $@
+#./core/bin/love ./data $@
 cd deamon
-love ./data $@
+love ./core $@

@@ -1,1 +1,0 @@
-env.startFileThread("lua/threads/httpServer/httpServer.lua", "HTTPServer")

@@ -1,16 +1,16 @@
-local env, args = ...
+local _M, args = ...
 
 
-env.commands.rlenv(env, {}, {})
+_M._I.commands.rlenv(_M, {}, {})
 
 
 
-local user, reason = env.dyn.User.new(1)
-print(env.lib.ut.tostring(user), reason)
+local user, reason = _M._I.User.new(1)
+print(_M._I.lib.ut.tostring(user), reason)
 
 print(user:checkPassword("123"))
 
---print(env.dyn.User.checkPassword({id=1}, "123"))
+--print(_M._I.User.checkPassword({id=1}, "123"))
 
 --tret
 

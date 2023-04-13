@@ -1,4 +1,4 @@
-local body = env.dyn.html.Body.new()
+local body = _M._I.html.Body.new()
 
 body:addHeader(3, "Signup failed")
 body:addP("Reason: " .. tostring(requestData.reason))
