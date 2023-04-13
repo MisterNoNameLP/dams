@@ -29,5 +29,5 @@ deamon/api/actions/*
 deamon/api/sites/*
 !deamon/api/sites/.gitkeep
 
-/deamon/api*
+/deamon/api/
 !/**/.gitkeep
