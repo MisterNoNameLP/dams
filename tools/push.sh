@@ -1,7 +1,6 @@
 #!/bin/bash
 
-cp -r deamon/core/userData templates/dev
-cp -r deamon/core/os templates/dev
+#test
 
 git add .
 git commit -m "$@"

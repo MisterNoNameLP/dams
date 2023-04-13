@@ -28,3 +28,4 @@ deamon/api/actions/*
 !deamon/api/actions/.gitkeep
 deamon/api/sites/*
 !deamon/api/sites/.gitkeep
+logs
