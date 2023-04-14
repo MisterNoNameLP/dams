@@ -1,0 +1,6 @@
+return function(responseTable, errCode, errMsg)
+	responseTable.success = false
+	responseTable.error.code = errCode
+	responseTable.error.msg = errMsg
+	return responseTable
+end

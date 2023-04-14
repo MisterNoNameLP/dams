@@ -271,6 +271,11 @@ metafunctions.call = function(handler, order, ...) --TODO: add lock feature.
 			error("Invalid value type: " .. tostring(valueType), 2)
 		end
 		insertNumValue(getmetatable(handler)._fullIndex, valueType, value)
+<<<<<<< HEAD
+=======
+	elseif order == "lock" then
+		debug.warn("_DB lock feature not implemented yet!")
+>>>>>>> b29c425b93f20094192a84d87a50c60e69b33d9e
 	end
 end
 

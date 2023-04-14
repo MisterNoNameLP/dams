@@ -1,0 +1,14 @@
+local db = _M._DB
+
+if db.youtubedl ~= nil then
+	return true
+end
+
+db.youtubedl = {
+	users = {},
+	downloads = {
+		registered = {},
+		scheduled = {},
+		running = {},
+	},
+}

@@ -1,0 +1,14 @@
+local session, user = _I.loginRequired(requestData)
+if session == false then
+	return _I.returnError(response, 1, "Not logged in")
+end
+if not user:getPermission("youtubedl") then
+	return _I.returnError(response, 2, "Insuficent permission")
+end 
+
+debug.setFuncPrefix("[YoutubeDL]")
+log("Register download")
+
+_E.youtubedl.registerUser(user)
+_DB.youtubedl.users[user:getID()]("lock")
+

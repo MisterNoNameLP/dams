@@ -1,0 +1,27 @@
+local session, user = _I.loginRequired(requestData)
+if session == false then
+   return user
+end
+
+local body = _I.html.Body.new()
+body:addRaw(_E.css.defaultStyle)
+
+body:addRaw([[<div>]])
+body:addHeader(1, "User Settings")
+
+body:addRefButton("Dashboard", "dashboard")
+body:addP("")
+body:addRefButton("Auth tokens", "authTokens")
+body:addP("")
+body:addRefButton("Change username", "changeUsername")
+body:addP("")
+body:addRefButton("Change password", "changePassword")
+body:addP("")
+body:addAction("", "POST", {
+   {"hidden", target = "action", value = "logout"},
+   {"button", type = "submit", value = "Logout"},
+})
+
+body:addRaw([[</div>]])
+
+return body:generateCode()
