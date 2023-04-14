@@ -2,7 +2,7 @@
 
 --debug.setLogPrefix("TTTT")
 
-local user = env.User.new(1)
+local user = _I.User.new(1)
 local session, err
 
 local timeTable = os.date("*t")

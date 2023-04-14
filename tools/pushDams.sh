@@ -1,9 +1,11 @@
 #!/bin/bash
+version="0.0d"
 
 # this pushes dams changes to the dams repo.
 # there have to be a valid dams git repo at the $damsDir in order to work properly.
 
 # conf
+branch="test"
 damsDir="../dams.git"
 damsGitIgnore=".gitignore-dams"
 
@@ -11,7 +13,7 @@ damsGitIgnore=".gitignore-dams"
 currentWorkingDir=$(pwd)
 
 # copy files
-rsync -rthuE ./ $damsDir \
+rsync -rthE . $damsDir \
     --exclude=".git" \
     --exclude=".gitignore" \
     --exclude=".gitignore-dams" \
@@ -21,7 +23,10 @@ cd $damsDir
 #mv $damsGitIgnore .gitignore
 
 #  push to dams repo
-git add ./*
+git checkout $branch
+mkdir -p templates/$branch
+cp -r deamon/api templates/$branch
+git add .
 git commit -m "$@"
 git push
 

@@ -1,0 +1,4 @@
+return function()
+    local var = "value"
+    return "var is: $var"
+end

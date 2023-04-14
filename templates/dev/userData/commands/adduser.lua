@@ -1,5 +1,5 @@
-local env, args = ...
+local _M, args = ...
 local username, password = args[1], args[2]
 
 
-log(env.dyn.User.create(username, password))
+log(_M._I.User.create(username, password))

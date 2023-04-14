@@ -1,0 +1,1 @@
+youtubedl: permission to use the youtubedl API.

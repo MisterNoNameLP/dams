@@ -1,10 +1,10 @@
 local requestData = ...
 
-local tostring = env.lib.ut.tostring
+local tostring = _I.lib.ut.tostring
 
-local body = env.dyn.html.Body.new()
+local body = _I.html.Body.new()
 
-log(env.lib.ut.tostring(body.addRaw))
+log(_I.lib.ut.tostring(body.addRaw))
 
 body:addRaw("<p>raw text</p>")
 body:addRefButton("CMS test page", "/cmsTest")
