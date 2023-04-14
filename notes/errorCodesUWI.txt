@@ -1,3 +1,0 @@
-# authentication / permissions
-1: not logged in.
-2: insuficen permissions.

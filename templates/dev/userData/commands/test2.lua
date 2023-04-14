@@ -1,6 +1,6 @@
-local _M, args = ...
+local env, args = ...
 
 --===== test start =====--
-print(_M._I.setPermission(1, "test_perm2", 5))
+print(env.setPermission(1, "test_perm2", 5))
 
-print(_M._I.getPermissionLevel(1, "test_perm2"))
+print(env.getPermissionLevel(1, "test_perm2"))

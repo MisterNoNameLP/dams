@@ -1,3 +1,6 @@
+# !DO NOT USE THIS YET!
+There is a massive security leak in this programm allowing anyone with HTTP access to this API to run potential harmful code on your machine!
+
 DAMS is a framework to easly create multiuser HTTP(s) APIs using lua.
 
 It is completly written in lua.
@@ -31,4 +34,4 @@ tostring is displays numbers in a table as string.
 ## shared
 shared tables are not iterable using pairs or ipairs function. This is not fixable until löve uses lua5.2+.
 
-local references to a shared table get not updatet properly in some cases. you should always work with _M._I.shared directly.
+local references to a shared table get not updatet properly in some cases. you should always work with env.shared directly.

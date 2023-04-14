@@ -1,4 +1,4 @@
-local body = _I.html.Body.new()
+local body = env.dyn.html.Body.new()
 
 body:addHeader(3, "Change password")
 body:addP("Here you can change your password.")

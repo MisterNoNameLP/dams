@@ -1,4 +1,4 @@
-local body = _M._I.html.Body.new()
+local body = env.dyn.html.Body.new()
 
 body:addHeader(3, "Login failed")
 body:addP("Reason: " .. tostring(requestData.reason))

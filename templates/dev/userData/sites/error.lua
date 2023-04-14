@@ -40,7 +40,7 @@ body:addRaw([[
         <h1>]] .. tostring(requestData.error.headline) .. [[</h1>
         <h2>]] .. tostring(requestData.error.err) .. [[</h2>
         <p class="line-break"><b>Description: </b>]] .. tostring(requestData.error.msg) .. [[</p>
-        <p class="line-break"><b>Code: </b>]] .. _I.ut.parseArgs(requestData.error.code, "unknown") .. [[</p>
+        <p class="line-break"><b>Code: </b>]] .. env.ut.parseArgs(requestData.error.code, "unknown") .. [[</p>
         ]] .. traceback .. [[
 
     </div>

@@ -1,7 +1,7 @@
 local requestData = ...
 local responseHeaders = {}
 
-local User = _I.User
+local User = env.dyn.User
 
 local user = User.new("test")
 
@@ -18,14 +18,14 @@ log("Perm: ", user:getPerm("test_perm3"))
 log("Perm: ", user:getPerm("test_perm"))
 
 log("Cookie raw: ", requestData.headers.cookie.value)
-log("Cookie: ", debug.tostring(_I.getCookies(requestData)))
+log("Cookie: ", debug.tostring(env.dyn.getCookies(requestData)))
 
 responseHeaders = {
     --["set-cookie"] = "test name=tv rrr; HttpOnly",
 }
 
-log(_I.cookie.current.test)
+log(env.cookie.current.test)
 
-_I.cookie.new.test = "t1_4"
+env.cookie.new.test = "t1_4"
 
 return "User test", responseHeaders

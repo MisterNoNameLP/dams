@@ -1,5 +1,5 @@
 local user, err, msg
-local session, user = _I.loginRequired(requestData)
+local session, user = env.dyn.loginRequired(requestData)
 
 if session == false then
     return {html = {body = user}}

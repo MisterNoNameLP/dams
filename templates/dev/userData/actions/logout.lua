@@ -1,4 +1,4 @@
-local session, err, msg = _I.getSessionByRequestData(requestData)
+local session, err, msg = env.dyn.getSessionByRequestData(requestData)
 
 if session == false then
     return {html = {body = "Logout failed: " .. err .. ": " .. msg}}

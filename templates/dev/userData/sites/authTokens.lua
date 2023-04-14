@@ -1,13 +1,13 @@
-local session, user = _I.loginRequired(requestData)
+local session, user = env.dyn.loginRequired(requestData)
 if session == false then
     return user
 end
 
 --log(os.date("%Y/%m/%d %H:%M:%S"))
 
---_I.newSession(user, {year = 2023, month = 5, day = 10}, "test token", "this is a test token")
+--env.dyn.newSession(user, {year = 2023, month = 5, day = 10}, "test token", "this is a test token")
 
-local body = _I.html.Body.new()
+local body = env.dyn.html.Body.new()
 
 body:addHead([[
 <style>
@@ -103,7 +103,7 @@ local function addTokenWidged(udata, cols, value, name)
 end
 
 body:addHeader(2, "Manually createt auth tokens")
-_I.userDB:exec([[SELECT name, note, userAgent, creationTime, expireTime, sessionID FROM sessions WHERE userID == ]] .. tostring(user:getID() .. [[ AND createdAutomatically == 0 AND status == 0]]), function(udata, cols, value, name)
+env.loginDB:exec([[SELECT name, note, userAgent, creationTime, expireTime, sessionID FROM sessions WHERE userID == ]] .. tostring(user:getID() .. [[ AND createdAutomatically == 0 AND status == 0]]), function(udata, cols, value, name)
     local suc, err = xpcall(addTokenWidged, debug.traceback, udata, cols, value, name)
     if suc ~= true then
         debug.err(err, debug.traceback())
@@ -113,7 +113,7 @@ end)
 
 
 body:addHeader(2, "Automatically createt auth tokens")
-_I.userDB:exec([[SELECT name, note, userAgent, creationTime, expireTime, sessionID FROM sessions WHERE userID == ]] .. tostring(user:getID() .. [[ AND createdAutomatically > 0 AND status == 0]]), function(udata, cols, value, name)
+env.loginDB:exec([[SELECT name, note, userAgent, creationTime, expireTime, sessionID FROM sessions WHERE userID == ]] .. tostring(user:getID() .. [[ AND createdAutomatically > 0 AND status == 0]]), function(udata, cols, value, name)
     local suc, err = xpcall(addTokenWidged, debug.traceback, udata, cols, value, name)
     if suc ~= true then
         debug.err(err, debug.traceback())
@@ -122,7 +122,7 @@ _I.userDB:exec([[SELECT name, note, userAgent, creationTime, expireTime, session
 end)
 
 body:addHeader(2, "Deactivated tokens")
-_I.userDB:exec([[SELECT name, note, userAgent, creationTime, expireTime, sessionID, status, deletionTime FROM sessions WHERE userID == ]] .. tostring(user:getID() .. [[ AND status == 1]]), function(udata, cols, value, name)
+env.loginDB:exec([[SELECT name, note, userAgent, creationTime, expireTime, sessionID, status, deletionTime FROM sessions WHERE userID == ]] .. tostring(user:getID() .. [[ AND status == 1]]), function(udata, cols, value, name)
     local suc, err = xpcall(addTokenWidged, debug.traceback, udata, cols, value, name)
     if suc ~= true then
         debug.err(err, debug.traceback())

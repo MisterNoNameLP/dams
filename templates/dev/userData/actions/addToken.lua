@@ -1,4 +1,4 @@
-local session, user = _I.loginRequired(requestData)
+local session, user = env.dyn.loginRequired(requestData)
 if session == false then
     response.html.body = user
     return response
@@ -29,7 +29,7 @@ if response.error.code == nil then
         expireTime = os.time(dateTable)
     end
 
-    suc, err, token = _I.Session.create(user, expireTime, request.name, request.description, requestData, 0)
+    suc, err, token = env.dyn.Session.create(user, expireTime, request.name, request.description, requestData, 0)
 
     if suc then
         response.html.forwardInternal = "viewNewToken"

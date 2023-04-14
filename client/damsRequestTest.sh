@@ -1,8 +1,7 @@
 #!/bin/lua
 
 local timeout = 3
---local uri = "https://damsdev.namelessserver.net/"
-local uri = "http://localhost:8023"
+local uri = "https://damsdev.namelessserver.net/"
 
 local http = require("http.request")
 

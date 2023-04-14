@@ -1,4 +1,4 @@
---local _M = ...
+--local env = ...
 
 --[[
 print("TEST 3")
@@ -16,8 +16,8 @@ io.stderr:write("STDERR")
 
 io.flush()
 ]]
---print(_M)
+--print(env)
 
---print(_M._I.lib.ut.tostring(_M))
+--print(env.lib.ut.tostring(env))
 
---_M._I.startFileThread("TEST", "TEST_THREAD")
+--env.startFileThread("TEST", "TEST_THREAD")

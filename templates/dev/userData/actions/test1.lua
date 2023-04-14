@@ -1,8 +1,8 @@
-local _I, shared, requestData = ...
+local env, shared, requestData = ...
 
-_I.debug.setFuncPrefix("[TEST1]")
+env.debug.setFuncPrefix("[TEST1]")
 
---dlog(_I, shared, requestData)
+--dlog(env, shared, requestData)
 dlog(requestData.request.test)
 
 shared.testValue = requestData.request.newValue
