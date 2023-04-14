@@ -114,13 +114,8 @@ local devConf = {
 			lowDataExecution = false, --low dyn data execution debug.
 
 			exec = false, --prints whats is executet in the shell. WARNING: if used wrong this can expose passwords in the logfile!
-<<<<<<< HEAD
-			user = true, --print User / login db actions.
-			dataDB = true, --prints dataDB actions.
-=======
 			user = false, --print User / login db actions.
 			dataDB = false, --prints dataDB actions.
->>>>>>> b29c425b93f20094192a84d87a50c60e69b33d9e
 		},
 	},
 }

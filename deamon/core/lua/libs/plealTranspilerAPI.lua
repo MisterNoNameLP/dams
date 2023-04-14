@@ -3,19 +3,26 @@
     It works by comverting PleaL code unto native lua code. Wich means that pleal runs on ordinary lua interpreters.
 
     Requirements: 
-        Interpreter: lua5.1+.
+        Interpreter: lua5.1+ or LuaJIT
 
 
-    PleaL Copyright (c) 2022 MisterNoNameLP
+    Copyright (C) 2023  MisterNoNameLP
 
-    Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
 
-    The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
 
-    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 ]]
 
-local version = "0.6.3"
+local version = "0.8.2"
 
 local pleal = {}
 
@@ -27,9 +34,11 @@ local dlog = function() end
 
 local globalConfig = {
 	replacementPrefix = "$",
-	removeConfLine = false,
+	removeConfLine = true,
 	varNameCapsuleOpener = "{",
 	varNameCapsuleFinisher = "}",
+	dumpScripts = false,
+	dumpLineIndicators = false,
 }
 
 
@@ -77,6 +86,33 @@ local function keepCalling(func, maxTries, ...) --Call the given function until 
 		end
 		done = func(...)
 	end
+end
+local function executeLuaCode(luaCode, ...)
+	local unpackFunction, loadFunction
+	local loadingError, loadedFunction, executionResults 
+
+	-- lua backwards compatibility
+	if unpack then
+		unpackFunction = unpack
+	else
+		unpackFunction = table.unpack
+	end
+	if loadstring then
+		loadFunction = loadstring
+	else
+		loadFunction = load
+	end
+
+	loadedFunction, loadingError = loadFunction(luaCode)
+	if type(loadedFunction) ~= "function" then
+		err("Could not load script: " .. tostring(loadingError))
+		return false, "Could not load script", loadingError
+	end
+	executionResults = {xpcall(loadedFunction, debug.traceback, ...)}
+	if not executionResults[1] then
+		err("Could not execute script: " .. executionResults[2])
+	end
+	return unpackFunction(executionResults)
 end
 
 --=== conversion functions ===--
@@ -128,13 +164,6 @@ local function embedVariables(input, conf)
 		local symbol
 		local prevSymbol, nextSymbol
 		local opener
-
-		--preparing opener to handle [[]] strings
-		if finisher == "]]" then
-			opener = "[["
-		else
-			opener = finisher
-		end
 	
 		--getting for relevant symbols
 		local function setSymbol()
@@ -151,9 +180,18 @@ local function embedVariables(input, conf)
 			return true
 		end
 
-		--error prevention 
+		--preparing opener to handle [[]] strings
+		if finisher == "]]" then
+			opener = "[["
+			if symbol == "]" and nextSymbol == "]" then
+				symbol = "]]"
+			end
+		else
+			opener = finisher
+		end
 
 		--process symbol
+		--finisher exists only if the parser in in a string.
 		if symbol == finisher then
 			cut(symbolPos)
 			if prevSymbol ~= "\\" then
@@ -162,8 +200,9 @@ local function embedVariables(input, conf)
 		elseif finisher and symbol == replacePrefix and finisher ~= "]" then
 			local varNameCapsuleIsUsed = false
 			if prevSymbol == "\\" then
+				cut(symbolPos - 2)
 				input = input:sub(2)
-				cut(symbolPos - 1)
+				cut(1)
 				return 
 			end
 			cut(symbolPos)
@@ -210,8 +249,12 @@ local function embedVariables(input, conf)
 			end
 		else
 			cut(symbolPos)
-			if (symbol == "\"" or symbol == "'") and (not finisher or finisher == "]" or finisher == "]]") then
-			--if symbol == "\"" or symbol == "'" then
+			--if 
+			--	(symbol == "\"" or symbol == "'") and 
+			--	not finisher and 
+			--	not (finisher == "]" or finisher == "]]") 
+			--then
+			if (symbol == "\"" or symbol == "'") and (not finisher or finisher == "]") then
 				return keepCalling(embed, nil, symbol)
 			elseif symbol == "[" and nextSymbol == "[" and not finisher then
 				return keepCalling(embed, nil, "]]")
@@ -238,16 +281,11 @@ end
 local function getLogFunctions()
 	return log, err, dlog
 end
-local function setLogFunctions(newLog, newWarn, newErr, newDlog)
-	if type(newLog) ~= "function" then
-		log = function() end
-	end
-	log = newLog
-	warn = pa(warn, log)
-	err = pa(err, log)
-	if newDlog then
-		dlog = newDlog
-	end
+local function setLogFunctions(logFunctions)
+	log = pa(logFunctions.log, log, function() end)
+	warn = pa(logFunctions.warn, warn, function() end)
+	err = pa(logFunctions.err, err, function() end)
+	dlog = pa(logFunctions.dlog, dlog, function() end)
 end
 local function getConfig()
 	return globalConfig
@@ -259,7 +297,7 @@ local function setConfig(conf)
 end
 
 --=== conversion functions ===--
-local function transpile(input)
+local function transpile(input, note)
 	local lineCount = 0	
 	local _, conf
 
@@ -275,7 +313,7 @@ local function transpile(input)
 	end
 
 	--process conf 
-	if conf.removeConfLine then
+	if conf.removeConfLine and input:sub(0, 2) == "#!" or input:sub(0, 2) == "#?" then
 		log("Remove conf line")
 		local confLineEnd = input:find("\n")
 		input = input:sub(confLineEnd)
@@ -313,22 +351,66 @@ local function transpile(input)
 		log("Variable embedding disabled per conf line")
 	end
 
-
 	--finishing up
 	log("Finishing up")
+	if note then
+		input = "--[[" .. tostring(note) .. "]]" .. input
+	end
+
+	if globalConfig.dumpScripts then
+		local toDump
+		if globalConfig.dumpLineIndicators then
+			toDump = ""
+			local lineCounter = 1
+			for line in input:gmatch("[^\n]*") do
+				toDump = toDump .. "# " .. tostring(lineCounter) .. " | " .. line .. "\n"
+				lineCounter = lineCounter + 1
+			end
+			toDump = toDump:sub(0, -2)
+		else
+			toDump = input
+		end
+
+		dlog("    vvvvvvv PLEAL DUMP BEGINNING vvvvvvv \n" .. toDump .. "\n       ^^^^^^^ PLEAL DUMP END ^^^^^^^\n")
+	end
 
 	return true, conf, input
 end
 local function transpileFile(path) 
     local fileContent = readFile(path)
-
     if not fileContent then
 		err("Tried to transpile non existing file")
         return false, "File not found"
     else
 		log("transpile: " .. path)
-        return transpile(fileContent)
+        return transpile(fileContent, path)
     end
+end
+local function execute(script, ...)
+	if type(script) ~= "string" then
+		err("Invalid script given")
+		return false, "Invalid script"
+	else
+		local transpileSuccess, conf, luaCode
+		-- transpiling and loading the script
+		transpileSuccess, conf, luaCode = transpile(script)
+		if not transpileSuccess then
+			err("Could not transpile script")
+			return false, "Could not transpile", conf, luaCode
+		end
+		--executing the script
+		log("Exec script")
+		return executeLuaCode(luaCode, ...)
+	end
+end
+local function executeFile(path, ...)
+	local suc, conf, luaCode = transpileFile(path)
+	if not suc then
+		err("Could not execute file: " .. tostring(path) .. " (" .. tostring(luaCode) .. ")")
+		return false, "Could not execute file: " .. tostring(luaCode)
+	else
+		return executeLuaCode(luaCode, ...)
+	end
 end
 
 
@@ -345,8 +427,8 @@ pleal.setConfig = setConfig
 pleal.transpile = transpile
 pleal.transpileFile = transpileFile
 
-pleal.exec = exec
-pleal.execFile = execFile
+pleal.execute = execute
+pleal.executeFile = executeFile
 
 
 return pleal

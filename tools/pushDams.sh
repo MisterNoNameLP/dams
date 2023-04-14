@@ -13,7 +13,7 @@ damsGitIgnore=".gitignore-dams"
 currentWorkingDir=$(pwd)
 
 # copy files
-rsync -rthuE ${currentWorkingDir}/* $damsDir \
+rsync -rthE . $damsDir \
     --exclude=".git" \
     --exclude=".gitignore" \
     --exclude=".gitignore-dams" \

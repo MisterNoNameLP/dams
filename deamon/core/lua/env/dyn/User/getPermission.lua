@@ -1,11 +1,8 @@
 return function(self, perm)
-<<<<<<<< HEAD:deamon/core/lua/env/dyn/User/getPerm.lua
-========
 	if type(perm) ~= "string" then
 		error("No valid permimssion name given", 2)
 	end
 
->>>>>>>> b29c425b93f20094192a84d87a50c60e69b33d9e:deamon/core/lua/env/dyn/User/getPermission.lua
 	local userID = self:getID()
 	local db = _M._I.userDB
 	local reason, suc = nil, nil

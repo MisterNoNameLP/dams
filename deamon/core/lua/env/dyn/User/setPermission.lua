@@ -1,6 +1,4 @@
 return function(self, perm, level)
-<<<<<<<< HEAD:deamon/core/lua/env/dyn/User/setPerm.lua
-========
 	if type(perm) ~= "string" then
 		error("No valid permimssion name given", 2)
 	end
@@ -8,16 +6,11 @@ return function(self, perm, level)
 		error("No valid permimssion level given", 2)
 	end
 
->>>>>>>> b29c425b93f20094192a84d87a50c60e69b33d9e:deamon/core/lua/env/dyn/User/setPermission.lua
 	local userID = self:getID()
 	local db = _M._I.userDB
 	local reason, suc = nil, nil
 	
-<<<<<<<< HEAD:deamon/core/lua/env/dyn/User/setPerm.lua
-	local permSetAlready, permLevelError = self:getPerm(perm)
-========
 	local permSetAlready, permLevelError = self:getPermission(perm)
->>>>>>>> b29c425b93f20094192a84d87a50c60e69b33d9e:deamon/core/lua/env/dyn/User/setPermission.lua
 	
 	if permSetAlready == true then
 		debug.ulog("Update permission: " .. perm .. ", userID: " .. tostring(userID) .. ", to level: " .. tostring(level))

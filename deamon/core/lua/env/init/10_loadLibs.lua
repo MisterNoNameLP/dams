@@ -23,7 +23,11 @@ _M._I.lib.ini = require("LIP")
 _M._I.lib.json = require("json")
 
 _M._I.lib.pleal = require("plealTranspilerAPI")
-_M._I.lib.pleal.setLogFunctions(debug.plealTranspilingLog, debug.warn, debug.error)
+_M._I.lib.pleal.setLogFunctions({
+	log = debug.plealTranspilingLog, 
+	warn = debug.warn, 
+	err = debug.error
+})
 
 
 --====== legacy =====--

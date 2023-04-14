@@ -84,11 +84,7 @@ if requestData.headers[":method"].value == "GET" then --=== exec site ===--
 		warn("Requested site not found: " .. tostring(requestedSite))
 		responseBody = "Error 404: Site not found: '" .. tostring(requestedSite) .. "'"
 	elseif siteExecutionCode == 4 then
-<<<<<<< HEAD
-		debug.err("Failed to load requested site: " .. tostring(requestedSite))
-=======
 		debug.err("Failed to load requested site: " .. tostring(requestedSite) .. ", " .. tostring(siteExecutionResponse) .. "; " .. tostring(responseHeaders))
->>>>>>> b29c425b93f20094192a84d87a50c60e69b33d9e
 		responseBody = "Failed to load Site: '"  .. tostring(requestedSite) .. "'"
 	elseif siteExecutionCode == 5 then
 		debug.err("Failed to execute requested site: " .. tostring(requestedSite))
