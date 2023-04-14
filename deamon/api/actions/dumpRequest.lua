@@ -2,7 +2,7 @@ local requestData = ...
 local returnString = "<!DOCTYPE html> <html>"
 
 
-log("TTTT")
+dlog("TTTT")
 
 
 returnString = returnString .. "<h3>Raw request: </h3><p>" .. requestData.body .. "</p>"

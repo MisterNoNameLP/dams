@@ -76,7 +76,13 @@ local function getFullTable(index)
 			lastIndexValue = indexFragment
 		end
 		if valueType ~= "table" then
-			gsubTarget[lastIndexValue] = value
+			if valueType == "number" then
+				gsubTarget[lastIndexValue] = tonumber(value)
+			elseif valueType == "boolean" then
+				gsubTarget[lastIndexValue] = value == "true"
+			else
+				gsubTarget[lastIndexValue] = value
+			end
 		end
 
 		return 0
@@ -188,7 +194,11 @@ local function insertNumValue(index, valueType, value)
 		end
 	end
 	errCheck(db:exec([[UPDATE data SET numericInsertionIndex = ]] .. tostring(numericInsertionIndex + 1) .. [[ WHERE fullIndex = "]] .. index .. [[";]]))
-	return addValue(tostring(index) .. "." .. tostring(numericInsertionIndex), valueType, value)
+	if valueType == "table" then
+		return addTableRecursively(tostring(index) .. "." .. tostring(numericInsertionIndex), value), tonumber(numericInsertionIndex)
+	else
+		return addValue(tostring(index) .. "." .. tostring(numericInsertionIndex), valueType, value), tonumber(numericInsertionIndex)
+	end
 end
 
 --===== metafunctions =====--
@@ -270,7 +280,9 @@ metafunctions.call = function(handler, order, ...) --TODO: add lock feature.
 		if not valueIsLegal then
 			error("Invalid value type: " .. tostring(valueType), 2)
 		end
-		insertNumValue(getmetatable(handler)._fullIndex, valueType, value)
+		return select(2, insertNumValue(getmetatable(handler)._fullIndex, valueType, value))
+	elseif order == "lock" then
+		debug.warn("_DB lock feature not implemented yet!")
 	end
 end
 

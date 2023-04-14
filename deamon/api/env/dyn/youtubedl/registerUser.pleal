@@ -1,5 +1,5 @@
-return function(user)
-	if _DB.youtubedl.users[user:getID()] then
+return function(user, force)
+	if _DB.youtubedl.users[user:getID()] and not force then
 		return false
 	else
 		local userID = user:getID()
