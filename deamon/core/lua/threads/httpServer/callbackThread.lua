@@ -54,58 +54,13 @@ local function loadFormatter(headerName, path)
 	end
 end
 
-
---===== processing user request =====--
---[[if a site is executed the response body will be build as a string direclty by the site script.
-	on the other hand, if an action is executet the responseData table is used to manage the response of scripts and the framework itself.
-	the responseData table is then converteted into a responseBody string using the given response formatter.
-]]
-_M._I.cookie.current = _M._I.getCookies(requestData)
-if requestData.headers[":method"].value == "GET" then --=== exec site ===--
-
-
-	local logPrefix = _M._I.debug.getLogPrefix()
-	local requestedSite = requestData.headers[":path"].value
-	local siteExecutionCode, siteExecutionResponse, responseHeaders
-
-	debug.setLogPrefix("[SITE]")
-
-	siteExecutionCode, siteExecutionResponse, responseHeaders = _I.execSite(requestedSite, requestData)
-
-	if siteExecutionCode == 0 then
-		responseBody = siteExecutionResponse
-	elseif siteExecutionCode == 1 then
-		debug.crucial("Tryed to execute an invalid site request: " .. tostring(requestedSite))
-		responseBody = "Tryed to execute an invalid site request: " .. tostring(requestedSite)
-	elseif siteExecutionCode == 2 then
-		warn("Recieved invalid site request: " .. tostring(requestedSite))
-		responseBody = "Invalid site request: '" .. tostring(requestedSite) .. "'"
-	elseif siteExecutionCode == 3 or siteExecutionCode == 7 then
-		warn("Requested site not found: " .. tostring(requestedSite))
-		responseBody = "Error 404: Site not found: '" .. tostring(requestedSite) .. "'"
-	elseif siteExecutionCode == 4 then
-		debug.err("Failed to load requested site: " .. tostring(requestedSite) .. ", " .. tostring(siteExecutionResponse) .. "; " .. tostring(responseHeaders))
-		responseBody = "Failed to load Site: '"  .. tostring(requestedSite) .. "'"
-	elseif siteExecutionCode == 5 then
-		debug.err("Failed to execute requested site: " .. tostring(requestedSite))
-		responseBody = "Failed to execute site: '" .. tostring(requestedSite) .. "'"
-	elseif siteExecutionCode == 6 then
-		debug.err("Multilpe sites with that name are existing: " .. tostring(requestedSite))
-		responseBody = "Multilpe sites with that name are existing: " .. tostring(requestedSite)
-	else
-		debug.crucial("Unknown error while executing site: " .. tostring(requestedSite))
-		responseBody = "Unknown error while executing site: '" .. tostring(requestedSite) .. "'"
-	end
-
-	if type(responseHeaders) ~= "table" then
-		responseHeaders = {}
-	end
-
-	debug.setLogPrefix(logPrefix)
-else --=== exec action ===--
+local function executeAction()
 	do --formatting user request
 		local suc
 		local logPrefix
+
+		dlog(requestData.headers["accept"].value)
+		dlog(_I.parseHeader("example/example;test=tt"))
 
 		if requestData.headers[":method"].value == "POST" then
 			requestData.headers["request-format"] = {value = "HTML"}
@@ -183,12 +138,15 @@ else --=== exec action ===--
 			debug.crucial("Unknown error while executing action: " .. tostring(userRequest.action) .. "; error: " .. tostring(newResponseData))
 		end
 
-		if type(responseHeaders) ~= "table" then
-			responseHeaders = {}
+		if type(newResponseHeaders) ~= "table" then
+			newResponseHeaders = {}
+		end
+		for i, c in pairs(newResponseHeaders) do 
+			responseHeaders[i] = c
 		end
 	end
 
-	do --debug
+	do --debugdebug.dump(responseHeaders)
 		if type(shared._requestCount) ~= "number" then
 			shared._requestCount = 0
 		end
@@ -199,6 +157,10 @@ else --=== exec action ===--
 	do --formatting response table
 		--responseData = _M._I.lib.serialization.dump(responseData) --placeholder
 		local suc, responseString = false, "[Formatter returned no error value]"
+
+		if not responseHeaders["content-type"] then
+			responseHeaders["content-type"] = {}
+		end
 
 		if type(responseFormatter) == "function" then
 			suc, responseString = xpcall(responseFormatter, debug.traceback, responseData, requestData.headers, requestData)
@@ -211,15 +173,89 @@ Formatter error: ]] .. tostring(responseString) .. [[
 Falling back to human readable lua-table.
 			]] .. "\n"
 
-			responseHeaders["content-type"] = "text/html"
+			responseHeaders["content-type"].value = "text/plain"
 
 			newResponseString = newResponseString .. _M._I.lib.ut.tostring(responseData)
 			responseBody = newResponseString
 		else
 			responseBody = responseString
-			responseHeaders["content-type"] = responseFormatterName
+			if not responseHeaders["content-type"].value then
+				responseHeaders["content-type"].value = responseFormatterName
+			end
 		end
 	end
+end
+
+local function executeSite()
+	local logPrefix = _M._I.debug.getLogPrefix()
+	local requestedSite = requestData.headers[":path"].value
+	local siteExecutionCode, siteExecutionResponse, newResponseHeaders
+
+	debug.setLogPrefix("[SITE]")
+
+	siteExecutionCode, siteExecutionResponse, newResponseHeaders = _I.execSite(requestedSite, requestData)
+
+	if siteExecutionCode == 0 then
+		responseBody = siteExecutionResponse
+	elseif siteExecutionCode == 1 then
+		debug.crucial("Tryed to execute an invalid site request: " .. tostring(requestedSite))
+		responseBody = "Tryed to execute an invalid site request: " .. tostring(requestedSite)
+	elseif siteExecutionCode == 2 then
+		warn("Recieved invalid site request: " .. tostring(requestedSite))
+		responseBody = "Invalid site request: '" .. tostring(requestedSite) .. "'"
+	elseif siteExecutionCode == 3 or siteExecutionCode == 7 then
+		warn("Requested site not found: " .. tostring(requestedSite))
+		responseBody = "Error 404: Site not found: '" .. tostring(requestedSite) .. "'"
+	elseif siteExecutionCode == 4 then
+		debug.err("Failed to load requested site: " .. tostring(requestedSite) .. ", " .. tostring(siteExecutionResponse) .. "; " .. tostring(newResponseHeaders))
+		responseBody = "Failed to load Site: '"  .. tostring(requestedSite) .. "'"
+	elseif siteExecutionCode == 5 then
+		debug.err("Failed to execute requested site: " .. tostring(requestedSite))
+		responseBody = "Failed to execute site: '" .. tostring(requestedSite) .. "'"
+	elseif siteExecutionCode == 6 then
+		debug.err("Multilpe sites with that name are existing: " .. tostring(requestedSite))
+		responseBody = "Multilpe sites with that name are existing: " .. tostring(requestedSite)
+	else
+		debug.crucial("Unknown error while executing site: " .. tostring(requestedSite))
+		responseBody = "Unknown error while executing site: '" .. tostring(requestedSite) .. "'"
+	end
+
+	if type(newResponseHeaders) ~= "table" then
+		newResponseHeaders = {}
+	end
+	for i, c in pairs(newResponseHeaders) do 
+		responseHeaders[i] = c
+	end
+	if not responseHeaders["content-type"] then
+		responseHeaders["content-type"] = {}
+	end
+	if not responseHeaders["content-type"].value then
+		responseHeaders["content-type"].value = "text/html;charset=UTF-8"
+	end
+
+	debug.setLogPrefix(logPrefix)
+end
+
+
+--debug.dump(requestData.headers)
+
+--===== processing user request =====--
+--[[if a site is executed the response body will be build as a string direclty by the site script.
+	on the other hand, if an action is executet the responseData table is used to manage the response of scripts and the framework itself.
+	the responseData table is then converteted into a responseBody string using the given response formatter.
+]]
+_M._I.cookie.current = _M._I.getCookies(requestData)
+if 
+	(not _I.devConf.http.apiSubdomain or requestData.headers[":authority"].value:find(_I.devConf.http.apiSubdomain:gsub("%.", "%%%.")) == 1) and 
+	(not _I.devConf.http.apiPath or requestData.headers[":path"].value:find(_I.devConf.http.apiPath:gsub("%.", "%%%.")) == 2)
+then
+	if _I.devConf.http.apiPath then
+		requestData.headers["real-path"] = {value = requestData.headers[":path"].value}
+		requestData.headers[":path"].value = requestData.headers[":path"].value:sub(#_I.devConf.http.apiPath + 1)
+	end
+	executeAction()
+else
+	executeSite()
 end
 
 --===== finishing up =====--

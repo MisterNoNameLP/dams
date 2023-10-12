@@ -5,6 +5,7 @@ local _
 local damsVersion = _M._I.damsVersion
 
 local function callback(myserver, stream)
+
 	--=== create local variables ===--
 	local callbackStream, callbackData
 	
@@ -21,9 +22,9 @@ local function callback(myserver, stream)
 		}
 	end
 
-	ldlog("Get IP")
-	if headers["proxy-ip"] ~= nil then
-		realIP = headers["proxy-ip"].value
+	ldlog("Get real IP")
+	if headers["x-forfawded-for"] ~= nil then
+		realIP = headers["x-forfawded-for"].value
 	else
 		realIP = connectionIP
 	end
@@ -52,9 +53,10 @@ local function callback(myserver, stream)
 	end
 	respondHeaders:append("dams-version", damsVersion)
 	--respondHeaders:append("content-type", "lua table")
+
 	for i, c in pairs(callbackData.headers) do
-		if type(c) == "string" or type(c) == "number" then
-			respondHeaders:append(i, tostring(c))
+		if c.value and type(c.value) == "string" or type(c.value) == "number" then
+			respondHeaders:append(i, tostring(c.value))
 		end
 	end
 	if callbackData.cookies then

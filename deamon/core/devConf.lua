@@ -23,10 +23,11 @@ local devConf = {
 		privateKeyPath = "cert/privatekey.pem",
 		forceTLS = false,
 
-		startHTTPServer = true,
+		apiSubdomain = false, --sets the subdomain on whitch requests are passed to the api instead of sending an webpage. if false every subdomain gets passed to the api.
+		apiPath = "api/", --sets the path on whitch requests are passed to the api instead of sending an webpage. if false every path gets passed to the api. the path provided here gets cut out of the :path header.
+		--if both the above options are false then the webpage functionality is basically disabled.
 
-		defaultRequestFormat = "lua-table",
-		defaultResponseFormat = "lua-table",
+		startHTTPServer = true,
 	},
 
 	session = {
