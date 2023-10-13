@@ -1,0 +1,27 @@
+return function(acceptHeader)
+    local acceptTable = {}
+    
+    for fullMimeTypeString in acceptHeader:gmatch("[^,\n]+") do
+        local paramID = 0
+        local mimeType
+
+        if fullMimeTypeString:find("[;]") then
+            mimeType = fullMimeTypeString:sub(0, _I.select(1, fullMimeTypeString:find("[;]")) - 1)
+        else
+            mimeType = fullMimeTypeString
+        end
+        acceptTable[mimeType] = {}
+        for param in fullMimeTypeString:gmatch("[^;]+") do
+            if paramID ~= 0 then
+                local value = param:sub(_I.select(1, param:find("[=]") + 1))
+                if not value:find("[^%d%.]") then
+                    value = tonumber(value)
+                end
+                acceptTable[mimeType][param:sub(0, param:find("[=]") - 1)] = value
+            end
+            paramID = paramID + 1
+        end
+    end
+
+    return acceptTable
+end

@@ -59,16 +59,15 @@ local function executeAction()
 		local suc
 		local logPrefix
 
-		dlog(requestData.headers["accept"].value)
-		dlog(_I.parseHeader("example/example;test=tt"))
-
+		--[[
 		if requestData.headers[":method"].value == "POST" then
 			requestData.headers["request-format"] = {value = "HTML"}
 			requestData.headers["response-format"] = {value = "HTML"}
 		end
+		]]
 
 		--load request formatter
-		requestFormatter, requestFormatterName, errorCode = loadFormatter("request-format", requestFormatterPath)
+		requestFormatter, requestFormatterName = loadFormatter("request-format", requestFormatterPath)
 		if requestFormatter == 1 then
 			responseData.errorCode = -1001
 		elseif requestFormatter == 2 then
@@ -236,15 +235,15 @@ local function executeSite()
 	debug.setLogPrefix(logPrefix)
 end
 
-
---debug.dump(requestData.headers)
-
 --===== processing user request =====--
 --[[if a site is executed the response body will be build as a string direclty by the site script.
 	on the other hand, if an action is executet the responseData table is used to manage the response of scripts and the framework itself.
 	the responseData table is then converteted into a responseBody string using the given response formatter.
 ]]
 _M._I.cookie.current = _M._I.getCookies(requestData)
+if requestData.headers.accept then
+	requestData.accept = _I.parseAcceptHeader(requestData.headers.accept.value)
+end
 if 
 	(not _I.devConf.http.apiSubdomain or requestData.headers[":authority"].value:find(_I.devConf.http.apiSubdomain:gsub("%.", "%%%.")) == 1) and 
 	(not _I.devConf.http.apiPath or requestData.headers[":path"].value:find(_I.devConf.http.apiPath:gsub("%.", "%%%.")) == 2)
