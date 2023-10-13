@@ -11,7 +11,7 @@ local resHeaders, resBody, resErr
 local stream
 
 request.headers:upsert(":method", "GET")
-request.headers:upsert("accept", "application/json")
+request.headers:upsert("accept", "text/readable-lua-table")
 request:set_body([[]])
 
 resHeaders, stream = request:go()

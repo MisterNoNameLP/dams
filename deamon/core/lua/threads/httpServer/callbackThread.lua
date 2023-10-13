@@ -20,11 +20,12 @@ local userRequest
 
 
 --===== local functions =====--
-local function loadFormatter(headerName, path)
-	ldlog("Load " .. headerName .. " formatter, dir: " .. path)
+local function loadFormatter(acceptTable, path)
+	ldlog("Load formatter in dir: " .. path)
 
 	local formatter, suc, err
 
+	--[[
 	if requestData.headers[headerName] ~= nil then
 		local requestedFormatter = requestData.headers[headerName].value
 		local pathString = path .. "/" .. requestedFormatter .. ".lua"
@@ -48,9 +49,37 @@ local function loadFormatter(headerName, path)
 		else
 			return formatter, requestedFormatter
 		end
+	]]
+
+	if acceptTable then
+		local mostPreferredFormat
+		local highestQFactor = 0
+
+		for format, parameters in pairs(acceptTable) do
+			if type(_I.lib.lfs.attributes(path .. "/" .. format:gsub("/", "_") .. ".lua")) == "table" then
+				if _I.lib.ut.parseArgs(parameters.q, 1) > highestQFactor then
+					mostPreferredFormat = format
+					highestQFactor = _I.lib.ut.parseArgs(parameters.q, 1)
+				end
+			end
+		end
+		if not mostPreferredFormat then 
+			canExecuteUserOrder = false
+			return 1, "No supported response format accepted by client"
+		end
+		formatter, err = loadfile(path .. "/" .. mostPreferredFormat:gsub("/", "_") .. ".lua")
+		if type(formatter) ~= "function" then 
+			warn("Can't load formatter: " .. mostPreferredFormat .. ", error: " .. err)
+			responseData.error = "Can't load formatter: " .. mostPreferredFormat
+			responseData.scriptError = err
+			canExecuteUserOrder = false
+			return 2, err
+		else
+			return formatter, mostPreferredFormat
+		end
 	else
 		canExecuteUserOrder = false
-		return 3, "No formatter specified"
+		return 3, "No accpeted format specified"
 	end
 end
 
@@ -58,6 +87,11 @@ local function executeAction()
 	do --formatting user request
 		local suc
 		local logPrefix
+		local requestFormat = "application/json"
+
+		if requestData.headers["content-type"] then
+			requestFormat = requestData.headers["content-type"].value
+		end
 
 		--[[
 		if requestData.headers[":method"].value == "POST" then
@@ -67,7 +101,7 @@ local function executeAction()
 		]]
 
 		--load request formatter
-		requestFormatter, requestFormatterName = loadFormatter("request-format", requestFormatterPath)
+		requestFormatter, requestFormatterName = loadFormatter(_I.parseAcceptHeader(requestFormat), requestFormatterPath)
 		if requestFormatter == 1 then
 			responseData.errorCode = -1001
 		elseif requestFormatter == 2 then
@@ -77,7 +111,8 @@ local function executeAction()
 		end
 
 		--load response formatter
-		responseFormatter, responseFormatterName = loadFormatter("response-format", responseFormatterPath)
+		--responseFormatter, responseFormatterName = loadFormatter("response-format", responseFormatterPath)
+		responseFormatter, responseFormatterName = loadFormatter(requestData.accept, responseFormatterPath)
 		if responseFormatter == 1 then
 			responseData.errorCode = -1002
 		elseif responseFormatter == 2 then
@@ -89,9 +124,13 @@ local function executeAction()
 		--format user request using loaded requst formatter
 		if canExecuteUserOrder then
 			logPrefix = debug.getLogPrefix()
-			debug.setLogPrefix("[REQUEST_FORMATTER][" .. requestFormatterName .. "]")
-			suc, userRequest = xpcall(requestFormatter, debug.traceback, requestData.body)
-			debug.setLogPrefix(logPrefix)
+			if #requestData.body > 0 then
+				debug.setLogPrefix("[REQUEST_FORMATTER][" .. requestFormatterName .. "]")
+				suc, userRequest = xpcall(requestFormatter, debug.traceback, requestData.body)
+				debug.setLogPrefix(logPrefix)
+			else
+				suc, userRequest = true, {}
+			end
 
 			if suc ~= true then
 				warn("Failed to execute request formatter: " .. requestFormatterName .. "; " .. tostring(userRequest))
@@ -100,7 +139,13 @@ local function executeAction()
 				canExecuteUserOrder = false
 			end
 		else
-			responseData.error = requestFormatterName
+			if type(requestFormatter) ~= "function" then
+				responseData.error = requestFormatterName
+			elseif type(responseFormatter) ~= "function" then
+				responseData.error = responseFormatterName
+			else
+				responseData.error = "Unknown error"
+			end
 		end
 	end
 
@@ -240,22 +285,34 @@ end
 	on the other hand, if an action is executet the responseData table is used to manage the response of scripts and the framework itself.
 	the responseData table is then converteted into a responseBody string using the given response formatter.
 ]]
-_M._I.cookie.current = _M._I.getCookies(requestData)
-if requestData.headers.accept then
-	requestData.accept = _I.parseAcceptHeader(requestData.headers.accept.value)
-end
-if 
-	(not _I.devConf.http.apiSubdomain or requestData.headers[":authority"].value:find(_I.devConf.http.apiSubdomain:gsub("%.", "%%%.")) == 1) and 
-	(not _I.devConf.http.apiPath or requestData.headers[":path"].value:find(_I.devConf.http.apiPath:gsub("%.", "%%%.")) == 2)
-then
-	if _I.devConf.http.apiPath then
-		requestData.headers["real-path"] = {value = requestData.headers[":path"].value}
-		requestData.headers[":path"].value = requestData.headers[":path"].value:sub(#_I.devConf.http.apiPath + 1)
+local function processUserRequest() --called imediately but sandboxed.
+	_M._I.cookie.current = _M._I.getCookies(requestData)
+	if requestData.headers.accept then
+		requestData.accept = _I.parseAcceptHeader(requestData.headers.accept.value)
 	end
-	executeAction()
-else
-	executeSite()
+	if 
+		(not _I.devConf.http.apiSubdomain or requestData.headers[":authority"].value:find(_I.devConf.http.apiSubdomain:gsub("%.", "%%%.")) == 1) and 
+		(not _I.devConf.http.apiPath or requestData.headers[":path"].value:find(_I.devConf.http.apiPath:gsub("%.", "%%%.")) == 2)
+	then
+		if _I.devConf.http.apiPath then
+			requestData.headers["real-path"] = {value = requestData.headers[":path"].value}
+			requestData.headers[":path"].value = requestData.headers[":path"].value:sub(#_I.devConf.http.apiPath + 1)
+		end
+		executeAction()
+	else
+		executeSite()
+	end
 end
+do 
+	local suc, error
+	suc, error = xpcall(processUserRequest, debug.traceback)
+	if not suc then
+		err("Unknown crash:\n" .. tostring(error))
+		responseBody = "HTTP server callback thread crashed! Please contact an admin.\nERROR: " .. tostring(error)
+		responseData.error = "HTTP server callback thread crashed\n ERROR:" .. tostring(error)
+	end
+end
+
 
 --===== finishing up =====--
 callbackStream:push({headers = responseHeaders, data = responseBody, cookies = _M._I.cookie.new})

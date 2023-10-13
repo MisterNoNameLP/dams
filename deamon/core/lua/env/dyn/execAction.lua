@@ -12,6 +12,7 @@
         99 == unknown error
 ]]
 
+--ToDo: change to wirk with the new action request system.
 return function(request, requestData)
 	local scriptFuncLoadingCode, scriptFunc
     local requestedAction
