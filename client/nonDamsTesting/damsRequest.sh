@@ -12,7 +12,7 @@ local stream
 
 request.headers:upsert(":method", "GET")
 request.headers:upsert("accept", "text/readable-lua-table")
-request:set_body([[]])
+request:set_body([[{"test1" : "T1", "test2":"T2"}]])
 
 resHeaders, stream = request:go()
 if resHeaders == nil then

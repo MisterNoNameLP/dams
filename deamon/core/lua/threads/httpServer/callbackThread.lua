@@ -151,7 +151,7 @@ local function executeAction()
 
 	--execute user order
 	if canExecuteUserOrder then 
-		--in case of error: errorCode, genericErrorMsg, specificErrorMsg. 
+		--in case of error: errorCode, genericErrorMsg, specificErrorMsg.
 		local actionExecutionCode, newResponseData, newResponseHeaders = _I.execAction(userRequest, requestData)
 
 		if actionExecutionCode == 0 then
@@ -255,7 +255,7 @@ local function executeSite()
 		responseBody = "Failed to load Site: '"  .. tostring(requestedSite) .. "'"
 	elseif siteExecutionCode == 5 then
 		debug.err("Failed to execute requested site: " .. tostring(requestedSite))
-		responseBody = "Failed to execute site: '" .. tostring(requestedSite) .. "'"
+		responseBody = "Failed to execute site: '" .. tostring(requestedSite) .. "' :\n" .. tostring(siteExecutionResponse)
 	elseif siteExecutionCode == 6 then
 		debug.err("Multilpe sites with that name are existing: " .. tostring(requestedSite))
 		responseBody = "Multilpe sites with that name are existing: " .. tostring(requestedSite)
@@ -282,7 +282,7 @@ end
 
 --===== processing user request =====--
 --[[if a site is executed the response body will be build as a string direclty by the site script.
-	on the other hand, if an action is executet the responseData table is used to manage the response of scripts and the framework itself.
+	on the other hand, if an action is executet the responseData table is used to store the response of scripts and the framework itself.
 	the responseData table is then converteted into a responseBody string using the given response formatter.
 ]]
 local function processUserRequest() --called imediately but sandboxed.

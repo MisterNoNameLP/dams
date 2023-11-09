@@ -35,7 +35,7 @@ return function(site, requestData)
 			return 5, [[
 Site script crashed. Please contact a system administrator.
 Stack traceback:
-]] .. tostring(scriptFuncLoadingError)
+]] .. tostring(scriptFuncLoadingError) .. ", " .. tostring(returnBody)
 		else
 			return 0, returnBody, returnHeaders
 		end

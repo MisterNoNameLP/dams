@@ -39,5 +39,7 @@ table.insert(t, "11")
 
 debug.dump(t)
 
+response.suc = true
+
 return response
 
